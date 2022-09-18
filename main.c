@@ -84,14 +84,20 @@ int main(int argc, char *argv[])
 				.w = width,
 				.h = height 
 			};
-			SDL_Rect dest = {
-				.x = 0-(mx/20)*i,
-				.y = 0,
-				.w = width,
-				.h = height 
-			};
 
-			SDL_RenderCopy(renderer, tex[i], &src, &dest);
+			int x = 0-(mx/20)*i;
+
+			for(int j = -1; j <= 1; j++)
+			{
+				SDL_Rect dest = {
+					.x = x + j*width,
+					.y = 0,
+					.w = width,
+					.h = height 
+				};
+
+				SDL_RenderCopy(renderer, tex[i], &src, &dest);
+			}
 		}
 		SDL_RenderPresent(renderer);
 		SDL_Delay(1000/60);
