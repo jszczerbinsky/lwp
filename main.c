@@ -26,7 +26,7 @@ void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex)
 
 	for(int i = 0; i < 3; i++)
 	{
-		sprintf(path, "%d.bmp", i);
+		sprintf(path, "%d.bmp", i+1);
 		SDL_Surface *surf = SDL_LoadBMP(path);
 		tex[i] = SDL_CreateTextureFromSurface(renderer, surf);
 		SDL_FreeSurface(surf);
@@ -44,35 +44,46 @@ int main(int argc, char *argv[])
 	init(&display, &window, &renderer);
 	loadTextures(renderer, tex);
 
-	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+
 	SDL_Event event;
 	int quit = 0;
-	while(!quit && SDL_WaitEvent(&event))
+	while(!quit)
 	{
-		if(event.type == SDL_QUIT)
-			quit = 1;
-		else if(event.type == SDL_MOUSEMOTION || event.type == SDL_SYSWMEVENT)
-		{
-			SDL_RenderClear(renderer);
-			for(int i = 0; i < 3; i++)
-			{
-				SDL_Rect src = {
-					.x = 0,
-					.y = 0,
-					.w = 1920,
-					.h = 1080
-				};
-				SDL_Rect dest = {
-					.x = 0,
-					.y = 0,
-					.w = 1920,
-					.h = 1080
-				};
+		int mx;
 
-				SDL_RenderCopy(renderer, tex[i], &src, &dest);
-			}
-			SDL_RenderPresent(renderer);
+		while(SDL_PollEvent(&event))
+		{
+			if(event.type == SDL_QUIT)
+				quit = 1;
+			else if(event.type == SDL_MOUSEMOTION)
+				mx = event.motion.x;
 		}
+
+		SDL_RenderClear(renderer);
+
+		for(int i = 0; i < 3; i++)
+		{
+			const int width = 1920;
+			const int height = 1080;
+
+			SDL_Rect src = {
+				.x = 0,
+				.y = 0,
+				.w = width,
+				.h = height 
+			};
+			SDL_Rect dest = {
+				.x = 0-(mx/20)*i,
+				.y = 0,
+				.w = width,
+				.h = height 
+			};
+
+			SDL_RenderCopy(renderer, tex[i], &src, &dest);
+		}
+		SDL_RenderPresent(renderer);
+		SDL_Delay(1000/60);
 	}
 
 	for(int i = 0; i < 3; i++)
