@@ -20,13 +20,13 @@ void init(Display **display, SDL_Window **window, SDL_Renderer **renderer)
 
 }
 
-void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex)
+void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex, char *dir, int count)
 {
 	char path[PATH_MAX];
 
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < count; i++)
 	{
-		sprintf(path, "%d.bmp", i+1);
+		sprintf(path, "%s/%d.bmp", dir, i+1);
 		SDL_Surface *surf = SDL_LoadBMP(path);
 		tex[i] = SDL_CreateTextureFromSurface(renderer, surf);
 		SDL_FreeSurface(surf);
@@ -35,14 +35,28 @@ void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex)
 
 int main(int argc, char *argv[])
 {
+	if(argc != 5)
+	{
+		printf("\nLayered Wallpaper Engine\n");
+		printf("Usage:\n");
+		printf("	lwp [screen width] [screen height] [layers count] [img dir]\n\n");
+		return 0;
+	}
+
+	int width = atoi(argv[1]);
+	int height = atoi(argv[2]);
+	int count = atoi(argv[3]);
+
+	char *dir = argv[4];
+
 	Display *display;
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 
-	SDL_Texture *tex[3];
+	SDL_Texture *tex[count];
 
 	init(&display, &window, &renderer);
-	loadTextures(renderer, tex);
+	loadTextures(renderer, tex, dir, count);
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
@@ -62,11 +76,8 @@ int main(int argc, char *argv[])
 
 		SDL_RenderClear(renderer);
 
-		for(int i = 0; i < 3; i++)
+		for(int i = 0; i < count; i++)
 		{
-			const int width = 1920;
-			const int height = 1080;
-
 			SDL_Rect src = {
 				.x = 0,
 				.y = 0,
@@ -86,10 +97,12 @@ int main(int argc, char *argv[])
 		SDL_Delay(1000/60);
 	}
 
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < count; i++)
 		SDL_DestroyTexture(tex[i]);
 	XCloseDisplay(display);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+
+	return 0;
 }
