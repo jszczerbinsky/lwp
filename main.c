@@ -2,6 +2,12 @@
 #include <SDL2/SDL.h>
 #include <linux/limits.h>
 
+typedef struct
+{
+	SDL_Rect dest;
+	SDL_Texture *buffTex;
+} Instance;
+
 void init(Display **display, SDL_Window **window, SDL_Renderer **renderer)
 {
 	*display = XOpenDisplay(NULL);	
@@ -20,7 +26,7 @@ void init(Display **display, SDL_Window **window, SDL_Renderer **renderer)
 
 }
 
-void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex, char *dir, int count)
+void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex, char *dir, int count, int *srcWidth, int *srcHeight)
 {
 	char path[PATH_MAX];
 
@@ -28,6 +34,11 @@ void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex, char *dir, int coun
 	{
 		sprintf(path, "%s/%d.bmp", dir, i+1);
 		SDL_Surface *surf = SDL_LoadBMP(path);
+		if(i == 0)
+		{
+			*srcWidth = surf->w;
+			*srcHeight = surf->h;
+		}
 		tex[i] = SDL_CreateTextureFromSurface(renderer, surf);
 		SDL_FreeSurface(surf);
 	}
@@ -35,19 +46,23 @@ void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex, char *dir, int coun
 
 int main(int argc, char *argv[])
 {
-	if(argc != 5)
+	if((argc-3)%4 != 0 || argc < 7)
 	{
 		printf("\nLayered Wallpaper Engine\n");
 		printf("Usage:\n");
-		printf("	lwp [screen width] [screen height] [layers count] [img dir]\n\n");
+		printf("	lwp [layers count] [img dir] [monitor1 options] [monitor2 options] ...\n\n");
+		printf("Monitor options:\n");
+		printf("	[x] [y] [width] [height]\n\n");
 		return 0;
 	}
+	int instancesCount = (argc-2)/4;
 
-	int width = atoi(argv[1]);
-	int height = atoi(argv[2]);
-	int count = atoi(argv[3]);
+	Instance instances[instancesCount];
 
-	char *dir = argv[4];
+	int count = atoi(argv[1]);
+	char *dir = argv[2];
+
+	int srcWidth, srcHeight;
 
 	Display *display;
 	SDL_Window *window;
@@ -56,7 +71,22 @@ int main(int argc, char *argv[])
 	SDL_Texture *tex[count];
 
 	init(&display, &window, &renderer);
-	loadTextures(renderer, tex, dir, count);
+	loadTextures(renderer, tex, dir, count, &srcWidth, &srcHeight);
+
+	for(int i = 0; i < instancesCount; i++)
+	{
+		instances[i].dest.x = atoi(argv[3+i*4]);
+		instances[i].dest.y = atoi(argv[4+i*4]);
+		instances[i].dest.w = atoi(argv[5+i*4]);
+		instances[i].dest.h = atoi(argv[6+i*4]);
+		instances[i].buffTex = SDL_CreateTexture(
+			renderer, 
+			SDL_PIXELFORMAT_ARGB8888, 
+			SDL_TEXTUREACCESS_TARGET, 
+			instances[i].dest.w, 
+			instances[i].dest.h
+		);
+	}
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
@@ -74,30 +104,44 @@ int main(int argc, char *argv[])
 				mx = event.motion.x;
 		}
 
-		SDL_RenderClear(renderer);
-
-		for(int i = 0; i < count; i++)
+		for(int u = 0; u < instancesCount; u++)
 		{
+			SDL_SetRenderTarget(renderer, instances[u].buffTex);
+			SDL_RenderClear(renderer);
+
+			for(int i = 0; i < count; i++)
+			{
+				SDL_Rect src = {
+					.x = 0,
+					.y = 0,
+					.w = srcWidth,
+					.h = srcHeight 
+				};
+
+				int x = 0-(mx/20)*i;
+
+				for(int j = -1; j <= 1; j++)
+				{
+					SDL_Rect dest = {
+						.x = x + j*instances[u].dest.w,
+						.y = 0,
+						.w = instances[u].dest.w,
+						.h = instances[u].dest.h 
+					};
+
+					SDL_RenderCopy(renderer, tex[i], &src, &dest);
+				}
+			}
+		
+			SDL_SetRenderTarget(renderer, NULL);
 			SDL_Rect src = {
 				.x = 0,
 				.y = 0,
-				.w = width,
-				.h = height 
+				.w = instances[u].dest.w,
+				.h = instances[u].dest.h 
 			};
-
-			int x = 0-(mx/20)*i;
-
-			for(int j = -1; j <= 1; j++)
-			{
-				SDL_Rect dest = {
-					.x = x + j*width,
-					.y = 0,
-					.w = width,
-					.h = height 
-				};
-
-				SDL_RenderCopy(renderer, tex[i], &src, &dest);
-			}
+		
+			SDL_RenderCopy(renderer, instances[u].buffTex, &src, &instances[u].dest);
 		}
 		SDL_RenderPresent(renderer);
 		SDL_Delay(1000/60);
@@ -105,6 +149,8 @@ int main(int argc, char *argv[])
 
 	for(int i = 0; i < count; i++)
 		SDL_DestroyTexture(tex[i]);
+	for(int i = 0; i < instancesCount; i++)
+		SDL_DestroyTexture(instances[i].buffTex);
 	XCloseDisplay(display);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
