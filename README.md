@@ -17,13 +17,15 @@ sudo make install
 - Test lwp (replace "1920" and "1080" with Your screen resolution):
 
 ```shell
-lwp 1920 1080 3 /usr/share/lwp/wallpapers/test
+lwp 3 /usr/share/lwp/wallpapers/test 0 0 1920 1080
 ```
 
 ## Usage
+Make sure there is no other wallpaper engine running (e.g. `feh`)
 ```shell
-lwp [screen width] [screen height] [layers count] [wallpepr dir]
+lwp [layers count] [wallpepr dir] [x] [y] [width] [height]
 ```
+You can run `lwp` on multiple monitors by appending `[x] [y] [width] [height]` for each monitor at the end of the line
 
 ## Creating wallpapers for lwp
 - Create a directory for the wallpaper
