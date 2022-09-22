@@ -45,7 +45,8 @@ build.bat
 <details>
 <summary>Linux</summary>
 <br>
-Make sure there is no other wallpaper engine running (e.g. `feh`)
+Make sure there is no other wallpaper engine running (e.g. `feh`)<br>
+Install <code>SDL2</code><br><br>
 
 ```shell
 lwp [layers count] [wallpepr dir] [x] [y] [width] [height]
