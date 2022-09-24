@@ -53,7 +53,7 @@ Make sure there is no other wallpaper engine running (e.g. `feh`)<br>
 Install <code>SDL2</code><br><br>
 
 ```shell
-lwp [layers count] [wallpepr dir] [x] [y] [width] [height]
+lwp [layers count] [wallpaper dir] [x] [y] [width] [height]
 ```
 You can run `lwp` on multiple monitors by appending `[x] [y] [width] [height]` for each monitor at the end of the line
 
@@ -68,7 +68,7 @@ lwp 3 /usr/share/lwp/wallpapers/test 0 0 1920 1080
 <br>
 
 ```shell
-path\to\lwp\lwp.exe [layers count] [wallpepr dir] [x] [y] [width] [height]
+path\to\lwp\lwp.exe [layers count] [wallpaper dir] [x] [y] [width] [height]
 ```
 You can run `lwp` on multiple monitors by appending `[x] [y] [width] [height]` for each monitor at the end of the line
 
