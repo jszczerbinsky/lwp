@@ -155,7 +155,9 @@ int main(int argc, char *argv[])
 		);
 	}
 
-	SDL_SetRelativeMouseMode(SDL_TRUE);
+	#ifndef __WIN32
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+	#endif
 
 	SDL_Event event;
 	int quit = 0;
