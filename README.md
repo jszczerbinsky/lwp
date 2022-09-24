@@ -2,7 +2,7 @@
 
 <a href="https://www.buymeacoffee.com/jszczerbinsky" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
-# Layered Wallpaper Engine
+# LWP - Layered WallPaper Engine
 Lwp allows You to set multi-layered wallpapers. Each of those layers will move with Your mouse cursor, creating this beautiful visual effect:
 
 ![](preview.gif)
