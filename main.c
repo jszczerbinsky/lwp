@@ -14,6 +14,11 @@ typedef struct
 	SDL_Texture *buffTex;
 } Instance;
 
+int lerp(int a, int b, float t)
+{
+    return (int)((float)a + (float)t * ((float)b - (float)a));
+}
+
 #ifdef __WIN32
 	HWND iconWorkerw;
 	BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
@@ -154,14 +159,26 @@ int main(int argc, char *argv[])
 
 	SDL_Event event;
 	int quit = 0;
+
+	int mx = 0;
+	int my = 0;
+
 	while(!quit)
 	{
-		int mx;
-		
+		static int currentX = 0;
+		static int currentY = 0;
+
+		static int lastTicks = 0;
+
+		int ticks = SDL_GetTicks();
+		float dT = (ticks-lastTicks)/1000.0f;
+		lastTicks = ticks;
+
 		#ifdef __WIN32
 			POINT mPos;
 			GetCursorPos(&mPos);
 			mx = mPos.x;
+			my = mPos.y;
 		#endif
 
 		while(SDL_PollEvent(&event))
@@ -170,9 +187,15 @@ int main(int argc, char *argv[])
 				quit = 1;
 			#ifndef __WIN32
 				else if(event.type == SDL_MOUSEMOTION)
+				{
 					mx = event.motion.x;
+					my = event.motion.y;
+				}
 			#endif
 		}
+
+		currentX = lerp(currentX, mx, dT*8);
+		currentY = lerp(currentY, my, dT*8);
 
 		for(int u = 0; u < instancesCount; u++)
 		{
@@ -188,13 +211,14 @@ int main(int argc, char *argv[])
 					.h = srcHeight 
 				};
 
-				int x = 0-(mx/20)*i;
+				int x = -((currentX-instances[u].dest.w/2)/20)*i;
+				int y = -((currentY-instances[u].dest.h/2)/20)*i;
 
 				for(int j = -1; j <= 1; j++)
 				{
 					SDL_Rect dest = {
 						.x = x + j*instances[u].dest.w,
-						.y = 0,
+						.y = y,
 						.w = instances[u].dest.w,
 						.h = instances[u].dest.h 
 					};
