@@ -38,7 +38,7 @@ build.bat
 
 ## Installing
 
-- Download `.zip` package from ![releases](https://github.com/jszczerbinsky/lwp/releases/latest)
+- Download `.zip` package from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
 - Unpack the package to desired location
 
 ## Usage
