@@ -7,6 +7,8 @@
 #else
 	#include <X11/Xlib.h>
 	#include <linux/limits.h>
+	#include <unistd.h>
+	#include <pwd.h>
 #endif
 
 typedef struct
@@ -14,6 +16,19 @@ typedef struct
 	SDL_Rect dest;
 	SDL_Texture *buffTex;
 } Instance;
+
+const char *dir = NULL;
+int instancesCount;
+int count;
+
+int srcWidth, srcHeight;
+	
+SDL_Window *window;
+SDL_Renderer *renderer;
+
+#ifndef __WIN32
+	Display *display;
+#endif
 
 int lerp(int a, int b, float t)
 {
@@ -38,23 +53,20 @@ int lerp(int a, int b, float t)
 		}
 		return TRUE;
 	}
-
-	void init(SDL_Window **window, SDL_Renderer **renderer)
-#else
-	void init(Display **display, SDL_Window **window, SDL_Renderer **renderer)
 #endif
+void init()
 {
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
 		SDL_Log("%s", SDL_GetError());
 	
 	#ifdef __WIN32
-		*window = SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
-		if(*window == NULL)
+		window = SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
+		if(window == NULL)
 			SDL_Log("%s", SDL_GetError());
 		
 		SDL_SysWMinfo sysWmInfo;
 		SDL_VERSION(&sysWmInfo.version)
-		SDL_GetWindowWMInfo(*window, &sysWmInfo);
+		SDL_GetWindowWMInfo(window, &sysWmInfo);
 		HWND hWindow = sysWmInfo.info.win.window;
 		
 		HWND progman = FindWindow("Progman", NULL);
@@ -76,20 +88,20 @@ int lerp(int a, int b, float t)
 			SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW
 		);
 	#else
-		*display = XOpenDisplay(NULL);	
-		Window rootWindow = RootWindow(*display, DefaultScreen(*display));
+		display = XOpenDisplay(NULL);	
+		Window rootWindow = RootWindow(display, DefaultScreen(display));
 	
-		*window = SDL_CreateWindowFrom((void*)rootWindow);	
-		if(*window == NULL)
+		window = SDL_CreateWindowFrom((void*)rootWindow);	
+		if(window == NULL)
 			SDL_Log("%s", SDL_GetError());
 	#endif
 	
-	*renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if(*renderer == NULL)
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if(renderer == NULL)
 		SDL_Log("%s", SDL_GetError());
 }
 
-void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex, const char *dir, int count, int *srcWidth, int *srcHeight)
+void loadTextures(SDL_Texture **tex)
 {
 	char path[PATH_MAX];
 
@@ -99,59 +111,95 @@ void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex, const char *dir, in
 		SDL_Surface *surf = SDL_LoadBMP(path);
 		if(i == 0)
 		{
-			*srcWidth = surf->w;
-			*srcHeight = surf->h;
+			srcWidth = surf->w;
+			srcHeight = surf->h;
 		}
 		tex[i] = SDL_CreateTextureFromSurface(renderer, surf);
 		SDL_FreeSurface(surf);
 	}
 }
 
+void printInfo(const char *header, const char *message, const char *data)
+{
+	printf("\x1b[31m%s \x1b[33m%s\x1b[0m", header, message);
+	if(data)
+		printf(" \"%s\"", data);
+	putchar('\n');
+	fflush(stdout);
+}
+
 int main(int argc, char *argv[])
 {
 	config_t config;
 	config_init(&config);
+
+	char userConfigPath[PATH_MAX];
+
+	struct passwd *pw = getpwuid(getuid());
+	sprintf(userConfigPath, "%s/.config/lwp/lwp.cfg", pw->pw_dir);
 	
-	config_read_file(&config, "/home/cziken/.config/lwp/lwp.cfg");
+	if(config_read_file(&config, userConfigPath) != CONFIG_TRUE)
+	{
+		printInfo("INFO", "Can\'t find user config file: using default one", NULL);
+		if(config_read_file(&config, "/etc/lwp.cfg") != CONFIG_TRUE)
+		{
+			printInfo("ERROR", "Can\'t find default config file: closing", NULL);
+			return 1;
+		}
+	}
 
-	const char *dir = NULL;
-	int count, instancesCount;
+	double smooth, movementX, movementY;
 
-	config_lookup_string(&config, "path", &dir); 
-	config_lookup_int(&config, "monitors", &instancesCount); 
-	config_lookup_int(&config, "count", &count); 
-	printf("%s %d %d\n", dir, count, instancesCount);
-	fflush(stdout);
+	const char *dirStr = "path";
+	const char *instancesStr = "monitors";
+	const char *countStr = "count";
+	const char *smoothStr = "smooth";
+	const char *movementXStr = "movementX";
+	const char *movementYStr = "movementY";
+
+	if(config_lookup_string(&config, dirStr, &dir) != CONFIG_TRUE)
+		printInfo("CONFIG ERROR", "Missing field:", dirStr);
+	if(config_lookup_int(&config, instancesStr, &instancesCount) != CONFIG_TRUE)
+		printInfo("CONFIG ERROR", "Missing field:", instancesStr);
+	if(config_lookup_int(&config, countStr, &count) != CONFIG_TRUE)
+		printInfo("CONFIG ERROR", "Missing field:", countStr);
+	if(config_lookup_float(&config, smoothStr, &smooth) != CONFIG_TRUE)
+		printInfo("CONFIG ERROR", "Missing field:", smoothStr);
+	if(config_lookup_float(&config, movementXStr, &movementX) != CONFIG_TRUE)
+		printInfo("CONFIG ERROR", "Missing field:", movementXStr);
+	if(config_lookup_float(&config, movementYStr, &movementY) != CONFIG_TRUE)
+		printInfo("CONFIG ERROR", "Missing field:", movementYStr);
 
 	Instance instances[instancesCount];
-
-	int srcWidth, srcHeight;
-	
-	SDL_Window *window;
-	SDL_Renderer *renderer;
-
 	SDL_Texture *tex[count];
 
-	#ifdef __WIN32
-		init(&window, &renderer);
-	#else
-		Display *display;
-		init(&display, &window, &renderer);
-	#endif
+	init();
 	
-	loadTextures(renderer, tex, dir, count, &srcWidth, &srcHeight);
+	loadTextures(tex);
 
 	for(int i = 0; i < instancesCount; i++)
 	{
+		const char *paramStr[] = {
+			"_x",
+			"_y",
+			"_w",
+			"_h"
+		};
+		int *outputPtr[] = {
+			&instances[i].dest.x,
+			&instances[i].dest.y,
+			&instances[i].dest.w,
+			&instances[i].dest.h,
+		};
+
 		char str[15];
-		sprintf(str, "monitor%d_x", i+1);
-		config_lookup_int(&config, str, &instances[i].dest.x);
-		sprintf(str, "monitor%d_y", i+1);
-		config_lookup_int(&config, str, &instances[i].dest.y);
-		sprintf(str, "monitor%d_w", i+1);
-		config_lookup_int(&config, str, &instances[i].dest.w);
-		sprintf(str, "monitor%d_h", i+1);
-		config_lookup_int(&config, str, &instances[i].dest.h);
+
+		for(int p = 0; p < 4; p++)
+		{
+			sprintf(str, "monitor%d%s", i+1, paramStr[p]);
+			if(config_lookup_int(&config, str, outputPtr[p]) != CONFIG_TRUE)
+				printInfo("CONFIG ERROR", "Missing field:", str);
+		}
 
 		instances[i].buffTex = SDL_CreateTexture(
 			renderer, 
@@ -203,8 +251,8 @@ int main(int argc, char *argv[])
 			#endif
 		}
 
-		currentX = lerp(currentX, mx, dT*8);
-		currentY = lerp(currentY, my, dT*8);
+		currentX = lerp(currentX, mx, dT*smooth);
+		currentY = lerp(currentY, my, dT*smooth);
 
 		for(int u = 0; u < instancesCount; u++)
 		{
@@ -220,8 +268,8 @@ int main(int argc, char *argv[])
 					.h = srcHeight 
 				};
 
-				int x = -((currentX-instances[u].dest.w/2)/20)*i;
-				int y = -((currentY-instances[u].dest.h/2)/20)*i;
+				int x = -((currentX-instances[u].dest.w/2)*movementX)*i;
+				int y = -((currentY-instances[u].dest.h/2)*movementY)*i;
 
 				for(int j = -1; j <= 1; j++)
 				{
