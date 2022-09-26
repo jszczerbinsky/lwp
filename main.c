@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <libconfig.h>
 #ifdef __WIN32
 	#include <windows.h>
 	#include <stdio.h>
@@ -88,7 +89,7 @@ int lerp(int a, int b, float t)
 		SDL_Log("%s", SDL_GetError());
 }
 
-void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex, char *dir, int count, int *srcWidth, int *srcHeight)
+void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex, const char *dir, int count, int *srcWidth, int *srcHeight)
 {
 	char path[PATH_MAX];
 
@@ -108,21 +109,21 @@ void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex, char *dir, int coun
 
 int main(int argc, char *argv[])
 {
-	if((argc-3)%4 != 0 || argc < 7)
-	{
-		printf("\nLayered Wallpaper Engine\n");
-		printf("Usage:\n");
-		printf("	lwp [layers count] [img dir] [monitor1 options] [monitor2 options] ...\n\n");
-		printf("Monitor options:\n");
-		printf("	[x] [y] [width] [height]\n\n");
-		return 0;
-	}
-	int instancesCount = (argc-2)/4;
+	config_t config;
+	config_init(&config);
+	
+	config_read_file(&config, "/home/cziken/.config/lwp/lwp.cfg");
+
+	const char *dir = NULL;
+	int count, instancesCount;
+
+	config_lookup_string(&config, "path", &dir); 
+	config_lookup_int(&config, "monitors", &instancesCount); 
+	config_lookup_int(&config, "count", &count); 
+	printf("%s %d %d\n", dir, count, instancesCount);
+	fflush(stdout);
 
 	Instance instances[instancesCount];
-
-	int count = atoi(argv[1]);
-	char *dir = argv[2];
 
 	int srcWidth, srcHeight;
 	
@@ -142,10 +143,16 @@ int main(int argc, char *argv[])
 
 	for(int i = 0; i < instancesCount; i++)
 	{
-		instances[i].dest.x = atoi(argv[3+i*4]);
-		instances[i].dest.y = atoi(argv[4+i*4]);
-		instances[i].dest.w = atoi(argv[5+i*4]);
-		instances[i].dest.h = atoi(argv[6+i*4]);
+		char str[15];
+		sprintf(str, "monitor%d_x", i+1);
+		config_lookup_int(&config, str, &instances[i].dest.x);
+		sprintf(str, "monitor%d_y", i+1);
+		config_lookup_int(&config, str, &instances[i].dest.y);
+		sprintf(str, "monitor%d_w", i+1);
+		config_lookup_int(&config, str, &instances[i].dest.w);
+		sprintf(str, "monitor%d_h", i+1);
+		config_lookup_int(&config, str, &instances[i].dest.h);
+
 		instances[i].buffTex = SDL_CreateTexture(
 			renderer, 
 			SDL_PIXELFORMAT_ARGB8888, 
@@ -243,6 +250,7 @@ int main(int argc, char *argv[])
 		SDL_Delay(1000/60);
 	}
 
+	config_destroy(&config);
 	for(int i = 0; i < count; i++)
 		SDL_DestroyTexture(tex[i]);
 	for(int i = 0; i < instancesCount; i++)
