@@ -52,6 +52,18 @@ int loadTextures(Config *cfg, SDL_Texture **tex)
 
 int main(int argc, char *argv[])
 {
+	#ifdef __WIN32
+		if(argc == 2 && strcmp(argv[1], "/console") == 0)
+		{
+			AllocConsole();
+			AttachConsole(ATTACH_PARENT_PROCESS);
+			freopen("CONOUT$", "w", stdout);
+			HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+			DWORD dwMode = 0;
+			GetConsoleMode(hOut, &dwMode);
+			SetConsoleMode(hOut, dwMode| 0x0004);
+		}
+	#endif
 	Config cfg;
 
 	openConfig();

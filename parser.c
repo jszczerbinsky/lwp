@@ -9,18 +9,62 @@
 
 FILE *file;
 
+#ifdef __WIN32
+	void getline(char **buff, size_t *buffSize, FILE *f)
+	{
+		long int startPos = ftell(f);
+		int length = 1;
+		char c;
+		do
+		{
+			c = fgetc(f);
+			length++;
+		}
+		while(c != '\n' && !feof(f));
+		
+		if(*buffSize < length)
+		{
+			*buff = realloc(*buff, length * sizeof(char));
+			*buffSize = length * sizeof(char);
+		}
+		
+		fseek(f, startPos, SEEK_SET);
+		
+		fgets(*buff, length-1, f);
+		(*buff)[length-1] = '\0';
+		fgetc(f);
+	}
+#endif
+
 void openConfig()
 {
 	char userConfigPath[PATH_MAX];
 
-	struct passwd *pw = getpwuid(getuid());
-	sprintf(userConfigPath, "%s/.config/lwp/lwp.cfg", pw->pw_dir);
+	#ifdef __WIN32
+		strcpy(userConfigPath, getenv("AppData"));
+		strcat(userConfigPath, "\\lwp\\lwp.cfg");
+	#else
+		struct passwd *pw = getpwuid(getuid());
+		sprintf(userConfigPath, "%s/.config/lwp/lwp.cfg", pw->pw_dir);
+	#endif
 
 	file = fopen(userConfigPath, "r");
 	if(!file)
 	{
 		lwpLog(LOG_INFO, "User config file not found, opening default config");
-		file = fopen("/etc/lwp.cfg", "r");
+		#ifdef __WIN32
+			char defaultConfigPath[PATH_MAX];
+			GetModuleFileNameA(NULL, defaultConfigPath, PATH_MAX);
+			char *ptr = defaultConfigPath+strlen(defaultConfigPath)-1;
+			while(*ptr != '\\')
+				ptr--;
+			*ptr = '\0';
+			strcat(defaultConfigPath, "\\defaultWin.cfg");
+			
+			file = fopen(defaultConfigPath, "r");
+		#else
+			file = fopen("/etc/lwp.cfg", "r");
+		#endif
 		if(!file)
 			lwpLog(LOG_ERROR, "Default config file not found!");
 	}
@@ -122,6 +166,19 @@ int parseConfig(Config *cfg)
 			return 0;
 		}
 	}
+	
+	#ifdef __WIN32
+		if(strlen(cfg->path) < 2)
+		{
+			
+			GetModuleFileNameA(NULL, cfg->path, PATH_MAX);
+			char *ptr = cfg->path+strlen(cfg->path)-1;
+			while(*ptr != '\\')
+				ptr--;
+			*ptr = '\0';
+			strcat(cfg->path, "\\wallpapers\\test");
+		}
+	#endif
 	return 1;
 }
 
