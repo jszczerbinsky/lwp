@@ -1,208 +1,79 @@
-#include <SDL2/SDL.h>
-#include <libconfig.h>
-#ifdef __WIN32
-	#include <windows.h>
-	#include <stdio.h>
-	#include <SDL2/SDL_syswm.h>
-#else
-	#include <X11/Xlib.h>
-	#include <linux/limits.h>
-	#include <unistd.h>
-	#include <pwd.h>
-#endif
+#include "main.h"
+#include "window.h"
+#include "parser.h"
+#include "debug.h"
 
-typedef struct
-{
-	SDL_Rect dest;
-	SDL_Texture *buffTex;
-} Instance;
-
-const char *dir = NULL;
-int instancesCount;
-int count;
-
-int srcWidth, srcHeight;
-	
-SDL_Window *window;
-SDL_Renderer *renderer;
-
-#ifndef __WIN32
-	Display *display;
-#endif
+App app;
 
 int lerp(int a, int b, float t)
 {
     return (int)((float)a + (float)t * ((float)b - (float)a));
 }
 
-#ifdef __WIN32
-	HWND iconWorkerw;
-	BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
-	{
-		char buff[10];
-		GetClassName(hWnd, buff, 10);
-		
-		if(strcmp(buff, "WorkerW") == 0)
-		{
-			HWND defView = FindWindowEx(hWnd, NULL, "SHELLDLL_DefView", NULL);
-			if(defView)
-			{
-				iconWorkerw = hWnd;
-				return FALSE;
-			}
-		}
-		return TRUE;
-	}
-#endif
 void init()
 {
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
 		SDL_Log("%s", SDL_GetError());
-	
-	#ifdef __WIN32
-		window = SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
-		if(window == NULL)
-			SDL_Log("%s", SDL_GetError());
-		
-		SDL_SysWMinfo sysWmInfo;
-		SDL_VERSION(&sysWmInfo.version)
-		SDL_GetWindowWMInfo(window, &sysWmInfo);
-		HWND hWindow = sysWmInfo.info.win.window;
-		
-		HWND progman = FindWindow("Progman", NULL);
-		iconWorkerw = progman;
-		SendMessageTimeout(progman, 0x052C, NULL, NULL, SMTO_NORMAL, 1000, NULL);
-		if(!FindWindowEx(progman, NULL, "SHELLDLL_DefView", NULL))
-			EnumWindows(getIconWorkerw, NULL);
-		
-		HWND wallpaperWorkerw = GetWindow(iconWorkerw, GW_HWNDNEXT);
-		SetParent(hWindow, wallpaperWorkerw);
-		SetWindowLongPtr(hWindow, GWL_EXSTYLE, WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOACTIVATE);
-		SetWindowLongPtr(hWindow, GWL_STYLE, WS_CHILDWINDOW | WS_VISIBLE);
-		
-		SetWindowPos(hWindow, NULL,
-			GetSystemMetrics(SM_XVIRTUALSCREEN),
-			GetSystemMetrics(SM_YVIRTUALSCREEN),
-			GetSystemMetrics(SM_CXVIRTUALSCREEN),
-			GetSystemMetrics(SM_CYVIRTUALSCREEN),
-			SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW
-		);
-	#else
-		display = XOpenDisplay(NULL);	
-		Window rootWindow = RootWindow(display, DefaultScreen(display));
-	
-		window = SDL_CreateWindowFrom((void*)rootWindow);	
-		if(window == NULL)
-			SDL_Log("%s", SDL_GetError());
+
+	#ifndef __WIN32
+		app.display = XOpenDisplay(NULL);	
 	#endif
+
+		initWindow();
 	
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if(renderer == NULL)
+		app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if(app.renderer == NULL)
 		SDL_Log("%s", SDL_GetError());
 }
 
-void loadTextures(SDL_Texture **tex)
+int loadTextures(Config *cfg, SDL_Texture **tex)
 {
 	char path[PATH_MAX];
 
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < cfg->count; i++)
 	{
-		sprintf(path, "%s/%d.bmp", dir, i+1);
+		sprintf(path, "%s/%d.bmp", cfg->path, i+1);
 		SDL_Surface *surf = SDL_LoadBMP(path);
+		if(!surf)
+		{
+			lwpLog(LOG_ERROR, "File %s not found", path);
+			return 0;
+		}
 		if(i == 0)
 		{
-			srcWidth = surf->w;
-			srcHeight = surf->h;
+			app.srcWidth = surf->w;
+			app.srcHeight = surf->h;
 		}
-		tex[i] = SDL_CreateTextureFromSurface(renderer, surf);
+		tex[i] = SDL_CreateTextureFromSurface(app.renderer, surf);
 		SDL_FreeSurface(surf);
 	}
-}
-
-void printInfo(const char *header, const char *message, const char *data)
-{
-	printf("\x1b[31m%s \x1b[33m%s\x1b[0m", header, message);
-	if(data)
-		printf(" \"%s\"", data);
-	putchar('\n');
-	fflush(stdout);
+	return 1;
 }
 
 int main(int argc, char *argv[])
 {
-	config_t config;
-	config_init(&config);
+	Config cfg;
 
-	char userConfigPath[PATH_MAX];
-
-	struct passwd *pw = getpwuid(getuid());
-	sprintf(userConfigPath, "%s/.config/lwp/lwp.cfg", pw->pw_dir);
+	openConfig();
+	if(!parseConfig(&cfg))
+		return 1;
 	
-	if(config_read_file(&config, userConfigPath) != CONFIG_TRUE)
-	{
-		printInfo("INFO", "Can\'t find user config file: using default one", NULL);
-		if(config_read_file(&config, "/etc/lwp.cfg") != CONFIG_TRUE)
-		{
-			printInfo("ERROR", "Can\'t find default config file: closing", NULL);
-			return 1;
-		}
-	}
-
-	double smooth, movementX, movementY;
-
-	const char *dirStr = "path";
-	const char *instancesStr = "monitors";
-	const char *countStr = "count";
-	const char *smoothStr = "smooth";
-	const char *movementXStr = "movementX";
-	const char *movementYStr = "movementY";
-
-	if(config_lookup_string(&config, dirStr, &dir) != CONFIG_TRUE)
-		printInfo("CONFIG ERROR", "Missing field:", dirStr);
-	if(config_lookup_int(&config, instancesStr, &instancesCount) != CONFIG_TRUE)
-		printInfo("CONFIG ERROR", "Missing field:", instancesStr);
-	if(config_lookup_int(&config, countStr, &count) != CONFIG_TRUE)
-		printInfo("CONFIG ERROR", "Missing field:", countStr);
-	if(config_lookup_float(&config, smoothStr, &smooth) != CONFIG_TRUE)
-		printInfo("CONFIG ERROR", "Missing field:", smoothStr);
-	if(config_lookup_float(&config, movementXStr, &movementX) != CONFIG_TRUE)
-		printInfo("CONFIG ERROR", "Missing field:", movementXStr);
-	if(config_lookup_float(&config, movementYStr, &movementY) != CONFIG_TRUE)
-		printInfo("CONFIG ERROR", "Missing field:", movementYStr);
-
-	Instance instances[instancesCount];
-	SDL_Texture *tex[count];
+	Instance instances[cfg.monitors];
+	SDL_Texture *tex[cfg.count];
 
 	init();
 	
-	loadTextures(tex);
+	if(!loadTextures(&cfg, tex))
+		return 1;
 
-	for(int i = 0; i < instancesCount; i++)
+	parseInstancesConfig(instances, cfg.monitors);
+
+	closeConfig();
+
+	for(int i = 0; i < cfg.monitors; i++)
 	{
-		const char *paramStr[] = {
-			"_x",
-			"_y",
-			"_w",
-			"_h"
-		};
-		int *outputPtr[] = {
-			&instances[i].dest.x,
-			&instances[i].dest.y,
-			&instances[i].dest.w,
-			&instances[i].dest.h,
-		};
-
-		char str[15];
-
-		for(int p = 0; p < 4; p++)
-		{
-			sprintf(str, "monitor%d%s", i+1, paramStr[p]);
-			if(config_lookup_int(&config, str, outputPtr[p]) != CONFIG_TRUE)
-				printInfo("CONFIG ERROR", "Missing field:", str);
-		}
-
 		instances[i].buffTex = SDL_CreateTexture(
-			renderer, 
+			app.renderer, 
 			SDL_PIXELFORMAT_ARGB8888, 
 			SDL_TEXTUREACCESS_TARGET, 
 			instances[i].dest.w, 
@@ -251,25 +122,25 @@ int main(int argc, char *argv[])
 			#endif
 		}
 
-		currentX = lerp(currentX, mx, dT*smooth);
-		currentY = lerp(currentY, my, dT*smooth);
+		currentX = lerp(currentX, mx, dT*cfg.smooth);
+		currentY = lerp(currentY, my, dT*cfg.smooth);
 
-		for(int u = 0; u < instancesCount; u++)
+		for(int u = 0; u < cfg.monitors; u++)
 		{
-			SDL_SetRenderTarget(renderer, instances[u].buffTex);
-			SDL_RenderClear(renderer);
+			SDL_SetRenderTarget(app.renderer, instances[u].buffTex);
+			SDL_RenderClear(app.renderer);
 
-			for(int i = 0; i < count; i++)
+			for(int i = 0; i < cfg.count; i++)
 			{
 				SDL_Rect src = {
 					.x = 0,
 					.y = 0,
-					.w = srcWidth,
-					.h = srcHeight 
+					.w = app.srcWidth,
+					.h = app.srcHeight 
 				};
 
-				int x = -((currentX-instances[u].dest.w/2)*movementX)*i;
-				int y = -((currentY-instances[u].dest.h/2)*movementY)*i;
+				int x = -((currentX-instances[u].dest.w/2)*cfg.movementX)*i;
+				int y = -((currentY-instances[u].dest.h/2)*cfg.movementY)*i;
 
 				for(int j = -1; j <= 1; j++)
 				{
@@ -280,11 +151,11 @@ int main(int argc, char *argv[])
 						.h = instances[u].dest.h 
 					};
 
-					SDL_RenderCopy(renderer, tex[i], &src, &dest);
+					SDL_RenderCopy(app.renderer, tex[i], &src, &dest);
 				}
 			}
 		
-			SDL_SetRenderTarget(renderer, NULL);
+			SDL_SetRenderTarget(app.renderer, NULL);
 			SDL_Rect src = {
 				.x = 0,
 				.y = 0,
@@ -292,22 +163,21 @@ int main(int argc, char *argv[])
 				.h = instances[u].dest.h 
 			};
 		
-			SDL_RenderCopy(renderer, instances[u].buffTex, &src, &instances[u].dest);
+			SDL_RenderCopy(app.renderer, instances[u].buffTex, &src, &instances[u].dest);
 		}
-		SDL_RenderPresent(renderer);
+		SDL_RenderPresent(app.renderer);
 		SDL_Delay(1000/60);
 	}
 
-	config_destroy(&config);
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < cfg.count; i++)
 		SDL_DestroyTexture(tex[i]);
-	for(int i = 0; i < instancesCount; i++)
+	for(int i = 0; i < cfg.monitors; i++)
 		SDL_DestroyTexture(instances[i].buffTex);
 	#ifndef __WIN32
-		XCloseDisplay(display);
+		XCloseDisplay(app.display);
 	#endif
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
+	SDL_DestroyRenderer(app.renderer);
+	SDL_DestroyWindow(app.window);
 	SDL_Quit();
 
 	return 0;
