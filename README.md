@@ -5,4 +5,6 @@
 # Lwp - Layered WallPaper Engine
 
 ![](preview.gif)
+<br>
+
 See [Wiki](https://github.com/jszczerbinsky/lwp/wiki) for installation and configuration instructions
