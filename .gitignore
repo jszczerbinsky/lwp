@@ -1,4 +1,5 @@
-build/
+data/
+*.res
 
 # Prerequisites
 *.d

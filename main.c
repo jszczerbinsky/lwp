@@ -1,153 +1,91 @@
-#include <SDL2/SDL.h>
-#ifdef __WIN32
-	#include <windows.h>
-	#include <stdio.h>
-	#include <SDL2/SDL_syswm.h>
-#else
-	#include <X11/Xlib.h>
-	#include <linux/limits.h>
-#endif
+#include "main.h"
+#include "window.h"
+#include "parser.h"
+#include "debug.h"
 
-typedef struct
-{
-	SDL_Rect dest;
-	SDL_Texture *buffTex;
-} Instance;
+App app;
 
 int lerp(int a, int b, float t)
 {
     return (int)((float)a + (float)t * ((float)b - (float)a));
 }
 
-#ifdef __WIN32
-	HWND iconWorkerw;
-	BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
-	{
-		char buff[10];
-		GetClassName(hWnd, buff, 10);
-		
-		if(strcmp(buff, "WorkerW") == 0)
-		{
-			HWND defView = FindWindowEx(hWnd, NULL, "SHELLDLL_DefView", NULL);
-			if(defView)
-			{
-				iconWorkerw = hWnd;
-				return FALSE;
-			}
-		}
-		return TRUE;
-	}
-
-	void init(SDL_Window **window, SDL_Renderer **renderer)
-#else
-	void init(Display **display, SDL_Window **window, SDL_Renderer **renderer)
-#endif
+void init()
 {
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
 		SDL_Log("%s", SDL_GetError());
-	
-	#ifdef __WIN32
-		*window = SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
-		if(*window == NULL)
-			SDL_Log("%s", SDL_GetError());
-		
-		SDL_SysWMinfo sysWmInfo;
-		SDL_VERSION(&sysWmInfo.version)
-		SDL_GetWindowWMInfo(*window, &sysWmInfo);
-		HWND hWindow = sysWmInfo.info.win.window;
-		
-		HWND progman = FindWindow("Progman", NULL);
-		iconWorkerw = progman;
-		SendMessageTimeout(progman, 0x052C, NULL, NULL, SMTO_NORMAL, 1000, NULL);
-		if(!FindWindowEx(progman, NULL, "SHELLDLL_DefView", NULL))
-			EnumWindows(getIconWorkerw, NULL);
-		
-		HWND wallpaperWorkerw = GetWindow(iconWorkerw, GW_HWNDNEXT);
-		SetParent(hWindow, wallpaperWorkerw);
-		SetWindowLongPtr(hWindow, GWL_EXSTYLE, WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOACTIVATE);
-		SetWindowLongPtr(hWindow, GWL_STYLE, WS_CHILDWINDOW | WS_VISIBLE);
-		
-		SetWindowPos(hWindow, NULL,
-			GetSystemMetrics(SM_XVIRTUALSCREEN),
-			GetSystemMetrics(SM_YVIRTUALSCREEN),
-			GetSystemMetrics(SM_CXVIRTUALSCREEN),
-			GetSystemMetrics(SM_CYVIRTUALSCREEN),
-			SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW
-		);
-	#else
-		*display = XOpenDisplay(NULL);	
-		Window rootWindow = RootWindow(*display, DefaultScreen(*display));
-	
-		*window = SDL_CreateWindowFrom((void*)rootWindow);	
-		if(*window == NULL)
-			SDL_Log("%s", SDL_GetError());
+
+	#ifndef __WIN32
+		app.display = XOpenDisplay(NULL);	
 	#endif
+
+		initWindow();
 	
-	*renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if(*renderer == NULL)
+		app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if(app.renderer == NULL)
 		SDL_Log("%s", SDL_GetError());
 }
 
-void loadTextures(SDL_Renderer *renderer, SDL_Texture **tex, char *dir, int count, int *srcWidth, int *srcHeight)
+int loadTextures(Config *cfg, SDL_Texture **tex)
 {
 	char path[PATH_MAX];
 
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < cfg->count; i++)
 	{
-		sprintf(path, "%s/%d.bmp", dir, i+1);
+		sprintf(path, "%s/%d.bmp", cfg->path, i+1);
 		SDL_Surface *surf = SDL_LoadBMP(path);
+		if(!surf)
+		{
+			lwpLog(LOG_ERROR, "File %s not found", path);
+			return 0;
+		}
 		if(i == 0)
 		{
-			*srcWidth = surf->w;
-			*srcHeight = surf->h;
+			app.srcWidth = surf->w;
+			app.srcHeight = surf->h;
 		}
-		tex[i] = SDL_CreateTextureFromSurface(renderer, surf);
+		tex[i] = SDL_CreateTextureFromSurface(app.renderer, surf);
 		SDL_FreeSurface(surf);
 	}
+	return 1;
 }
 
 int main(int argc, char *argv[])
 {
-	if((argc-3)%4 != 0 || argc < 7)
-	{
-		printf("\nLayered Wallpaper Engine\n");
-		printf("Usage:\n");
-		printf("	lwp [layers count] [img dir] [monitor1 options] [monitor2 options] ...\n\n");
-		printf("Monitor options:\n");
-		printf("	[x] [y] [width] [height]\n\n");
-		return 0;
-	}
-	int instancesCount = (argc-2)/4;
-
-	Instance instances[instancesCount];
-
-	int count = atoi(argv[1]);
-	char *dir = argv[2];
-
-	int srcWidth, srcHeight;
-	
-	SDL_Window *window;
-	SDL_Renderer *renderer;
-
-	SDL_Texture *tex[count];
-
 	#ifdef __WIN32
-		init(&window, &renderer);
-	#else
-		Display *display;
-		init(&display, &window, &renderer);
+		if(argc == 2 && strcmp(argv[1], "/console") == 0)
+		{
+			AllocConsole();
+			AttachConsole(ATTACH_PARENT_PROCESS);
+			freopen("CONOUT$", "w", stdout);
+			HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+			DWORD dwMode = 0;
+			GetConsoleMode(hOut, &dwMode);
+			SetConsoleMode(hOut, dwMode| 0x0004);
+		}
 	#endif
-	
-	loadTextures(renderer, tex, dir, count, &srcWidth, &srcHeight);
+	Config cfg;
 
-	for(int i = 0; i < instancesCount; i++)
+	openConfig();
+	if(!parseConfig(&cfg))
+		return 1;
+	
+	Instance instances[cfg.monitors];
+	SDL_Texture *tex[cfg.count];
+
+	init();
+	
+	if(!loadTextures(&cfg, tex))
+		return 1;
+
+	parseInstancesConfig(instances, cfg.monitors);
+
+	closeConfig();
+
+	for(int i = 0; i < cfg.monitors; i++)
 	{
-		instances[i].dest.x = atoi(argv[3+i*4]);
-		instances[i].dest.y = atoi(argv[4+i*4]);
-		instances[i].dest.w = atoi(argv[5+i*4]);
-		instances[i].dest.h = atoi(argv[6+i*4]);
 		instances[i].buffTex = SDL_CreateTexture(
-			renderer, 
+			app.renderer, 
 			SDL_PIXELFORMAT_ARGB8888, 
 			SDL_TEXTUREACCESS_TARGET, 
 			instances[i].dest.w, 
@@ -196,25 +134,25 @@ int main(int argc, char *argv[])
 			#endif
 		}
 
-		currentX = lerp(currentX, mx, dT*8);
-		currentY = lerp(currentY, my, dT*8);
+		currentX = lerp(currentX, mx, dT*cfg.smooth);
+		currentY = lerp(currentY, my, dT*cfg.smooth);
 
-		for(int u = 0; u < instancesCount; u++)
+		for(int u = 0; u < cfg.monitors; u++)
 		{
-			SDL_SetRenderTarget(renderer, instances[u].buffTex);
-			SDL_RenderClear(renderer);
+			SDL_SetRenderTarget(app.renderer, instances[u].buffTex);
+			SDL_RenderClear(app.renderer);
 
-			for(int i = 0; i < count; i++)
+			for(int i = 0; i < cfg.count; i++)
 			{
 				SDL_Rect src = {
 					.x = 0,
 					.y = 0,
-					.w = srcWidth,
-					.h = srcHeight 
+					.w = app.srcWidth,
+					.h = app.srcHeight 
 				};
 
-				int x = -((currentX-instances[u].dest.w/2)/20)*i;
-				int y = -((currentY-instances[u].dest.h/2)/20)*i;
+				int x = -((currentX-instances[u].dest.w/2)*cfg.movementX)*i;
+				int y = -((currentY-instances[u].dest.h/2)*cfg.movementY)*i;
 
 				for(int j = -1; j <= 1; j++)
 				{
@@ -225,11 +163,11 @@ int main(int argc, char *argv[])
 						.h = instances[u].dest.h 
 					};
 
-					SDL_RenderCopy(renderer, tex[i], &src, &dest);
+					SDL_RenderCopy(app.renderer, tex[i], &src, &dest);
 				}
 			}
 		
-			SDL_SetRenderTarget(renderer, NULL);
+			SDL_SetRenderTarget(app.renderer, NULL);
 			SDL_Rect src = {
 				.x = 0,
 				.y = 0,
@@ -237,21 +175,21 @@ int main(int argc, char *argv[])
 				.h = instances[u].dest.h 
 			};
 		
-			SDL_RenderCopy(renderer, instances[u].buffTex, &src, &instances[u].dest);
+			SDL_RenderCopy(app.renderer, instances[u].buffTex, &src, &instances[u].dest);
 		}
-		SDL_RenderPresent(renderer);
+		SDL_RenderPresent(app.renderer);
 		SDL_Delay(1000/60);
 	}
 
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < cfg.count; i++)
 		SDL_DestroyTexture(tex[i]);
-	for(int i = 0; i < instancesCount; i++)
+	for(int i = 0; i < cfg.monitors; i++)
 		SDL_DestroyTexture(instances[i].buffTex);
 	#ifndef __WIN32
-		XCloseDisplay(display);
+		XCloseDisplay(app.display);
 	#endif
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
+	SDL_DestroyRenderer(app.renderer);
+	SDL_DestroyWindow(app.window);
 	SDL_Quit();
 
 	return 0;
