@@ -1,4 +1,5 @@
 data/
+build/
 *.res
 
 # Prerequisites
