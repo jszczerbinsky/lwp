@@ -1,0 +1,42 @@
+name: Build app
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  linux:
+    name: Build on Linux
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Install dependencies
+      run: sudo apt install libsdl2-dev 
+    - name: Build
+      run: make && sudo make install
+  
+  windows:
+    name: Build on Windows
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Install mingw and wget
+      run: |
+        choco install mingw
+        choco install wget
+    - name: Install dependencies
+      run: |
+        wget -nv https://github.com/libsdl-org/SDL/releases/download/release-2.26.3/SDL2-devel-2.26.3-mingw.zip
+        7z x -bd SDL2-devel-2.26.3-mingw.zip
+        xcopy SDL2-2.26.3\x86_64-w64-mingw32\lib\ %LIBRARY_PATH%\
+        md %INCLUDE_PATH$\SDL2es in the \Rawdata directory
+        xcopy SDL2-2.26.3\x86_64-w64-mingw32\include\SDL2 %INCLUDE_PATH%\SDL2
+    - name: Build
+      shell: cmd
+      run: .\build.bat
