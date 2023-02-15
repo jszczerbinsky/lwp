@@ -35,7 +35,7 @@ jobs:
         wget -nv https://github.com/libsdl-org/SDL/releases/download/release-2.26.3/SDL2-devel-2.26.3-mingw.zip
         7z x -bd SDL2-devel-2.26.3-mingw.zip
         xcopy SDL2-2.26.3\x86_64-w64-mingw32\lib "%LIBRARY_PATH%"
-        md %INCLUDE_PATH%\SDL2
+        md "%INCLUDE_PATH%\SDL2"
         xcopy SDL2-2.26.3\x86_64-w64-mingw32\include\SDL2 "%INCLUDE_PATH%\SDL2"
     - name: Build
       shell: cmd
