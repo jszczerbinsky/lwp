@@ -129,17 +129,17 @@ int parseConfig(Config *cfg)
       "path", "monitors", "count", "smooth", "movementX", "movementY", "reload_rootwindow",
   };
 
-  const int types[] = {TYPE_STR, TYPE_INT, TYPE_INT, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT};
+  const int types[] = {TYPE_STR, TYPE_INT, TYPE_INT, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_INT};
 
   void *outputs[] = {
       cfg->path,       &cfg->monitors,  &cfg->count,         &cfg->smooth,
       &cfg->movementX, &cfg->movementY, &cfg->reloadRootWnd,
   };
 
-#ifndef __WIN32
-  for (int i = 0; i < 7; i++)
+#ifdef __WIN32
+  for (int i = 0; i < 6; i++)
 #else
-  for (int i = 0; i < 6; i++)  // ignore reload_rootwindow on Windows
+  for (int i = 0; i < 7; i++)  // ignore reload_rootwindow on Windows
 #endif
   {
     if (!findLine(names[i], types[i], outputs[i]))

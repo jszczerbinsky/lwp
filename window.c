@@ -62,6 +62,7 @@ void initWindow(App *app, Config *cfg)
     XChangeProperty(app->display, rootWindow, atomType, XA_ATOM, 32, PropModeReplace, &atomDesktop,
                     1);
     XMapWindow(app->display, rootWindow);
+    XSync(app->display, 0);
   }
   else
   {
