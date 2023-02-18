@@ -2,7 +2,6 @@
 #define MAIN_H
 
 #include <SDL2/SDL.h>
-#include <libconfig.h>
 #ifdef __WIN32
 #include <SDL2/SDL_syswm.h>
 #include <stdio.h>
