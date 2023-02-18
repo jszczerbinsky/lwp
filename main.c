@@ -86,6 +86,9 @@ int main(int argc, char *argv[])
     instances[i].buffTex =
         SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
                           instances[i].dest.w, instances[i].dest.h);
+    instances[i].finalTex =
+        SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
+                          instances[i].finalDest.w, instances[i].finalDest.h);
   }
 
 #ifndef __WIN32
@@ -154,17 +157,36 @@ int main(int argc, char *argv[])
         }
       }
 
-      SDL_SetRenderTarget(app.renderer, NULL);
-      SDL_Rect src = {.x = 0, .y = 0, .w = instances[u].dest.w, .h = instances[u].dest.h};
+      SDL_SetRenderTarget(app.renderer, instances[u].finalTex);
+      SDL_Rect src = {
+          .x = 0,
+          .y = 0,
+          .w = instances[u].dest.w,
+          .h = instances[u].dest.h,
+      };
 
       SDL_RenderCopy(app.renderer, instances[u].buffTex, &src, &instances[u].dest);
+
+      SDL_SetRenderTarget(app.renderer, NULL);
+      SDL_Rect finalSrc = {
+          .x = 0,
+          .y = 0,
+          .w = instances[u].finalDest.w,
+          .h = instances[u].finalDest.h,
+      };
+
+      SDL_RenderCopy(app.renderer, instances[u].finalTex, &finalSrc, &instances[u].finalDest);
     }
     SDL_RenderPresent(app.renderer);
     SDL_Delay(1000 / 60);
   }
 
   for (int i = 0; i < cfg.count; i++) SDL_DestroyTexture(tex[i]);
-  for (int i = 0; i < cfg.monitors; i++) SDL_DestroyTexture(instances[i].buffTex);
+  for (int i = 0; i < cfg.monitors; i++)
+  {
+    SDL_DestroyTexture(instances[i].buffTex);
+    SDL_DestroyTexture(instances[i].finalTex);
+  }
 #ifndef __WIN32
   XCloseDisplay(app.display);
 #endif

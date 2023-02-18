@@ -157,13 +157,22 @@ int parseConfig(Config *cfg)
 
 void parseInstancesConfig(Instance *instances, int instancesCount)
 {
-  char str[15];
+  char str[35];
 
   const char *paramStr[] = {"_x", "_y", "_w", "_h"};
+
+  const char *renderParamStr[] = {"_render_x", "_render_y", "_render_w", "_render_h"};
 
   for (int i = 0; i < instancesCount; i++)
   {
     int *outputPtr[] = {
+        &instances[i].finalDest.x,
+        &instances[i].finalDest.y,
+        &instances[i].finalDest.w,
+        &instances[i].finalDest.h,
+    };
+
+    int *renderOutputPtr[] = {
         &instances[i].dest.x,
         &instances[i].dest.y,
         &instances[i].dest.w,
@@ -175,6 +184,24 @@ void parseInstancesConfig(Instance *instances, int instancesCount)
       sprintf(str, "monitor%d%s", i + 1, paramStr[p]);
       if (!findLine(str, TYPE_INT, outputPtr[p]))
         lwpLog(LOG_ERROR, "Can't find line '%s' in config", str);
+    }
+    for (int p = 0; p < 4; p++)
+    {
+      sprintf(str, "monitor%d%s", i + 1, renderParamStr[p]);
+      if (!findLine(str, TYPE_INT, renderOutputPtr[p]))
+      {
+        if (p > 1)
+        {
+          lwpLog(LOG_WARNING,
+                 "Can't find line '%s' in config, setting the same value as the monitor size", str);
+          *(renderOutputPtr[p]) = *(outputPtr[p]);
+        }
+        else
+        {
+          lwpLog(LOG_WARNING, "Can't find line '%s' in config, setting the value to 0", str);
+          *(renderOutputPtr[p]) = 0;
+        }
+      }
     }
   }
 }
