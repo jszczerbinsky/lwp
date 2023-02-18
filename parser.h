@@ -11,6 +11,7 @@ typedef struct
   float movementY;
   int   monitors;
   int   count;
+  int   reloadRootWnd;
 } Config;
 
 void openConfig();

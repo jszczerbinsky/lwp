@@ -125,15 +125,22 @@ int findLine(const char *name, int type, void *output)
 
 int parseConfig(Config *cfg)
 {
-  const char *names[] = {"path", "monitors", "count", "smooth", "movementX", "movementY"};
-
-  const int types[] = {TYPE_STR, TYPE_INT, TYPE_INT, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT};
-
-  void *outputs[] = {
-      cfg->path, &cfg->monitors, &cfg->count, &cfg->smooth, &cfg->movementX, &cfg->movementY,
+  const char *names[] = {
+      "path", "monitors", "count", "smooth", "movementX", "movementY", "reload_rootwindow",
   };
 
+  const int types[] = {TYPE_STR, TYPE_INT, TYPE_INT, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_INT};
+
+  void *outputs[] = {
+      cfg->path,       &cfg->monitors,  &cfg->count,         &cfg->smooth,
+      &cfg->movementX, &cfg->movementY, &cfg->reloadRootWnd,
+  };
+
+#ifdef __WIN32
   for (int i = 0; i < 6; i++)
+#else
+  for (int i = 0; i < 7; i++)  // ignore reload_rootwindow on Windows
+#endif
   {
     if (!findLine(names[i], types[i], outputs[i]))
     {

@@ -8,7 +8,7 @@ App app;
 
 int lerp(int a, int b, float t) { return (int)((float)a + (float)t * ((float)b - (float)a)); }
 
-void init()
+void init(Config *cfg)
 {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) SDL_Log("%s", SDL_GetError());
 
@@ -16,7 +16,7 @@ void init()
   app.display = XOpenDisplay(NULL);
 #endif
 
-  initWindow();
+  initWindow(&app, cfg);
 
   app.renderer =
       SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
   Instance     instances[cfg.monitors];
   SDL_Texture *tex[cfg.count];
 
-  init();
+  init(&cfg);
 
   if (!loadTextures(&cfg, tex)) return 1;
 
