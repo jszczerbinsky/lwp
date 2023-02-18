@@ -24,13 +24,13 @@ BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
 void initWindow(App *app, Config *cfg)
 {
 #ifdef __WIN32
-  app.window =
+  app->window =
       SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
-  if (app.window == NULL) SDL_Log("%s", SDL_GetError());
+  if (app->window == NULL) SDL_Log("%s", SDL_GetError());
 
   SDL_SysWMinfo sysWmInfo;
   SDL_VERSION(&sysWmInfo.version)
-  SDL_GetWindowWMInfo(app.window, &sysWmInfo);
+  SDL_GetWindowWMInfo(app->window, &sysWmInfo);
   HWND hWindow = sysWmInfo.info.win.window;
 
   HWND progman = FindWindow("Progman", NULL);
