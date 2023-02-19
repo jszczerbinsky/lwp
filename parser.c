@@ -125,15 +125,22 @@ int findLine(const char *name, int type, void *output)
 
 int parseConfig(Config *cfg)
 {
-  const char *names[] = {"path", "monitors", "count", "smooth", "movementX", "movementY"};
-
-  const int types[] = {TYPE_STR, TYPE_INT, TYPE_INT, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT};
-
-  void *outputs[] = {
-      cfg->path, &cfg->monitors, &cfg->count, &cfg->smooth, &cfg->movementX, &cfg->movementY,
+  const char *names[] = {
+      "path", "monitors", "count", "smooth", "movementX", "movementY", "reload_rootwindow",
   };
 
+  const int types[] = {TYPE_STR, TYPE_INT, TYPE_INT, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_INT};
+
+  void *outputs[] = {
+      cfg->path,       &cfg->monitors,  &cfg->count,         &cfg->smooth,
+      &cfg->movementX, &cfg->movementY, &cfg->reloadRootWnd,
+  };
+
+#ifdef __WIN32
   for (int i = 0; i < 6; i++)
+#else
+  for (int i = 0; i < 7; i++)  // ignore reload_rootwindow on Windows
+#endif
   {
     if (!findLine(names[i], types[i], outputs[i]))
     {
@@ -157,13 +164,22 @@ int parseConfig(Config *cfg)
 
 void parseInstancesConfig(Instance *instances, int instancesCount)
 {
-  char str[15];
+  char str[35];
 
   const char *paramStr[] = {"_x", "_y", "_w", "_h"};
+
+  const char *renderParamStr[] = {"_render_x", "_render_y", "_render_w", "_render_h"};
 
   for (int i = 0; i < instancesCount; i++)
   {
     int *outputPtr[] = {
+        &instances[i].finalDest.x,
+        &instances[i].finalDest.y,
+        &instances[i].finalDest.w,
+        &instances[i].finalDest.h,
+    };
+
+    int *renderOutputPtr[] = {
         &instances[i].dest.x,
         &instances[i].dest.y,
         &instances[i].dest.w,
@@ -176,6 +192,24 @@ void parseInstancesConfig(Instance *instances, int instancesCount)
       if (!findLine(str, TYPE_INT, outputPtr[p]))
         lwpLog(LOG_ERROR, "Can't find line '%s' in config", str);
     }
+    for (int p = 0; p < 4; p++)
+    {
+      sprintf(str, "monitor%d%s", i + 1, renderParamStr[p]);
+      if (!findLine(str, TYPE_INT, renderOutputPtr[p]))
+      {
+        if (p > 1)
+        {
+          lwpLog(LOG_WARNING,
+                 "Can't find line '%s' in config, setting the same value as the monitor size", str);
+          *(renderOutputPtr[p]) = *(outputPtr[p]);
+        }
+        else
+        {
+          lwpLog(LOG_WARNING, "Can't find line '%s' in config, setting the value to 0", str);
+          *(renderOutputPtr[p]) = 0;
+        }
+      }
+    }
   }
 }
 
@@ -187,8 +221,8 @@ void parsePerLayerMovements(float *layerMovX, float *layerMovY, int count, float
   for (int i = 0; i < count; i++)
   {
     sprintf(str, "movementX_%d", i + 1);
-    if (!findLine(str, TYPE_FLOAT, layerMovX + i)) layerMovX[i] = defaultValX;
+    if (!findLine(str, TYPE_FLOAT, layerMovX + i)) layerMovX[i] = defaultValX * i;
     sprintf(str, "movementY_%d", i + 1);
-    if (!findLine(str, TYPE_FLOAT, layerMovY + i)) layerMovY[i] = defaultValY;
+    if (!findLine(str, TYPE_FLOAT, layerMovY + i)) layerMovY[i] = defaultValY * i;
   }
 }
