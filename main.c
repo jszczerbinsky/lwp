@@ -8,7 +8,7 @@ App app;
 
 int lerp(int a, int b, float t) { return (int)((float)a + (float)t * ((float)b - (float)a)); }
 
-void init(Config *cfg)
+void init()
 {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) SDL_Log("%s", SDL_GetError());
 
@@ -16,7 +16,7 @@ void init(Config *cfg)
   app.display = XOpenDisplay(NULL);
 #endif
 
-  initWindow(&app, cfg);
+  initWindow();
 
   app.renderer =
       SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
   Instance     instances[cfg.monitors];
   SDL_Texture *tex[cfg.count];
 
-  init(&cfg);
+  init();
 
   if (!loadTextures(&cfg, tex)) return 1;
 
@@ -86,10 +86,11 @@ int main(int argc, char *argv[])
     instances[i].buffTex =
         SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
                           instances[i].dest.w, instances[i].dest.h);
-    instances[i].finalTex =
-        SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
-                          instances[i].finalDest.w, instances[i].finalDest.h);
   }
+
+#ifndef __WIN32
+  SDL_SetRelativeMouseMode(SDL_TRUE);
+#endif
 
   SDL_Event event;
   int       quit = 0;
@@ -113,12 +114,19 @@ int main(int argc, char *argv[])
     GetCursorPos(&mPos);
     mx = mPos.x;
     my = mPos.y;
-#else
-    SDL_GetGlobalMouseState(&mx, &my);
 #endif
 
     while (SDL_PollEvent(&event))
+    {
       if (event.type == SDL_QUIT) quit = 1;
+#ifndef __WIN32
+      else if (event.type == SDL_MOUSEMOTION)
+      {
+        mx = event.motion.x;
+        my = event.motion.y;
+      }
+#endif
+    }
 
     currentX = lerp(currentX, mx, dT * cfg.smooth);
     currentY = lerp(currentY, my, dT * cfg.smooth);
@@ -140,8 +148,8 @@ int main(int argc, char *argv[])
       {
         SDL_Rect src = {.x = 0, .y = 0, .w = app.srcWidth, .h = app.srcHeight};
 
-        int x = -((relativeCurrentX - instances[u].dest.w / 2) * layerMovX[i]);
-        int y = -((relativeCurrentY - instances[u].dest.h / 2) * layerMovY[i]);
+        int x = -((currentX - instances[u].dest.w / 2) * layerMovX[i]) * i;
+        int y = -((currentY - instances[u].dest.h / 2) * layerMovY[i]) * i;
 
         for (int j = -1; j <= 1; j++)
         {
@@ -154,36 +162,17 @@ int main(int argc, char *argv[])
         }
       }
 
-      SDL_SetRenderTarget(app.renderer, instances[u].finalTex);
-      SDL_Rect src = {
-          .x = 0,
-          .y = 0,
-          .w = instances[u].dest.w,
-          .h = instances[u].dest.h,
-      };
+      SDL_SetRenderTarget(app.renderer, NULL);
+      SDL_Rect src = {.x = 0, .y = 0, .w = instances[u].dest.w, .h = instances[u].dest.h};
 
       SDL_RenderCopy(app.renderer, instances[u].buffTex, &src, &instances[u].dest);
-
-      SDL_SetRenderTarget(app.renderer, NULL);
-      SDL_Rect finalSrc = {
-          .x = 0,
-          .y = 0,
-          .w = instances[u].finalDest.w,
-          .h = instances[u].finalDest.h,
-      };
-
-      SDL_RenderCopy(app.renderer, instances[u].finalTex, &finalSrc, &instances[u].finalDest);
     }
     SDL_RenderPresent(app.renderer);
     SDL_Delay(1000 / 60);
   }
 
   for (int i = 0; i < cfg.count; i++) SDL_DestroyTexture(tex[i]);
-  for (int i = 0; i < cfg.monitors; i++)
-  {
-    SDL_DestroyTexture(instances[i].buffTex);
-    SDL_DestroyTexture(instances[i].finalTex);
-  }
+  for (int i = 0; i < cfg.monitors; i++) SDL_DestroyTexture(instances[i].buffTex);
 #ifndef __WIN32
   XCloseDisplay(app.display);
 #endif
