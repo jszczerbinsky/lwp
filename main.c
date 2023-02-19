@@ -91,10 +91,6 @@ int main(int argc, char *argv[])
                           instances[i].finalDest.w, instances[i].finalDest.h);
   }
 
-#ifndef __WIN32
-  SDL_SetRelativeMouseMode(SDL_TRUE);
-#endif
-
   SDL_Event event;
   int       quit = 0;
 
@@ -117,25 +113,26 @@ int main(int argc, char *argv[])
     GetCursorPos(&mPos);
     mx = mPos.x;
     my = mPos.y;
+#else
+    SDL_GetGlobalMouseState(&mx, &my);
 #endif
 
     while (SDL_PollEvent(&event))
-    {
       if (event.type == SDL_QUIT) quit = 1;
-#ifndef __WIN32
-      else if (event.type == SDL_MOUSEMOTION)
-      {
-        mx = event.motion.x;
-        my = event.motion.y;
-      }
-#endif
-    }
 
     currentX = lerp(currentX, mx, dT * cfg.smooth);
     currentY = lerp(currentY, my, dT * cfg.smooth);
 
     for (int u = 0; u < cfg.monitors; u++)
     {
+      int relativeCurrentX = currentX - instances[u].finalDest.x;
+      int relativeCurrentY = currentY - instances[u].finalDest.y;
+
+      if (relativeCurrentX < 0) relativeCurrentX = 0;
+      if (relativeCurrentY < 0) relativeCurrentY = 0;
+      if (relativeCurrentX > instances[u].finalDest.w) relativeCurrentX = instances[u].finalDest.w;
+      if (relativeCurrentY > instances[u].finalDest.y) relativeCurrentY = instances[u].finalDest.h;
+
       SDL_SetRenderTarget(app.renderer, instances[u].buffTex);
       SDL_RenderClear(app.renderer);
 
@@ -143,8 +140,8 @@ int main(int argc, char *argv[])
       {
         SDL_Rect src = {.x = 0, .y = 0, .w = app.srcWidth, .h = app.srcHeight};
 
-        int x = -((currentX - instances[u].dest.w / 2) * layerMovX[i]) * i;
-        int y = -((currentY - instances[u].dest.h / 2) * layerMovY[i]) * i;
+        int x = -((relativeCurrentX - instances[u].dest.w / 2) * layerMovX[i]) * i;
+        int y = -((relativeCurrentY - instances[u].dest.h / 2) * layerMovY[i]) * i;
 
         for (int j = -1; j <= 1; j++)
         {
