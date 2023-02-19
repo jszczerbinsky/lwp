@@ -221,8 +221,8 @@ void parsePerLayerMovements(float *layerMovX, float *layerMovY, int count, float
   for (int i = 0; i < count; i++)
   {
     sprintf(str, "movementX_%d", i + 1);
-    if (!findLine(str, TYPE_FLOAT, layerMovX + i)) layerMovX[i] = defaultValX;
+    if (!findLine(str, TYPE_FLOAT, layerMovX + i)) layerMovX[i] = defaultValX * i;
     sprintf(str, "movementY_%d", i + 1);
-    if (!findLine(str, TYPE_FLOAT, layerMovY + i)) layerMovY[i] = defaultValY;
+    if (!findLine(str, TYPE_FLOAT, layerMovY + i)) layerMovY[i] = defaultValY * i;
   }
 }

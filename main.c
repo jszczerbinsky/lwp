@@ -140,8 +140,8 @@ int main(int argc, char *argv[])
       {
         SDL_Rect src = {.x = 0, .y = 0, .w = app.srcWidth, .h = app.srcHeight};
 
-        int x = -((relativeCurrentX - instances[u].dest.w / 2) * layerMovX[i]) * i;
-        int y = -((relativeCurrentY - instances[u].dest.h / 2) * layerMovY[i]) * i;
+        int x = -((relativeCurrentX - instances[u].dest.w / 2) * layerMovX[i]);
+        int y = -((relativeCurrentY - instances[u].dest.h / 2) * layerMovY[i]);
 
         for (int j = -1; j <= 1; j++)
         {
