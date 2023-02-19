@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
       if (relativeCurrentX < 0) relativeCurrentX = 0;
       if (relativeCurrentY < 0) relativeCurrentY = 0;
       if (relativeCurrentX > instances[u].finalDest.w) relativeCurrentX = instances[u].finalDest.w;
-      if (relativeCurrentY > instances[u].finalDest.y) relativeCurrentY = instances[u].finalDest.h;
+      if (relativeCurrentY > instances[u].finalDest.h) relativeCurrentY = instances[u].finalDest.h;
 
       SDL_SetRenderTarget(app.renderer, instances[u].buffTex);
       SDL_RenderClear(app.renderer);
