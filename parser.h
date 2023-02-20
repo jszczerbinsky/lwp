@@ -1,24 +1,18 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "main.h"
+#include "wallpaper.h"
 
 typedef struct
 {
-  char  path[PATH_MAX];
-  float smooth;
-  float movementX;
-  float movementY;
-  int   monitors;
-  int   count;
-  int   reloadRootWnd;
+  int      reloadRootWnd;
+  int      monitorsCount;
+  float    smooth;
+  Monitor *monitors;
 } Config;
 
-void openConfig();
-void closeConfig();
-int  parseConfig(Config *cfg);
-void parseInstancesConfig(Instance *instances, int instancesCount);
-void parsePerLayerMovements(float *layerMovX, float *layerMovY, int count, float defaultValX,
-                            float defaultValY);
+int  parseConfig(App *app, Config *cfg);
+int  parseWallpaperConfig(Wallpaper *wallpaper, const char *path);
+void freeConfig(Config *cfg);
 
 #endif

@@ -4,92 +4,58 @@
 #include "parser.h"
 #include "window.h"
 
-App app;
-
-int lerp(int a, int b, float t) { return (int)((float)a + (float)t * ((float)b - (float)a)); }
-
-void init(Config *cfg)
+static int lerp(int a, int b, float t)
 {
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) SDL_Log("%s", SDL_GetError());
+  return (int)((float)a + (float)t * ((float)b - (float)a));
+}
+
+static int init(App *app, Config *cfg)
+{
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
+  {
+    lwpLog(LOG_ERROR, "%s", SDL_GetError());
+    return 0;
+  }
 
 #ifndef __WIN32
-  app.display = XOpenDisplay(NULL);
+  app->display = XOpenDisplay(NULL);
 #endif
 
-  initWindow(&app, cfg);
+  initWindow(app, cfg);
 
-  app.renderer =
-      SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  if (app.renderer == NULL) SDL_Log("%s", SDL_GetError());
-}
-
-int loadTextures(Config *cfg, SDL_Texture **tex)
-{
-  char path[PATH_MAX];
-
-  for (int i = 0; i < cfg->count; i++)
+  app->renderer =
+      SDL_CreateRenderer(app->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+  if (app->renderer == NULL)
   {
-    sprintf(path, "%s/%d.bmp", cfg->path, i + 1);
-    SDL_Surface *surf = SDL_LoadBMP(path);
-    if (!surf)
-    {
-      lwpLog(LOG_ERROR, "File %s not found", path);
-      return 0;
-    }
-    if (i == 0)
-    {
-      app.srcWidth  = surf->w;
-      app.srcHeight = surf->h;
-    }
-    tex[i] = SDL_CreateTextureFromSurface(app.renderer, surf);
-    SDL_FreeSurface(surf);
+    lwpLog(LOG_ERROR, "%s", SDL_GetError());
+    return 0;
   }
+
   return 1;
 }
+
+#ifdef __WIN32
+static void initCmd()
+{
+  AllocConsole();
+  AttachConsole(ATTACH_PARENT_PROCESS);
+  freopen("CONOUT$", "w", stdout);
+  HANDLE hOut   = GetStdHandle(STD_OUTPUT_HANDLE);
+  DWORD  dwMode = 0;
+  GetConsoleMode(hOut, &dwMode);
+  SetConsoleMode(hOut, dwMode | 0x0004);
+}
+#endif
 
 int main(int argc, char *argv[])
 {
 #ifdef __WIN32
-  if (argc == 2 && strcmp(argv[1], "/console") == 0)
-  {
-    AllocConsole();
-    AttachConsole(ATTACH_PARENT_PROCESS);
-    freopen("CONOUT$", "w", stdout);
-    HANDLE hOut   = GetStdHandle(STD_OUTPUT_HANDLE);
-    DWORD  dwMode = 0;
-    GetConsoleMode(hOut, &dwMode);
-    SetConsoleMode(hOut, dwMode | 0x0004);
-  }
+  if (argc == 2 && strcmp(argv[1], "/console") == 0) initCmd();
 #endif
+
+  App    app;
   Config cfg;
-
-  openConfig();
-  if (!parseConfig(&cfg)) return 1;
-
-  Instance     instances[cfg.monitors];
-  SDL_Texture *tex[cfg.count];
-
-  init(&cfg);
-
-  if (!loadTextures(&cfg, tex)) return 1;
-
-  parseInstancesConfig(instances, cfg.monitors);
-  float layerMovX[cfg.count];
-  float layerMovY[cfg.count];
-
-  parsePerLayerMovements(layerMovX, layerMovY, cfg.count, cfg.movementX, cfg.movementY);
-
-  closeConfig();
-
-  for (int i = 0; i < cfg.monitors; i++)
-  {
-    instances[i].buffTex =
-        SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
-                          instances[i].dest.w, instances[i].dest.h);
-    instances[i].finalTex =
-        SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
-                          instances[i].finalDest.w, instances[i].finalDest.h);
-  }
+  if (!parseConfig(&app, &cfg) || !init(&app, &cfg)) return 1;
 
   SDL_Event event;
   int       quit = 0;
@@ -123,67 +89,89 @@ int main(int argc, char *argv[])
     currentX = lerp(currentX, mx, dT * cfg.smooth);
     currentY = lerp(currentY, my, dT * cfg.smooth);
 
-    for (int u = 0; u < cfg.monitors; u++)
+    for (int m = 0; m < cfg.monitorsCount; m++)
     {
-      int relativeCurrentX = currentX - instances[u].finalDest.x;
-      int relativeCurrentY = currentY - instances[u].finalDest.y;
+      int relativeCurrentX = currentX - cfg.monitors[m].x;
+      int relativeCurrentY = currentY - cfg.monitors[m].y;
 
       if (relativeCurrentX < 0) relativeCurrentX = 0;
       if (relativeCurrentY < 0) relativeCurrentY = 0;
-      if (relativeCurrentX > instances[u].finalDest.w) relativeCurrentX = instances[u].finalDest.w;
-      if (relativeCurrentY > instances[u].finalDest.h) relativeCurrentY = instances[u].finalDest.h;
+      if (relativeCurrentX > cfg.monitors[m].w) relativeCurrentX = cfg.monitors[m].w;
+      if (relativeCurrentY > cfg.monitors[m].h) relativeCurrentY = cfg.monitors[m].h;
 
-      SDL_SetRenderTarget(app.renderer, instances[u].buffTex);
+      SDL_SetRenderTarget(app.renderer, cfg.monitors[m].wallpaper.tex);
       SDL_RenderClear(app.renderer);
 
-      for (int i = 0; i < cfg.count; i++)
+      for (int i = 0; i < cfg.monitors[m].wallpaper.layersCount; i++)
       {
-        SDL_Rect src = {.x = 0, .y = 0, .w = app.srcWidth, .h = app.srcHeight};
+        SDL_Rect src = {
+            .x = 0,
+            .y = 0,
+            .w = cfg.monitors[m].wallpaper.originalW,
+            .h = cfg.monitors[m].wallpaper.originalH,
+        };
 
-        int x = -((relativeCurrentX - instances[u].dest.w / 2) * layerMovX[i]);
-        int y = -((relativeCurrentY - instances[u].dest.h / 2) * layerMovY[i]);
+        int x = -((relativeCurrentX - cfg.monitors[m].wallpaperW / 2) *
+                  cfg.monitors[m].wallpaper.layers[i].sensitivityX);
+        int y = -((relativeCurrentY - cfg.monitors[m].wallpaperH / 2) *
+                  cfg.monitors[m].wallpaper.layers[i].sensitivityY);
 
+        // IF REPEAT
         for (int j = -1; j <= 1; j++)
         {
-          SDL_Rect dest = {.x = x + j * instances[u].dest.w,
-                           .y = y,
-                           .w = instances[u].dest.w,
-                           .h = instances[u].dest.h};
+          SDL_Rect dest = {
+              .x = x + j * cfg.monitors[m].wallpaperW,
+              .y = y,
+              .w = cfg.monitors[m].wallpaperW,
+              .h = cfg.monitors[m].wallpaperH,
+          };
 
-          SDL_RenderCopy(app.renderer, tex[i], &src, &dest);
+          SDL_RenderCopy(app.renderer, cfg.monitors[m].wallpaper.layers[i].tex, &src, &dest);
         }
       }
 
-      SDL_SetRenderTarget(app.renderer, instances[u].finalTex);
+      SDL_SetRenderTarget(app.renderer, cfg.monitors[m].tex);
+
       SDL_Rect src = {
           .x = 0,
           .y = 0,
-          .w = instances[u].dest.w,
-          .h = instances[u].dest.h,
+          .w = cfg.monitors[m].wallpaperW,
+          .h = cfg.monitors[m].wallpaperH,
       };
 
-      SDL_RenderCopy(app.renderer, instances[u].buffTex, &src, &instances[u].dest);
+      SDL_Rect dest = {
+          .x = cfg.monitors[m].wallpaperX,
+          .y = cfg.monitors[m].wallpaperY,
+          .w = cfg.monitors[m].wallpaperW,
+          .h = cfg.monitors[m].wallpaperH,
+      };
+
+      SDL_RenderCopy(app.renderer, cfg.monitors[m].wallpaper.tex, &src, &dest);
 
       SDL_SetRenderTarget(app.renderer, NULL);
+
       SDL_Rect finalSrc = {
           .x = 0,
           .y = 0,
-          .w = instances[u].finalDest.w,
-          .h = instances[u].finalDest.h,
+          .w = cfg.monitors[m].w,
+          .h = cfg.monitors[m].h,
       };
 
-      SDL_RenderCopy(app.renderer, instances[u].finalTex, &finalSrc, &instances[u].finalDest);
+      SDL_Rect finalDest = {
+          .x = cfg.monitors[m].x,
+          .y = cfg.monitors[m].y,
+          .w = cfg.monitors[m].w,
+          .h = cfg.monitors[m].h,
+      };
+
+      SDL_RenderCopy(app.renderer, cfg.monitors[m].tex, &finalSrc, &finalDest);
     }
     SDL_RenderPresent(app.renderer);
     SDL_Delay(1000 / 60);
   }
 
-  for (int i = 0; i < cfg.count; i++) SDL_DestroyTexture(tex[i]);
-  for (int i = 0; i < cfg.monitors; i++)
-  {
-    SDL_DestroyTexture(instances[i].buffTex);
-    SDL_DestroyTexture(instances[i].finalTex);
-  }
+  freeConfig(&cfg);
+
 #ifndef __WIN32
   XCloseDisplay(app.display);
 #endif

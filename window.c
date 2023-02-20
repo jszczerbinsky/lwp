@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "main.h"
 #include "parser.h"
 
@@ -26,7 +27,7 @@ void initWindow(App *app, Config *cfg)
 #ifdef __WIN32
   app->window =
       SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
-  if (app->window == NULL) SDL_Log("%s", SDL_GetError());
+  if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
 
   SDL_SysWMinfo sysWmInfo;
   SDL_VERSION(&sysWmInfo.version)
@@ -59,8 +60,8 @@ void initWindow(App *app, Config *cfg)
                                               1, BlackPixel(app->display, 0), WhitePixel(app->display, 0));
     Atom atomType       = XInternAtom(app->display, "_NET_WM_WINDOW_TYPE", 0);
     Atom atomDesktop    = XInternAtom(app->display, "_NET_WM_WINDOW_TYPE_DESKTOP", 0);
-    XChangeProperty(app->display, rootWindow, atomType, XA_ATOM, 32, PropModeReplace, &atomDesktop,
-                    1);
+    XChangeProperty(app->display, rootWindow, atomType, XA_ATOM, 32, PropModeReplace,
+                    (const unsigned char *)&atomDesktop, 1);
     XMapWindow(app->display, rootWindow);
     XSync(app->display, 0);
   }
@@ -69,7 +70,7 @@ void initWindow(App *app, Config *cfg)
     rootWindow = RootWindow(app->display, DefaultScreen(app->display));
   }
   app->window = SDL_CreateWindowFrom((void *)rootWindow);
-  if (app->window == NULL) SDL_Log("%s", SDL_GetError());
+  if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
 
 #endif
 }

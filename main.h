@@ -2,6 +2,7 @@
 #define MAIN_H
 
 #include <SDL2/SDL.h>
+
 #ifdef __WIN32
 #include <SDL2/SDL_syswm.h>
 #include <stdio.h>
@@ -16,16 +17,6 @@
 
 typedef struct
 {
-  SDL_Rect     dest;
-  SDL_Texture *buffTex;
-  SDL_Rect     finalDest;
-  SDL_Texture *finalTex;
-} Instance;
-
-typedef struct
-{
-  int           srcWidth;
-  int           srcHeight;
   SDL_Window   *window;
   SDL_Renderer *renderer;
 #ifndef __WIN32
