@@ -1,10 +1,9 @@
 #include "debug.h"
 #include "main.h"
-#include "parser.h"
 
 #ifdef __WIN32
-HWND          iconWorkerw;
-BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
+static HWND          iconWorkerw;
+static BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
 {
   char buff[10];
   GetClassName(hWnd, buff, 10);

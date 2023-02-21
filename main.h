@@ -17,6 +17,38 @@
 
 typedef struct
 {
+  float        sensitivityX;
+  float        sensitivityY;
+  SDL_Texture *tex;
+} Layer;
+
+typedef struct
+{
+  char         dirPath[PATH_MAX];
+  int          repeatX, repeatY;
+  int          layersCount;
+  Layer       *layers;
+  int          originalW, originalH;
+  SDL_Texture *tex;
+} Wallpaper;
+
+typedef struct
+{
+  int          x, y, w, h;
+  int          wallpaperX, wallpaperY, wallpaperW, wallpaperH;
+  SDL_Texture *tex;
+  Wallpaper    wallpaper;
+} Monitor;
+typedef struct
+{
+  int      reloadRootWnd;
+  int      monitorsCount;
+  float    smooth;
+  Monitor *monitors;
+} Config;
+
+typedef struct
+{
   SDL_Window   *window;
   SDL_Renderer *renderer;
 #ifndef __WIN32

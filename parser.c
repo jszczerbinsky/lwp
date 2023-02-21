@@ -10,13 +10,6 @@
 #define TYPE_INT   1
 #define TYPE_STR   2
 
-typedef struct
-{
-  const char *name;
-  const int   type;
-  void       *output;
-} ConfigParam;
-
 #ifdef __WIN32
 static void getline(char **buff, size_t *buffSize, FILE *f)
 {
@@ -134,16 +127,15 @@ int parseConfig(App *app, Config *cfg)
 {
   FILE *f = openConfigFile();
 
-  if (!findLine(f, "monitors", TYPE_INT, &cfg->monitors))
+  if (!findLine(f, "monitors", TYPE_INT, &cfg->monitorsCount))
   {
     lwpLog(LOG_ERROR, "Can't find line 'monitors' in config");
     return 0;
   }
 
-  if (!findLine(f, "smooth", TYPE_INT, &cfg->monitors))
+  if (!findLine(f, "smooth", TYPE_FLOAT, &cfg->smooth))
   {
     lwpLog(LOG_INFO, "Can't find line 'smooth' in config, setting to default value");
-    cfg->smooth = 8;
   }
 
 #ifndef __WIN32
@@ -180,10 +172,10 @@ int parseConfig(App *app, Config *cfg)
 
     for (int p = 0; p < PARAMS_COUNT; p++)
     {
-      snprintf(str, 100, "monitor%d_%s", m, paramStr[p]);
-      if (!findLine(f, str, p == 0 ? TYPE_STR : TYPE_INT, outputs[p]))
+      snprintf(str, 100, "monitor%d_%s", m + 1, paramStr[p]);
+      if (!findLine(f, str, (p == 0 ? TYPE_STR : TYPE_INT), outputs[p]))
       {
-        lwpLog(LOG_ERROR, "Can't find line '%s' in config", "str");
+        lwpLog(LOG_ERROR, "Can't find line '%s' in config", str);
         return 0;
       }
     }
@@ -199,8 +191,7 @@ int parseConfig(App *app, Config *cfg)
     }
 #endif
 
-    if (!loadWallpaper(app, &cfg->monitors[m], &cfg->monitors[m].wallpaper, wallpaperPath))
-      return 0;
+    strncpy(cfg->monitors[m].wallpaper.dirPath, wallpaperPath, PATH_MAX);
   }
 
   fclose(f);
@@ -210,6 +201,11 @@ int parseConfig(App *app, Config *cfg)
 int parseWallpaperConfig(Wallpaper *wallpaper, const char *path)
 {
   FILE *f = fopen(path, "r");
+  if (!f)
+  {
+    lwpLog(LOG_ERROR, "Wallpaper config file (%s) doesn't exist", path);
+    return 0;
+  }
 
   float defaultMovementX, defaultMovementY;
 
@@ -225,23 +221,25 @@ int parseWallpaperConfig(Wallpaper *wallpaper, const char *path)
   {
     if (!findLine(f, paramStr[p], types[p], outputs[p]))
     {
-      lwpLog(LOG_ERROR, "Can't find line '%s' in config", "str");
+      lwpLog(LOG_ERROR, "Can't find line '%s' in config", paramStr[p]);
       return 0;
     }
   }
+  wallpaper->layers = malloc(wallpaper->layersCount * sizeof(Layer));
 
   char str[100];
   for (int l = 0; l < wallpaper->layersCount; l++)
   {
-    snprintf(str, 100, "movement%d_x", l);
+    snprintf(str, 100, "movement%d_x", l + 1);
     if (!findLine(f, str, TYPE_FLOAT, &wallpaper->layers[l].sensitivityX))
-      wallpaper->layers[l].sensitivityX = defaultMovementX;
-    snprintf(str, 100, "movement%d_y", l);
+      wallpaper->layers[l].sensitivityX = defaultMovementX * l;
+    snprintf(str, 100, "movement%d_y", l + 1);
     if (!findLine(f, str, TYPE_FLOAT, &wallpaper->layers[l].sensitivityY))
-      wallpaper->layers[l].sensitivityY = defaultMovementY;
+      wallpaper->layers[l].sensitivityY = defaultMovementY * l;
   }
 
   fclose(f);
+
   return 1;
 }
 

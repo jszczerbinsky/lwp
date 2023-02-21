@@ -2,6 +2,7 @@
 
 #include "debug.h"
 #include "parser.h"
+#include "wallpaper.h"
 #include "window.h"
 
 static int lerp(int a, int b, float t)
@@ -55,7 +56,8 @@ int main(int argc, char *argv[])
 
   App    app;
   Config cfg;
-  if (!parseConfig(&app, &cfg) || !init(&app, &cfg)) return 1;
+
+  if (!parseConfig(&app, &cfg) || !init(&app, &cfg) || !loadMonitors(&app, &cfg)) return 1;
 
   SDL_Event event;
   int       quit = 0;
@@ -111,9 +113,9 @@ int main(int argc, char *argv[])
             .h = cfg.monitors[m].wallpaper.originalH,
         };
 
-        int x = -((relativeCurrentX - cfg.monitors[m].wallpaperW / 2) *
+        int x = -((relativeCurrentX - cfg.monitors[m].w / 2) *
                   cfg.monitors[m].wallpaper.layers[i].sensitivityX);
-        int y = -((relativeCurrentY - cfg.monitors[m].wallpaperH / 2) *
+        int y = -((relativeCurrentY - cfg.monitors[m].h / 2) *
                   cfg.monitors[m].wallpaper.layers[i].sensitivityY);
 
         // IF REPEAT
