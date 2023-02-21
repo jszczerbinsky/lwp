@@ -136,6 +136,7 @@ int parseConfig(App *app, Config *cfg)
   if (!findLine(f, "smooth", TYPE_FLOAT, &cfg->smooth))
   {
     lwpLog(LOG_INFO, "Can't find line 'smooth' in config, setting to default value");
+	cfg->smooth=8;
   }
 
 #ifndef __WIN32
@@ -190,7 +191,7 @@ int parseConfig(App *app, Config *cfg)
       strcat(wallpaperPath, "\\wallpapers\\test");
     }
 #endif
-
+	
     strncpy(cfg->monitors[m].wallpaper.dirPath, wallpaperPath, PATH_MAX);
   }
 
