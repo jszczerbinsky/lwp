@@ -4,15 +4,14 @@
 #include <string.h>
 
 #include "debug.h"
+#include "wallpaper.h"
 
 #define TYPE_FLOAT 0
 #define TYPE_INT   1
 #define TYPE_STR   2
 
-FILE *file;
-
 #ifdef __WIN32
-void getline(char **buff, size_t *buffSize, FILE *f)
+static void getline(char **buff, size_t *buffSize, FILE *f)
 {
   long int startPos = ftell(f);
   int      length   = 1;
@@ -37,9 +36,10 @@ void getline(char **buff, size_t *buffSize, FILE *f)
 }
 #endif
 
-void openConfig()
+static FILE *openConfigFile()
 {
-  char userConfigPath[PATH_MAX];
+  FILE *f;
+  char  userConfigPath[PATH_MAX];
 
 #ifdef __WIN32
   strcpy(userConfigPath, getenv("AppData"));
@@ -49,8 +49,8 @@ void openConfig()
   sprintf(userConfigPath, "%s/.config/lwp/lwp.cfg", pw->pw_dir);
 #endif
 
-  file = fopen(userConfigPath, "r");
-  if (!file)
+  f = fopen(userConfigPath, "r");
+  if (!f)
   {
     lwpLog(LOG_INFO, "User config file not found, opening default config");
 #ifdef __WIN32
@@ -61,28 +61,28 @@ void openConfig()
     *ptr = '\0';
     strcat(defaultConfigPath, "\\defaultWin.cfg");
 
-    file = fopen(defaultConfigPath, "r");
+    f = fopen(defaultConfigPath, "r");
 #else
-    file = fopen("/etc/lwp.cfg", "r");
+    f = fopen("/etc/lwp.cfg", "r");
 #endif
-    if (!file) lwpLog(LOG_ERROR, "Default config file not found!");
+    if (!f) lwpLog(LOG_ERROR, "Default config file not found!");
   }
+
+  return f;
 }
 
-void closeConfig() { fclose(file); }
-
-int findLine(const char *name, int type, void *output)
+static int findLine(FILE *f, const char *name, int type, void *output)
 {
   char  *buff     = NULL;
   size_t buffSize = 0;
 
   int found = 0;
 
-  fseek(file, 0, SEEK_SET);
+  fseek(f, 0, SEEK_SET);
 
   do
   {
-    getline(&buff, &buffSize, file);
+    getline(&buff, &buffSize, f);
 
     if (buffSize > 0 && buff[0] != '#')
     {
@@ -117,112 +117,135 @@ int findLine(const char *name, int type, void *output)
         }
       }
     }
-  } while (!found && buffSize > 0 && !feof(file));
+  } while (!found && buffSize > 0 && !feof(f));
 
   free(buff);
   return found;
 }
 
-int parseConfig(Config *cfg)
+int parseConfig(App *app, Config *cfg)
 {
-  const char *names[] = {
-      "path", "monitors", "count", "smooth", "movementX", "movementY", "reload_rootwindow",
-  };
+  FILE *f = openConfigFile();
 
-  const int types[] = {TYPE_STR, TYPE_INT, TYPE_INT, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_INT};
-
-  void *outputs[] = {
-      cfg->path,       &cfg->monitors,  &cfg->count,         &cfg->smooth,
-      &cfg->movementX, &cfg->movementY, &cfg->reloadRootWnd,
-  };
-
-#ifdef __WIN32
-  for (int i = 0; i < 6; i++)
-#else
-  for (int i = 0; i < 7; i++)  // ignore reload_rootwindow on Windows
-#endif
+  if (!findLine(f, "monitors", TYPE_INT, &cfg->monitorsCount))
   {
-    if (!findLine(names[i], types[i], outputs[i]))
+    lwpLog(LOG_ERROR, "Can't find line 'monitors' in config");
+    return 0;
+  }
+
+  if (!findLine(f, "smooth", TYPE_FLOAT, &cfg->smooth))
+  {
+    lwpLog(LOG_INFO, "Can't find line 'smooth' in config, setting to default value");
+	cfg->smooth=8;
+  }
+
+#ifndef __WIN32
+  if (!findLine(f, "reload_rootwindow", TYPE_INT, &cfg->monitors))
+  {
+    lwpLog(LOG_ERROR, "Can't find line 'reload_rootwindow' in config");
+    return 0;
+  }
+#endif
+
+  cfg->monitors = malloc(cfg->monitorsCount * sizeof(Monitor));
+
+  for (int m = 0; m < cfg->monitorsCount; m++)
+  {
+    char wallpaperPath[PATH_MAX];
+
+    const int PARAMS_COUNT = 9;
+
+    const char *paramStr[] = {"wallpaper",   "x",           "y",           "w",          "h",
+                              "wallpaper_x", "wallpaper_y", "wallpaper_w", "wallpaper_h"};
+    void       *outputs[]  = {
+        wallpaperPath,
+        &cfg->monitors[m].x,
+        &cfg->monitors[m].y,
+        &cfg->monitors[m].w,
+        &cfg->monitors[m].h,
+        &cfg->monitors[m].wallpaperX,
+        &cfg->monitors[m].wallpaperY,
+        &cfg->monitors[m].wallpaperW,
+        &cfg->monitors[m].wallpaperH,
+    };
+
+    char str[100];
+
+    for (int p = 0; p < PARAMS_COUNT; p++)
     {
-      lwpLog(LOG_ERROR, "Can't find line '%s' in config", names[i]);
-      return 0;
+      snprintf(str, 100, "monitor%d_%s", m + 1, paramStr[p]);
+      if (!findLine(f, str, (p == 0 ? TYPE_STR : TYPE_INT), outputs[p]))
+      {
+        lwpLog(LOG_ERROR, "Can't find line '%s' in config", str);
+        return 0;
+      }
     }
-  }
 
 #ifdef __WIN32
-  if (strlen(cfg->path) < 2)
-  {
-    GetModuleFileNameA(NULL, cfg->path, PATH_MAX);
-    char *ptr = cfg->path + strlen(cfg->path) - 1;
-    while (*ptr != '\\') ptr--;
-    *ptr = '\0';
-    strcat(cfg->path, "\\wallpapers\\test");
-  }
+    if (strlen(wallpaperPath) < 2)
+    {
+      GetModuleFileNameA(NULL, wallpaperPath, PATH_MAX);
+      char *ptr = wallpaperPath + strlen(wallpaperPath) - 1;
+      while (*ptr != '\\') ptr--;
+      *ptr = '\0';
+      strcat(wallpaperPath, "\\wallpapers\\test");
+    }
 #endif
+	
+    strncpy(cfg->monitors[m].wallpaper.dirPath, wallpaperPath, PATH_MAX);
+  }
+
+  fclose(f);
   return 1;
 }
 
-void parseInstancesConfig(Instance *instances, int instancesCount)
+int parseWallpaperConfig(Wallpaper *wallpaper, const char *path)
 {
-  char str[35];
-
-  const char *paramStr[] = {"_x", "_y", "_w", "_h"};
-
-  const char *renderParamStr[] = {"_render_x", "_render_y", "_render_w", "_render_h"};
-
-  for (int i = 0; i < instancesCount; i++)
+  FILE *f = fopen(path, "r");
+  if (!f)
   {
-    int *outputPtr[] = {
-        &instances[i].finalDest.x,
-        &instances[i].finalDest.y,
-        &instances[i].finalDest.w,
-        &instances[i].finalDest.h,
-    };
+    lwpLog(LOG_ERROR, "Wallpaper config file (%s) doesn't exist", path);
+    return 0;
+  }
 
-    int *renderOutputPtr[] = {
-        &instances[i].dest.x,
-        &instances[i].dest.y,
-        &instances[i].dest.w,
-        &instances[i].dest.h,
-    };
+  float defaultMovementX, defaultMovementY;
 
-    for (int p = 0; p < 4; p++)
+  const int   PARAMS_COUNT = 5;
+  const char *paramStr[]   = {"count", "movement_x", "movement_y", "repeat_x", "repeat_y"};
+  const int   types[]      = {TYPE_INT, TYPE_FLOAT, TYPE_FLOAT, TYPE_INT, TYPE_INT};
+  void       *outputs[]    = {
+      &wallpaper->layersCount, &defaultMovementX,   &defaultMovementY,
+      &wallpaper->repeatX,     &wallpaper->repeatY,
+  };
+
+  for (int p = 0; p < PARAMS_COUNT; p++)
+  {
+    if (!findLine(f, paramStr[p], types[p], outputs[p]))
     {
-      sprintf(str, "monitor%d%s", i + 1, paramStr[p]);
-      if (!findLine(str, TYPE_INT, outputPtr[p]))
-        lwpLog(LOG_ERROR, "Can't find line '%s' in config", str);
-    }
-    for (int p = 0; p < 4; p++)
-    {
-      sprintf(str, "monitor%d%s", i + 1, renderParamStr[p]);
-      if (!findLine(str, TYPE_INT, renderOutputPtr[p]))
-      {
-        if (p > 1)
-        {
-          lwpLog(LOG_WARNING,
-                 "Can't find line '%s' in config, setting the same value as the monitor size", str);
-          *(renderOutputPtr[p]) = *(outputPtr[p]);
-        }
-        else
-        {
-          lwpLog(LOG_WARNING, "Can't find line '%s' in config, setting the value to 0", str);
-          *(renderOutputPtr[p]) = 0;
-        }
-      }
+      lwpLog(LOG_ERROR, "Can't find line '%s' in config", paramStr[p]);
+      return 0;
     }
   }
+  wallpaper->layers = malloc(wallpaper->layersCount * sizeof(Layer));
+
+  char str[100];
+  for (int l = 0; l < wallpaper->layersCount; l++)
+  {
+    snprintf(str, 100, "movement%d_x", l + 1);
+    if (!findLine(f, str, TYPE_FLOAT, &wallpaper->layers[l].sensitivityX))
+      wallpaper->layers[l].sensitivityX = defaultMovementX * l;
+    snprintf(str, 100, "movement%d_y", l + 1);
+    if (!findLine(f, str, TYPE_FLOAT, &wallpaper->layers[l].sensitivityY))
+      wallpaper->layers[l].sensitivityY = defaultMovementY * l;
+  }
+
+  fclose(f);
+
+  return 1;
 }
 
-void parsePerLayerMovements(float *layerMovX, float *layerMovY, int count, float defaultValX,
-                            float defaultValY)
+void freeConfig(Config *cfg)
 {
-  char str[15];
-
-  for (int i = 0; i < count; i++)
-  {
-    sprintf(str, "movementX_%d", i + 1);
-    if (!findLine(str, TYPE_FLOAT, layerMovX + i)) layerMovX[i] = defaultValX * i;
-    sprintf(str, "movementY_%d", i + 1);
-    if (!findLine(str, TYPE_FLOAT, layerMovY + i)) layerMovY[i] = defaultValY * i;
-  }
+  for (int i = 0; i < cfg->monitorsCount; i++) freeMonitor(&cfg->monitors[i]);
+  free(cfg->monitors);
 }

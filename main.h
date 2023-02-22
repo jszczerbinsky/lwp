@@ -2,6 +2,7 @@
 #define MAIN_H
 
 #include <SDL2/SDL.h>
+
 #ifdef __WIN32
 #include <SDL2/SDL_syswm.h>
 #include <stdio.h>
@@ -16,16 +17,38 @@
 
 typedef struct
 {
-  SDL_Rect     dest;
-  SDL_Texture *buffTex;
-  SDL_Rect     finalDest;
-  SDL_Texture *finalTex;
-} Instance;
+  float        sensitivityX;
+  float        sensitivityY;
+  SDL_Texture *tex;
+} Layer;
 
 typedef struct
 {
-  int           srcWidth;
-  int           srcHeight;
+  char         dirPath[PATH_MAX];
+  int          repeatX, repeatY;
+  int          layersCount;
+  Layer       *layers;
+  int          originalW, originalH;
+  SDL_Texture *tex;
+} Wallpaper;
+
+typedef struct
+{
+  int          x, y, w, h;
+  int          wallpaperX, wallpaperY, wallpaperW, wallpaperH;
+  SDL_Texture *tex;
+  Wallpaper    wallpaper;
+} Monitor;
+typedef struct
+{
+  int      reloadRootWnd;
+  int      monitorsCount;
+  float    smooth;
+  Monitor *monitors;
+} Config;
+
+typedef struct
+{
   SDL_Window   *window;
   SDL_Renderer *renderer;
 #ifndef __WIN32
