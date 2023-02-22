@@ -118,18 +118,21 @@ int main(int argc, char *argv[])
         int y = -((relativeCurrentY - cfg.monitors[m].h / 2) *
                   cfg.monitors[m].wallpaper.layers[i].sensitivityY);
 
-        // IF REPEAT
-        for (int j = -1; j <= 1; j++)
-        {
-          SDL_Rect dest = {
-              .x = x + j * cfg.monitors[m].wallpaperW,
-              .y = y,
-              .w = cfg.monitors[m].wallpaperW,
-              .h = cfg.monitors[m].wallpaperH,
-          };
+        
+		for(int k = -cfg.monitors[m].wallpaper.repeatY; k <= cfg.moitors[m].wallpaper.repeatY; k++)
+		{
+			for (int j = -cfg.monitors[m].wallpaper.repeatX; j <= cfg.monitors[m].wallpaper.repeatX; j++)
+			{
+			  SDL_Rect dest = {
+				  .x = x + j * cfg.monitors[m].wallpaperW,
+				  .y = y + k * cfg.monitors[m].wallpaperH,
+				  .w = cfg.monitors[m].wallpaperW,
+				  .h = cfg.monitors[m].wallpaperH,
+			  };
 
-          SDL_RenderCopy(app.renderer, cfg.monitors[m].wallpaper.layers[i].tex, &src, &dest);
-        }
+			  SDL_RenderCopy(app.renderer, cfg.monitors[m].wallpaper.layers[i].tex, &src, &dest);
+			}
+		}
       }
 
       SDL_SetRenderTarget(app.renderer, cfg.monitors[m].tex);
