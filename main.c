@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
                   cfg.monitors[m].wallpaper.layers[i].sensitivityY);
 
         
-		for(int k = -cfg.monitors[m].wallpaper.repeatY; k <= cfg.moitors[m].wallpaper.repeatY; k++)
+		for(int k = -cfg.monitors[m].wallpaper.repeatY; k <= cfg.monitors[m].wallpaper.repeatY; k++)
 		{
 			for (int j = -cfg.monitors[m].wallpaper.repeatX; j <= cfg.monitors[m].wallpaper.repeatX; j++)
 			{
