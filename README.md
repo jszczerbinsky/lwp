@@ -5,9 +5,13 @@
 
 <a href="https://www.buymeacoffee.com/jszczerbinsky" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
-# Lwp - Layered WallPaper Engine
+# LWP - Layered WallPaper Engine
+
+LWP allows You to create multi-layered parallax wallpapers. Each layer moves with Your mouse cursor, creating this beautiful effect.
+
+Join our [discord](https://discord.gg/gHpbkXJD) to find amazing wallpapers and upload Your own!
 
 ![](preview.gif)
 <br>
 
-See [Wiki](https://github.com/jszczerbinsky/lwp/wiki) for installation and configuration instructions
+Check out [Wiki](https://github.com/jszczerbinsky/lwp/wiki) for installation and configuration steps.
