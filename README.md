@@ -120,7 +120,8 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 | int    | monitor[n]_wallpaper_w | Wallpaper resolution |
 | int    | monitor[n]_wallpaper_h | Wallpaper resolution |
 
-#### Creating Wallpapers
+## Creating Wallpapers
+
 Want to share Your wallpaper? Join our [discord](https://discord.gg/gHpbkXJD)!
 
 Parallax wallpapers are not popular. Because of this if You want some cool parallax wallpaper, You have to either find a parallax game background on the internet and use it as a wallpaper or cut some real wallpaper into layers using Gimp or Photoshop.
