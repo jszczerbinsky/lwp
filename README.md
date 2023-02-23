@@ -5,9 +5,9 @@
 LWP allows You to create multi-layered parallax wallpapers.<br />
 Each layer moves with Your mouse cursor, creating this beautiful effect.
 
-![](https://img.shields.io/github/v/release/jszczerbinsky/lwp?style=for-the-badge)
-![](https://img.shields.io/github/downloads/jszczerbinsky/lwp/total?style=for-the-badge)
-![](https://img.shields.io/github/actions/workflow/status/jszczerbinsky/lwp/build.yml?style=for-the-badge)
+[![](https://img.shields.io/github/v/release/jszczerbinsky/lwp?style=for-the-badge)](https://github.com/jszczerbinsky/lwp/releases/latest)
+[![](https://img.shields.io/github/downloads/jszczerbinsky/lwp/total?style=for-the-badge)](https://github.com/jszczerbinsky/lwp/releases/latest)
+[![](https://img.shields.io/github/actions/workflow/status/jszczerbinsky/lwp/build.yml?style=for-the-badge)](https://github.com/jszczerbinsky/lwp)
 [![](https://img.shields.io/discord/1077955077974794322?label=DISCORD&style=for-the-badge)](https://discord.gg/gHpbkXJD)
 
 [Installation](#installation) •
