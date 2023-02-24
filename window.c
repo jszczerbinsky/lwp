@@ -21,9 +21,8 @@ static BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
 }
 #endif
 
-void initWindow(App *app, Config *cfg)
-{
 #ifdef __WIN32
+void initWindowWin32(App *app, Config *cfg) {
   app->window =
       SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
   if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
@@ -48,7 +47,18 @@ void initWindow(App *app, Config *cfg)
                GetSystemMetrics(SM_YVIRTUALSCREEN), GetSystemMetrics(SM_CXVIRTUALSCREEN),
                GetSystemMetrics(SM_CYVIRTUALSCREEN),
                SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-#else
+}
+#elif __DARWIN
+void initWindowMacOS(App *app, Config *cfg) {
+  CGDirectDisplayID displayID = CGMainDisplayID();
+  size_t w = CGDisplayPixelsWide(displayID);
+  size_t h = CGDisplayPixelsHigh(displayID);
+
+  app->window = SDL_CreateWindow("Parallax wallpaper", 0, 0, w, h, SDL_WINDOW_METAL | SDL_WINDOW_BORDERLESS);
+  if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
+}
+#elif __LINUX
+void initWindowX11(App *app, Config *cfg) {
   Window rootWindow;
 
   if (cfg->reloadRootWnd)
@@ -70,6 +80,18 @@ void initWindow(App *app, Config *cfg)
   }
   app->window = SDL_CreateWindowFrom((void *)rootWindow);
   if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
+}
+#endif
 
+void initWindow(App *app, Config *cfg)
+{
+#ifdef __WIN32
+  initWindowWin32(app, cfg);
+#elif __DARWIN
+  initWindowMacOS(app, cfg);
+#elif __LINUX
+  initWindowX11(app, cfg);
+#else
+#error "Unsupported platform"
 #endif
 }
