@@ -1,33 +1,39 @@
-PREFIX = /usr/local
+UNAME := $(shell uname)
+FILES := $(shell find . -type f -name '*.c')
 
-ifdef sysconfigdir
-	SYSCONFIGDIR = $(sysconfigdir)
+ifeq ($(UNAME), Darwin)
+CC=clang
+CFLAGS=-D__MACOS -D_THREAD_SAFE -I/opt/homebrew/include -I/opt/homebrew/include/SDL2 -L/opt/homebrew/lib -lSDL2 -framework CoreGraphics -framework Foundation
+INSTALL_PATH=/opt/lwp/
+DEFAULT_CFG=defaultMac.cfg
 else
-	SYSCONFIGDIR = /etc
+CC=gcc
+CFLAGS=-lSDL2 -lX11
+INSTALL_PATH=/
+DEFAULT_CFG=default.cfg
 endif
 
-ifdef XDG_CONFIG_HOME
-	HOMECONFIGDIR = $(XDG_CONFIG_HOME)
-else
-	HOMECONFIGDIR = ~/.config
-endif
+.DEFAULT_GOAL := build
+.PHONY: build install run clean
 
-CC = gcc
-CFLAGS = $(shell pkg-config --libs --cflags sdl2 x11)
+build: $(FILES)
+	mkdir -p build
+	mkdir -p build/usr/bin
+	mkdir -p build/usr/share/lwp
+	mkdir -p build/etc
+	$(CC) main.c wallpaper.c window.c parser.c debug.c -o build/usr/bin/lwp $(CFLAGS)
+	cp -R wallpapers build/usr/share/lwp
+	cp $(DEFAULT_CFG) build/etc/lwp.cfg
+	cp LICENSE build/usr/share/lwp
 
-default:
-	mkdir -p build/$(PREFIX)/bin
-	mkdir -p build/$(PREFIX)/share/lwp
-	mkdir -p build/$(SYSCONFIGDIR)
-	$(CC) main.c wallpaper.c window.c parser.c debug.c $(CFLAGS) -o build/$(PREFIX)/bin/lwp
-	cp -R wallpapers build/$(PREFIX)/share/lwp
-	cp default.cfg build/$(SYSCONFIGDIR)/lwp.cfg
-	cp LICENSE build/$(PREFIX)/share/lwp
+install: build
+	mkdir -p $(INSTALL_PATH)
+	cp -Rf build/* $(INSTALL_PATH)
 
-install:
-	cp -R build/* /
-
+ifeq ($(UNAME), Darwin)
 uninstall:
-	rm $(PREFIX)/bin/lwp
-	rm -rf $(PREFIX)/share/lwp
-	rm $(SYSCONFDIR)/lwp.cfg
+	rm -rf $(INSTALL_PATH)
+endif
+
+clean:
+	rm -rf build
