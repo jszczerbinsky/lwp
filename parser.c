@@ -188,7 +188,7 @@ int parseConfig(App *app, Config *cfg)
       char *ptr = wallpaperPath + strlen(wallpaperPath) - 1;
       while (*ptr != '\\') ptr--;
       *ptr = '\0';
-      strcat(wallpaperPath, "\\wallpapers\\test");
+      strcat(wallpaperPath, "\\wallpapers\\default-fullhd");
     }
 #endif
 	
