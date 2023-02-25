@@ -44,6 +44,14 @@ echo Copying files...
 robocopy "%~dp0\data" "%path%\lwp" /E  /NFL /NDL /NJH /NJS /nc /ns /np
 echo Adding lwp to autorun...
 reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run" /v "lwp" /t REG_EXPAND_SZ /d "%path%\lwp\lwp.exe" /f > nul
+echo Creating uninstaller...
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\layeredWallPaper" /f > nul
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\layeredWallPaper" /v "UninstallString" /t REG_SZ /d "cmd /c \"%path%\lwp\uninstall.bat\"" /f > nul
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\layeredWallPaper" /v "DisplayName" /t REG_SZ /d "Layered WallPaper" /f > nul
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\layeredWallPaper" /v "DisplayIcon" /t REG_SZ /d "%path%\lwp\lwp.exe" /f > nul
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\layeredWallPaper" /v "Publisher" /t REG_SZ /d "Jakub Szczerbinski" /f > nul
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\layeredWallPaper" /v "URLInfoAbout" /t REG_SZ /d "https://github.com/jszczerbinsky/lwp" /f > nul
+
 echo.
 echo Lwp has been successfuly installed on Your computer!
 start "" "%path%\lwp\lwp.exe"
