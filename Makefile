@@ -27,14 +27,14 @@ build: $(FILES)
 	cp $(DEFAULT_CFG) build/etc/lwp.cfg
 	cp LICENSE build/usr/share/lwp
 
-install: build
+install:
 	mkdir -p $(INSTALL_PATH)
 	cp -Rf build/* $(INSTALL_PATH)
 
 # It's unsafe to run this on Linux,
 # because it will attempt to remove /, which is generally a bad idea.
 # So for now, uninstall is only available on macOS.
-ifeq ($(UNAME), Darwin)
+ifeq ($(UNAME), DARWIN)
 uninstall:
 	rm -rf $(INSTALL_PATH)
 endif
