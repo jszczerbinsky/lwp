@@ -22,7 +22,7 @@ build: $(FILES)
 	mkdir -p build/usr/bin
 	mkdir -p build/usr/share/lwp
 	mkdir -p build/etc
-	$(CC) -D__$(UNAME) $(FILES) -o build/usr/bin/lwp $(CFLAGS)
+	$(CC) -D__$(UNAME) $(FILES) $(CFLAGS) -o build/usr/bin/lwp
 	cp -R wallpapers build/usr/share/lwp
 	cp $(DEFAULT_CFG) build/etc/lwp.cfg
 	cp LICENSE build/usr/share/lwp
