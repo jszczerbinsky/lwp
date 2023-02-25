@@ -20,8 +20,6 @@
 #include <linux/limits.h>
 #include <pwd.h>
 #include <unistd.h>
-#else
-#error "Unsupported platform"
 #endif
 
 typedef struct

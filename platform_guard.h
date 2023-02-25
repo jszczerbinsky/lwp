@@ -5,8 +5,7 @@
 #ifndef __DARWIN
 #ifndef __LINUX
 
-// Define linux by default
-#define __LINUX
+#error "Unsupported platform."
 
 #endif // __LINUX
 #endif // __DARWIN
