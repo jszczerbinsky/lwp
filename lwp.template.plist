@@ -5,8 +5,8 @@
         <key>Label</key>
         <string>jszczerbinsky.lwp</string>
 
-        <key>KeepAlive</key>
-        <false/>
+        <key>LaunchOnlyOnce</key>
+        <true/>
         
         <key>RunAtLoad</key>
         <true/>
