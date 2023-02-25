@@ -31,13 +31,34 @@ install:
 	mkdir -p $(INSTALL_PATH)
 	cp -Rf build/* $(INSTALL_PATH)
 
+ifeq ($(UNAME), DARWIN)
+
 # It's unsafe to run this on Linux,
 # because it will attempt to remove /, which is generally a bad idea.
 # So for now, uninstall is only available on macOS.
-ifeq ($(UNAME), DARWIN)
 uninstall:
 	rm -rf $(INSTALL_PATH)
+
+# Build the launchd plist file.
+lwp.plist: lwp.template.plist
+	cp lwp.template.plist lwp.plist
+	sed -i "" "s/{{user}}/$$(whoami)/g" lwp.plist
+
+# Launch lwp on login (macOS only).
+install-launchd: lwp.plist
+	mkdir -p ~/Library/LaunchAgents
+	cp lwp.plist ~/Library/LaunchAgents
+	launchctl load ~/Library/LaunchAgents/lwp.plist
+
+# Stop lwp from running on login (macOS only).
+uninstall-launchd:
+	launchctl unload ~/Library/LaunchAgents/lwp.plist
+	rm ~/Library/LaunchAgents/lwp.plist
+
 endif
 
 clean:
 	rm -rf build
+ifeq ($(UNAME), DARWIN)
+	rm -rf lwp.plist
+endif
