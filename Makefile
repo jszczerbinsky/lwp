@@ -1,5 +1,11 @@
 PREFIX = /usr/local
-SYSCONFIGDIR = /etc
+
+ifdef sysconfigdir
+	SYSCONFIGDIR = $(sysconfigdir)
+else
+	SYSCONFIGDIR = /etc
+endif
+
 ifdef XDG_CONFIG_HOME
 	HOMECONFIGDIR = $(XDG_CONFIG_HOME)
 else
@@ -24,4 +30,4 @@ install:
 uninstall:
 	rm $(PREFIX)/bin/lwp
 	rm -rf $(PREFIX)/share/lwp
-	rm $(SYSCONFIGDIR)/lwp.cfg
+	rm $(SYSCONFDIR)/lwp.cfg
