@@ -45,16 +45,26 @@ static FILE *openConfigFile()
   strcpy(userConfigPath, getenv("AppData"));
   strcat(userConfigPath, "\\lwp\\lwp.cfg");
 #else
-  struct passwd *pw = getpwuid(getuid());
-  sprintf(userConfigPath, "%s/.config/lwp/lwp.cfg", pw->pw_dir);
+  char *xdgConfigHome = getenv("XDG_CONFIG_HOME");
+  if (xdgConfigHome)
+  {
+    strcpy(userConfigPath, xdgConfigHome);
+    strcat(userConfigPath, "/lwp/lwp.cfg");
+  }
+  else
+  {
+    struct passwd *pw = getpwuid(getuid());
+    strcpy(userConfigPath, pw->pw_dir);
+    strcat(userConfigPath, "/.config/lwp/lwp.cfg");
+  }
 #endif
 
   f = fopen(userConfigPath, "r");
   if (!f)
   {
-    lwpLog(LOG_INFO, "User config file not found, opening default config");
-#ifdef __WIN32
+    lwpLog(LOG_INFO, "User config file not found, opening default config instead");
     char defaultConfigPath[PATH_MAX];
+#ifdef __WIN32
     GetModuleFileNameA(NULL, defaultConfigPath, PATH_MAX);
     char *ptr = defaultConfigPath + strlen(defaultConfigPath) - 1;
     while (*ptr != '\\') ptr--;
@@ -63,7 +73,16 @@ static FILE *openConfigFile()
 
     f = fopen(defaultConfigPath, "r");
 #else
-    f = fopen("/etc/lwp.cfg", "r");
+    char *sysConfDir = getenv("sysconfdir");
+    if (sysConfDir)
+    {
+      strcpy(defaultConfigPath, sysConfDir);
+      strcat(defaultConfigPath, "/lwp.cfg");
+    }
+    else
+      strcpy(defaultConfigPath, "/etc/lwp.cfg");
+
+    f = fopen(defaultConfigPath, "r");
 #endif
     if (!f) lwpLog(LOG_ERROR, "Default config file not found!");
   }
@@ -136,7 +155,7 @@ int parseConfig(App *app, Config *cfg)
   if (!findLine(f, "smooth", TYPE_FLOAT, &cfg->smooth))
   {
     lwpLog(LOG_INFO, "Can't find line 'smooth' in config, setting to default value");
-	cfg->smooth=8;
+    cfg->smooth = 8;
   }
 
 #ifndef __WIN32
@@ -191,7 +210,7 @@ int parseConfig(App *app, Config *cfg)
       strcat(wallpaperPath, "\\wallpapers\\default-fullhd");
     }
 #endif
-	
+
     strncpy(cfg->monitors[m].wallpaper.dirPath, wallpaperPath, PATH_MAX);
   }
 
