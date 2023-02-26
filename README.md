@@ -150,8 +150,8 @@ C:
 | int    | count        | Wallpaper layers count |
 | float  | movement_x    | Mouse sensitivity in X axis |
 | float  | movement_y    | Mouse sensitivity in Y axis |
-| float  | movement_x_[n]| Mouse sensitivity in X axis for nth layer (optional)|
-| float  | movement_y_[n]| Mouse sensitivity in Y axis for nth layer (optional)|
+| float  | movement[n]_x | Mouse sensitivity in X axis for nth layer (optional)|
+| float  | movement[n]_y | Mouse sensitivity in Y axis for nth layer (optional)|
 | int    | repeat_x     | Repeat the wallpaper in X axis |
 | int    | repeat_y     | Repeat the wallpaper in Y axis |
 
