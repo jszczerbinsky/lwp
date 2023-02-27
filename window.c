@@ -51,11 +51,11 @@ void initWindow(App *app, Config *cfg) {
 #elif __DARWIN
 
 // Helper macros for objc runtime interaction
-#define msg_int ((id (*)(id, SEL, int))objc_msgSend)
-#define msg_id  ((id (*)(id, SEL, id))objc_msgSend)
-#define msg_ptr ((id (*)(id, SEL, void*))objc_msgSend)
-#define msg_cls ((id (*)(Class, SEL))objc_msgSend)
-#define msg_cls_chr ((id (*)(Class, SEL, char*))objc_msgSend)
+#define OBJC_MSG_INT      ((id (*)(id, SEL, int))       objc_msgSend)
+#define OBJC_MSG_ID       ((id (*)(id, SEL, id))        objc_msgSend)
+#define OBJC_MSG_PTR      ((id (*)(id, SEL, void*))     objc_msgSend)
+#define OBJC_MSG_CLS      ((id (*)(Class, SEL))         objc_msgSend)
+#define OBJC_MSG_CLS_CHR  ((id (*)(Class, SEL, char*))  objc_msgSend)
 
 void initWindow(App *app, Config *cfg) {
   // Get main display size
@@ -65,12 +65,12 @@ void initWindow(App *app, Config *cfg) {
   const struct CGRect frameRect = { 0, 0, w, h };
 
   // Get shared NSApplication instance
-  const id ns_app = msg_cls(objc_getClass("NSApplication"), sel_getUid("sharedApplication"));
-  msg_int(ns_app, sel_getUid("setActivationPolicy:"), 0); // NSApplicationActivationPolicyRegular
+  const id ns_app = OBJC_MSG_CLS(objc_getClass("NSApplication"), sel_getUid("sharedApplication"));
+  OBJC_MSG_INT(ns_app, sel_getUid("setActivationPolicy:"), 0); // NSApplicationActivationPolicyRegular
 
   // Create NSWindow
   const id window = ((id (*)(id, SEL, struct CGRect, int, int, int))objc_msgSend)(
-    msg_cls(objc_getClass("NSWindow"), sel_getUid("alloc")),
+    OBJC_MSG_CLS(objc_getClass("NSWindow"), sel_getUid("alloc")),
     sel_getUid("initWithContentRect:styleMask:backing:defer:"),
     frameRect,
     0, // NSWindowStyleMaskBorderless
@@ -79,18 +79,18 @@ void initWindow(App *app, Config *cfg) {
   );
 
   // Set window attributes
-  msg_id(
+  OBJC_MSG_ID(
     window,
     sel_getUid("setTitle:"),
-    msg_cls_chr(
+    OBJC_MSG_CLS_CHR(
       objc_getClass("NSString"),
       sel_getUid("stringWithUTF8String:"),
       "Parallax wallpaper"
     )
   );
-  msg_ptr(window, sel_getUid("makeKeyAndOrderFront:"), nil);
-  msg_int(window, sel_getUid("setLevel:"), kCGDesktopWindowLevel - 1);
-  msg_int(ns_app, sel_getUid("activateIgnoringOtherApps:"), true);
+  OBJC_MSG_PTR(window, sel_getUid("makeKeyAndOrderFront:"), nil);
+  OBJC_MSG_INT(window, sel_getUid("setLevel:"), kCGDesktopWindowLevel - 1);
+  OBJC_MSG_INT(ns_app, sel_getUid("activateIgnoringOtherApps:"), true);
 
   // Create SDL window from NSWindow
   app->window = SDL_CreateWindowFrom((void*) window);
