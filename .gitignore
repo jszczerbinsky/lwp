@@ -55,3 +55,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Unwanted build artifacts
+lwp.plist

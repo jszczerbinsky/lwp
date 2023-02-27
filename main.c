@@ -1,3 +1,4 @@
+#include "platform_guard.h"
 #include "main.h"
 
 #include "debug.h"
