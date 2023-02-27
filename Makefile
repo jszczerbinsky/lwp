@@ -1,43 +1,59 @@
 UNAME := $(shell uname | tr a-z A-Z)
 FILES := $(shell find . -type f -name '*.c')
-CFLAGS_SDL2 := $(shell pkg-config --libs --cflags sdl2)
+
+ifdef sysconfigdir
+	SYSCONFIGDIR = $(sysconfigdir)
+else ifeq ($(UNAME), LINUX)
+	SYSCONFIGDIR = /etc
+endif
+
+ifdef XDG_CONFIG_HOME
+	HOMECONFIGDIR = $(XDG_CONFIG_HOME)
+else
+	HOMECONFIGDIR = ~/.config
+endif
 
 # Configure build parameters based on the host OS.
 ifeq ($(UNAME), DARWIN)
-CC=clang
-CFLAGS=$(CFLAGS_SDL2) -framework CoreGraphics -framework Foundation
-INSTALL_PATH=/opt/lwp/
-DEFAULT_CFG=defaultMac.cfg
+CC = clang
+CFLAGS = $(shell pkg-config --libs --cflags sdl2) -framework CoreGraphics -framework Foundation
+PREFIX = /opt/lwp
+SYSCONFIGDIR = $(PREFIX)
+DEFAULT_CFG = defaultMac.cfg
 else
-CC=gcc
-CFLAGS=$(CFLAGS_SDL2) -lX11
-INSTALL_PATH=/
-DEFAULT_CFG=default.cfg
+CC = gcc
+CFLAGS = $(shell pkg-config --libs --cflags sdl2 x11)
+PREFIX = /usr/local
+DEFAULT_CFG = default.cfg
 endif
 
 .DEFAULT_GOAL := build
 .PHONY: build install run clean
 
 build: $(FILES)
-	mkdir -p build/usr/bin
-	mkdir -p build/usr/share/lwp
-	mkdir -p build/etc
-	$(CC) -D__$(UNAME) $(FILES) $(CFLAGS) -o build/usr/bin/lwp
-	cp -R wallpapers build/usr/share/lwp
-	cp $(DEFAULT_CFG) build/etc/lwp.cfg
-	cp LICENSE build/usr/share/lwp
+	mkdir -p build/$(PREFIX)/bin
+	mkdir -p build/$(PREFIX)/share/lwp
+	mkdir -p build/$(SYSCONFIGDIR)
+	$(CC) $(FILES) -D__$(UNAME) $(CFLAGS) -o build/$(PREFIX)/bin/lwp
+	cp -R wallpapers LICENSE build/$(PREFIX)/share/lwp/
+	cp $(DEFAULT_CFG) build/$(SYSCONFIGDIR)/lwp.cfg
 
 install:
-	mkdir -p $(INSTALL_PATH)
-	cp -Rf build/* $(INSTALL_PATH)
+	cp -R build/* /
+
+ifeq ($(UNAME), LINUX)
+
+uninstall:
+	rm $(PREFIX)/bin/lwp
+	rm -r $(PREFIX)/share/lwp
+	rm $(SYSCONFDIR)/lwp.cfg
+
+endif
 
 ifeq ($(UNAME), DARWIN)
 
-# It's unsafe to run this on Linux,
-# because it will attempt to remove /, which is generally a bad idea.
-# So for now, uninstall is only available on macOS.
 uninstall:
-	rm -rf $(INSTALL_PATH)
+	rm -r $(PREFIX)
 
 # Build the launchd plist file.
 lwp.plist: lwp.template.plist
