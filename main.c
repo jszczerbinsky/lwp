@@ -1,3 +1,4 @@
+#include "platform_guard.h"
 #include "main.h"
 
 #include "debug.h"
@@ -18,7 +19,7 @@ static int init(App *app, Config *cfg)
     return 0;
   }
 
-#ifndef __WIN32
+#ifdef __LINUX
   app->display = XOpenDisplay(NULL);
 #endif
 
@@ -177,7 +178,7 @@ int main(int argc, char *argv[])
 
   freeConfig(&cfg);
 
-#ifndef __WIN32
+#ifdef __LINUX
   XCloseDisplay(app.display);
 #endif
   SDL_DestroyRenderer(app.renderer);
