@@ -158,8 +158,8 @@ int parseConfig(App *app, Config *cfg)
     cfg->smooth = 8;
   }
 
-#ifdef __LINUX
-  if (!findLine(f, "reload_rootwindow", TYPE_INT, &cfg->monitors))
+#ifndef __WIN32
+  if (!findLine(f, "reload_rootwindow", TYPE_INT, &cfg->reloadRootWnd))
   {
     lwpLog(LOG_ERROR, "Can't find line 'reload_rootwindow' in config");
     return 0;

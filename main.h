@@ -58,9 +58,6 @@ typedef struct
 {
   SDL_Window   *window;
   SDL_Renderer *renderer;
-#ifdef __LINUX
-  Display *display;
-#endif
 } App;
 
 #endif // MAIN_H

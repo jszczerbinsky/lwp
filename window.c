@@ -1,6 +1,12 @@
 #include "debug.h"
 #include "main.h"
 
+#ifndef __WIN32
+#include <SDL2/SDL_syswm.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#endif
+
 #ifdef __WIN32
 
 static HWND          iconWorkerw;
@@ -100,27 +106,41 @@ void initWindow(App *app, Config *cfg) {
 #elif __LINUX
 
 void initWindow(App *app, Config *cfg) {
-  Window rootWindow;
 
   if (cfg->reloadRootWnd)
   {
-    Window originalRoot = RootWindow(app->display, DefaultScreen(app->display));
-    rootWindow          = XCreateSimpleWindow(app->display, originalRoot, 0, 0,
-                                              DisplayWidth(app->display, 0), DisplayHeight(app->display, 0),
-                                              1, BlackPixel(app->display, 0), WhitePixel(app->display, 0));
-    Atom atomType       = XInternAtom(app->display, "_NET_WM_WINDOW_TYPE", 0);
-    Atom atomDesktop    = XInternAtom(app->display, "_NET_WM_WINDOW_TYPE_DESKTOP", 0);
-    XChangeProperty(app->display, rootWindow, atomType, XA_ATOM, 32, PropModeReplace,
+    Display *display = XOpenDisplay(NULL);
+    XCloseDisplay(display);
+
+    app->window = SDL_CreateWindow("Parallax wallpaper", 0, 0, DisplayWidth(display, 0),
+                                   DisplayHeight(display, 0), SDL_WINDOW_OPENGL);
+
+    SDL_SysWMinfo wmInfo;
+    SDL_GetVersion(&wmInfo.version);
+    SDL_GetWindowWMInfo(app->window, &wmInfo);
+
+    Window xWnd = wmInfo.info.x11.window;
+    display     = wmInfo.info.x11.display;
+
+    Atom atomType    = XInternAtom(display, "_NET_WM_WINDOW_TYPE", 0);
+    Atom atomDesktop = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DESKTOP", 0);
+    XChangeProperty(display, xWnd, atomType, XA_ATOM, 32, PropModeReplace,
                     (const unsigned char *)&atomDesktop, 1);
-    XMapWindow(app->display, rootWindow);
-    XSync(app->display, 0);
+
+    Window rootWindow = RootWindow(display, DefaultScreen(display));
+
+    XReparentWindow(display, xWnd, rootWindow, 0, 0);
+
+    XSync(display, 0);
   }
   else
   {
-    rootWindow = RootWindow(app->display, DefaultScreen(app->display));
+    Display *display    = XOpenDisplay(NULL);
+    Window   rootWindow = RootWindow(display, DefaultScreen(display));
+    app->window         = SDL_CreateWindowFrom((void *)rootWindow);
+    XCloseDisplay(display);
   }
-  app->window = SDL_CreateWindowFrom((void *)rootWindow);
+
   if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
 }
-
 #endif

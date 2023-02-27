@@ -19,10 +19,6 @@ static int init(App *app, Config *cfg)
     return 0;
   }
 
-#ifdef __LINUX
-  app->display = XOpenDisplay(NULL);
-#endif
-
   initWindow(app, cfg);
 
   app->renderer =
@@ -119,21 +115,22 @@ int main(int argc, char *argv[])
         int y = -((relativeCurrentY - cfg.monitors[m].h / 2) *
                   cfg.monitors[m].wallpaper.layers[i].sensitivityY);
 
-        
-		for(int k = -cfg.monitors[m].wallpaper.repeatY; k <= cfg.monitors[m].wallpaper.repeatY; k++)
-		{
-			for (int j = -cfg.monitors[m].wallpaper.repeatX; j <= cfg.monitors[m].wallpaper.repeatX; j++)
-			{
-			  SDL_Rect dest = {
-				  .x = x + j * cfg.monitors[m].wallpaperW,
-				  .y = y + k * cfg.monitors[m].wallpaperH,
-				  .w = cfg.monitors[m].wallpaperW,
-				  .h = cfg.monitors[m].wallpaperH,
-			  };
+        for (int k = -cfg.monitors[m].wallpaper.repeatY; k <= cfg.monitors[m].wallpaper.repeatY;
+             k++)
+        {
+          for (int j = -cfg.monitors[m].wallpaper.repeatX; j <= cfg.monitors[m].wallpaper.repeatX;
+               j++)
+          {
+            SDL_Rect dest = {
+                .x = x + j * cfg.monitors[m].wallpaperW,
+                .y = y + k * cfg.monitors[m].wallpaperH,
+                .w = cfg.monitors[m].wallpaperW,
+                .h = cfg.monitors[m].wallpaperH,
+            };
 
-			  SDL_RenderCopy(app.renderer, cfg.monitors[m].wallpaper.layers[i].tex, &src, &dest);
-			}
-		}
+            SDL_RenderCopy(app.renderer, cfg.monitors[m].wallpaper.layers[i].tex, &src, &dest);
+          }
+        }
       }
 
       SDL_SetRenderTarget(app.renderer, cfg.monitors[m].tex);
@@ -178,9 +175,6 @@ int main(int argc, char *argv[])
 
   freeConfig(&cfg);
 
-#ifdef __LINUX
-  XCloseDisplay(app.display);
-#endif
   SDL_DestroyRenderer(app.renderer);
   SDL_DestroyWindow(app.window);
   SDL_Quit();
