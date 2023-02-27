@@ -76,7 +76,10 @@ void initWindow(App *app, Config *cfg)
     XChangeProperty(display, xWnd, atomType, XA_ATOM, 32, PropModeReplace,
                     (const unsigned char *)&atomDesktop, 1);
 
-    // XMapWindow(display, xWnd);
+    Window rootWindow = RootWindow(display, DefaultScreen(display));
+
+    XReparentWindow(display, xWnd, rootWindow, 0, 0);
+
     XSync(display, 0);
   }
   else
