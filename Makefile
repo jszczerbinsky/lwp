@@ -38,7 +38,7 @@ build: $(FILES)
 	$(CC) $(FILES) -D__$(UNAME) $(CFLAGS) -o build/$(PREFIX)/bin/lwp
 	cp -R wallpapers LICENSE build/$(PREFIX)/share/lwp/
 	cp $(DEFAULT_CFG) build/$(SYSCONFIGDIR)/lwp.cfg
-  	cp LICENSE build/$(PREFIX)/share/lwp/
+	cp LICENSE build/$(PREFIX)/share/lwp/
 
 install:
 	cp -R build/* /
