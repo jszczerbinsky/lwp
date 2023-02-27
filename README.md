@@ -129,7 +129,7 @@ Parallax wallpapers are not popular. Because of this if You want some cool paral
 #### How to create a wallpaper for lwp
 - Create a directory for Your wallpaper
 - Save each layer to this directory as `.bmp` file and name them `1.bmp`, `2.bmp` ... (`1.bmp` is bottom most layer)
-- Create a wallpaper config file and name it `wallpaper.cfg` (You can make a copy from `C:\Program Files\lwp\defaultWin.cfg`)
+- Create a wallpaper config file and name it `wallpaper.cfg` (You can make a copy from `C:\Program Files\lwp\wallpapers\test\wallpaper.cfg`)
 
 #### Example:
 
