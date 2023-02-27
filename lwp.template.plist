@@ -16,7 +16,7 @@
 
         <key>ProgramArguments</key>
         <array>
-            <string>/opt/lwp/usr/bin/lwp</string>
+            <string>{{binpath}}</string>
         </array>
     </dict>
 </plist>
