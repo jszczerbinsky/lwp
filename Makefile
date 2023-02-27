@@ -19,7 +19,7 @@ default:
 	mkdir -p build/$(PREFIX)/bin
 	mkdir -p build/$(PREFIX)/share/lwp
 	mkdir -p build/$(SYSCONFIGDIR)
-	$(CC) main.c wallpaper.c window.c parser.c debug.c $(CFLAGS) -o build/$(PREFIX)/bin/lwp
+	$(CC) -ggdb main.c wallpaper.c window.c parser.c debug.c $(CFLAGS) -o build/$(PREFIX)/bin/lwp
 	cp -R wallpapers build/$(PREFIX)/share/lwp
 	cp default.cfg build/$(SYSCONFIGDIR)/lwp.cfg
 	cp LICENSE build/$(PREFIX)/share/lwp

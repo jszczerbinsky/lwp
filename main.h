@@ -8,8 +8,6 @@
 #include <stdio.h>
 #include <windows.h>
 #else
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
 #include <linux/limits.h>
 #include <pwd.h>
 #include <unistd.h>
@@ -51,9 +49,6 @@ typedef struct
 {
   SDL_Window   *window;
   SDL_Renderer *renderer;
-#ifndef __WIN32
-  Display *display;
-#endif
 } App;
 
 #endif
