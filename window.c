@@ -142,4 +142,5 @@ void initWindow(App *app, Config *cfg) {
   }
 
   if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
+}
 #endif
