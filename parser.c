@@ -72,6 +72,10 @@ static FILE *openConfigFile()
     strcat(defaultConfigPath, "\\defaultWin.cfg");
 
     f = fopen(defaultConfigPath, "r");
+#elif __DARWIN
+    strcpy(defaultConfigPath, "/opt/lwp/lwp.cfg");
+
+    f = fopen(defaultConfigPath, "r");
 #else
     char *sysConfDir = getenv("sysconfdir");
     if (sysConfDir)
@@ -158,7 +162,7 @@ int parseConfig(App *app, Config *cfg)
     cfg->smooth = 8;
   }
 
-#ifndef __WIN32
+#ifdef __LINUX
   if (!findLine(f, "reload_rootwindow", TYPE_INT, &cfg->reloadRootWnd))
   {
     lwpLog(LOG_ERROR, "Can't find line 'reload_rootwindow' in config");

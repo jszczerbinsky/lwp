@@ -1,6 +1,10 @@
 UNAME := $(shell uname | tr a-z A-Z)
 FILES := $(shell find . -type f -name '*.c')
 
+ifeq ($(UNAME), Darwin)
+	UNAME := DARWIN
+endif
+
 ifdef sysconfigdir
 	SYSCONFIGDIR = $(sysconfigdir)
 else ifeq ($(UNAME), LINUX)

@@ -3,6 +3,8 @@
 
 #ifndef __WIN32
 #include <SDL2/SDL_syswm.h>
+#endif
+#ifdef __LINUX
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #endif
