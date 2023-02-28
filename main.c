@@ -1,13 +1,14 @@
-#include "platform_guard.h"
 #include "main.h"
 
 #include "debug.h"
 #include "parser.h"
+#include "platform_guard.h"
 #include "wallpaper.h"
 #include "window.h"
 
 static int lerp(int a, int b, float t)
 {
+  if (t > 1) t = 1;
   return (int)((float)a + (float)t * ((float)b - (float)a));
 }
 
