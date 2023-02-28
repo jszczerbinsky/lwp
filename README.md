@@ -26,6 +26,7 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   <summary>Linux</summary>
   
   #### Installation steps
+  
   - Download `.tar.gz` package from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
   - Extract the content to `/`:
   ```shell
@@ -51,6 +52,7 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 
 <details>
   <summary>macOS</summary>
+  
   #### Build from source
   - Install `SDL2` (homebrew: `brew install sdl2`)
   - Clone the repository and install `lwp`:
@@ -63,6 +65,7 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   - Test lwp by running `/opt/lwp/bin/lwp`
   - To make lwp run on startup, run `make install-launchd`
     - To stop running lwp on startup, run `make uninstall-launchd`
+    
 </details>
 
 <details>
