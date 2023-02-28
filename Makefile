@@ -5,8 +5,8 @@ ifeq ($(UNAME), Darwin)
 	UNAME := DARWIN
 endif
 
-ifdef sysconfigdir
-	SYSCONFIGDIR = $(sysconfigdir)
+ifdef sysconfdir
+	SYSCONFIGDIR = $(sysconfdir)
 else ifeq ($(UNAME), LINUX)
 	SYSCONFIGDIR = /etc
 endif
@@ -52,7 +52,7 @@ ifeq ($(UNAME), LINUX)
 uninstall:
 	rm $(PREFIX)/bin/lwp
 	rm -r $(PREFIX)/share/lwp
-	rm $(SYSCONFDIR)/lwp.cfg
+	rm $(SYSCONFIGDIR)/lwp.cfg
 
 endif
 
