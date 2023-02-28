@@ -26,10 +26,10 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   <summary>Linux</summary>
   
   #### Installation steps
-  - Download `.zip` package from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
-  - Unzip the content to `/`:
+  - Download `.tar.gz` package from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
+  - Extract the content to `/`:
   ```shell
-  sudo unzip -d / [archive name].zip
+  sudo tar -o -xvf [archive name].tar.gz --directory /
   ```
   - Test lwp by running `lwp`
   - To make lwp run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
@@ -51,7 +51,15 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 
 <details>
   <summary>macOS</summary>
-
+  
+  #### Installation steps
+  - Download `.tar.gz` package from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
+  - Extract the content to `/`:
+  ```shell
+  sudo tar -o -xvf [archive name].tar.gz --directory /
+  ```
+  - Test lwp by running `/opt/lwp/bin/lwp`
+  
   #### Build from source
   - Install `SDL2` (homebrew: `brew install sdl2`)
   - Clone the repository and install `lwp`:
