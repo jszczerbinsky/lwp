@@ -46,6 +46,9 @@ static void initCmd()
 }
 #endif
 
+// Avoid duplicated definitions of 'main' from SDL2
+#undef main
+
 int main(int argc, char *argv[])
 {
 #ifdef __WIN32

@@ -7,6 +7,10 @@
 #include <SDL2/SDL_syswm.h>
 #include <stdio.h>
 #include <windows.h>
+// MSVC doesn't have PATH_MAX
+#ifndef PATH_MAX
+#define PATH_MAX MAX_PATH
+#endif
 #elif __DARWIN
 #include <objc/runtime.h>
 #include <objc/message.h>
