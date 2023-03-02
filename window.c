@@ -3,6 +3,7 @@
 
 #ifdef __WIN32
 #include <shellscalingapi.h>
+#include <shellapi.h>
 #else
 #include <SDL2/SDL_syswm.h>
 #endif
@@ -31,8 +32,58 @@ static BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
   return TRUE;
 }
 
+static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    
+    }
+}
+
+static void initTrayIcon()
+{
+	// Create an invisible window to process tray icon events
+	
+	HINSTANCE hInstance = GetModuleHandle(NULL);
+	const wchar_t CLASS_NAME[]  = L"Hidden Window";
+	WNDCLASS wc = { };
+	wc.lpfnWndProc   = wndProc;
+	wc.hInstance     = hInstance;
+	wc.lpszClassName = CLASS_NAME;
+	RegisterClass(&wc);
+	HWND hWnd = CreateWindowEx(
+			0,
+			CLASS_NAME,
+			L"",
+			WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+			NULL,
+			NULL,
+			hInstance,
+			NULL
+	);
+		
+	// Create tray icon
+	
+	NOTIFYICONDATA nid;
+ 
+	nid.cbSize = sizeof(NOTIFYICONDATA);
+	nid.hWnd = hWnd;
+	nid.uID = 100;
+	nid.uVersion = NTDDI_WIN2K;
+	nid.uCallbackMessage = 123;
+	nid.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	strcpy(nid.szInfo, "Test");
+	nid.uFlags = NIF_ICON;
+	 
+	Shell_NotifyIcon(NIM_ADD, &nid);
+}
+
 void initWindow(App *app, Config *cfg) {
   SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+	
+	initTrayIcon();
+	
   app->window =
       SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
   if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
