@@ -12,11 +12,11 @@
         <true/>
 
         <key>UserName</key>
-        <string>{{user}}</string>
+        <string>@user@</string>
 
         <key>ProgramArguments</key>
         <array>
-            <string>{{binpath}}</string>
+            <string>@binpath@</string>
         </array>
     </dict>
 </plist>
