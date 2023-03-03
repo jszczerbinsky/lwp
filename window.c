@@ -4,6 +4,7 @@
 #ifdef __WIN32
 #include <shellscalingapi.h>
 #include <shellapi.h>
+#include <tchar.h>
 #else
 #include <SDL2/SDL_syswm.h>
 #endif
@@ -32,11 +33,77 @@ static BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
   return TRUE;
 }
 
+#define WM_TRAY_ICON (WM_USER+1)
+
+static NOTIFYICONDATA nid;
+static int quit = 0;
+
+void removeTrayIcon()
+{
+	Shell_NotifyIcon(NIM_DELETE, &nid);
+}
+
+int updateTrayIcon()
+{
+	MSG msg;
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+  {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+  }
+	
+	return !quit;
+}
+
 static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
-    
+			case WM_TRAY_ICON:
+			if (lParam == WM_RBUTTONDOWN || lParam == WM_LBUTTONDOWN)
+			{
+				int res = MessageBox(
+						NULL, 
+						"Do You want to run Layered WallPaper with debug console?", 
+						"Restart Layered WallPaper", 
+						MB_YESNOCANCEL | MB_ICONQUESTION
+					);
+					
+					TCHAR processParam = NULL;
+					
+					if(res != IDCANCEL)
+					{
+						TCHAR fileName[MAX_PATH];
+						GetModuleFileName(NULL, fileName, MAX_PATH);
+						
+						TCHAR cmd[MAX_PATH + 10];
+						_tcscpy(cmd, fileName);
+						
+						if(res == IDYES)
+								_tcscat(cmd, " /console");
+						
+						STARTUPINFO si;
+						memset(&si, 0, sizeof(STARTUPINFO));
+						
+						PROCESS_INFORMATION pi;
+						
+						CreateProcess(
+							NULL,
+							cmd,
+							NULL,
+							NULL,
+							FALSE,
+							0,
+							NULL,
+							NULL,
+							&si,
+							&pi
+						);
+						
+						quit = 1;
+					}
+			}
+			break;
     }
 }
 
@@ -64,17 +131,12 @@ static void initTrayIcon()
 	);
 		
 	// Create tray icon
-	
-	NOTIFYICONDATA nid;
  
 	nid.cbSize = sizeof(NOTIFYICONDATA);
 	nid.hWnd = hWnd;
-	nid.uID = 100;
-	nid.uVersion = NTDDI_WIN2K;
-	nid.uCallbackMessage = 123;
-	nid.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	strcpy(nid.szInfo, "Test");
-	nid.uFlags = NIF_ICON;
+	nid.uCallbackMessage = WM_TRAY_ICON;
+	nid.hIcon = LoadIcon(hInstance, "ID");
+	nid.uFlags = NIF_ICON | NIF_MESSAGE;
 	 
 	Shell_NotifyIcon(NIM_ADD, &nid);
 }
