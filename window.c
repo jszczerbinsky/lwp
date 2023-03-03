@@ -3,6 +3,8 @@
 
 #ifdef __WIN32
 #include <shellscalingapi.h>
+#include <shellapi.h>
+#include <tchar.h>
 #else
 #include <SDL2/SDL_syswm.h>
 #endif
@@ -31,8 +33,119 @@ static BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
   return TRUE;
 }
 
+#define WM_TRAY_ICON (WM_USER+1)
+
+static NOTIFYICONDATA nid;
+static int quit = 0;
+
+void removeTrayIcon()
+{
+	Shell_NotifyIcon(NIM_DELETE, &nid);
+}
+
+int updateTrayIcon()
+{
+	MSG msg;
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+  {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+  }
+	
+	return !quit;
+}
+
+static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+			case WM_TRAY_ICON:
+			if (lParam == WM_RBUTTONDOWN || lParam == WM_LBUTTONDOWN)
+			{
+				int res = MessageBox(
+						NULL, 
+						"Do You want to run Layered WallPaper with debug console?", 
+						"Restart Layered WallPaper", 
+						MB_YESNOCANCEL | MB_ICONQUESTION
+					);
+					
+					TCHAR processParam = NULL;
+					
+					if(res != IDCANCEL)
+					{
+						TCHAR fileName[MAX_PATH];
+						GetModuleFileName(NULL, fileName, MAX_PATH);
+						
+						TCHAR cmd[MAX_PATH + 10];
+						_tcscpy(cmd, fileName);
+						
+						if(res == IDYES)
+								_tcscat(cmd, " /console");
+						
+						STARTUPINFO si;
+						memset(&si, 0, sizeof(STARTUPINFO));
+						
+						PROCESS_INFORMATION pi;
+						
+						CreateProcess(
+							NULL,
+							cmd,
+							NULL,
+							NULL,
+							FALSE,
+							0,
+							NULL,
+							NULL,
+							&si,
+							&pi
+						);
+						
+						quit = 1;
+					}
+			}
+			break;
+    }
+}
+
+static void initTrayIcon()
+{
+	// Create an invisible window to process tray icon events
+	
+	HINSTANCE hInstance = GetModuleHandle(NULL);
+	const wchar_t CLASS_NAME[]  = L"Hidden Window";
+	WNDCLASS wc = { };
+	wc.lpfnWndProc   = wndProc;
+	wc.hInstance     = hInstance;
+	wc.lpszClassName = CLASS_NAME;
+	RegisterClass(&wc);
+	HWND hWnd = CreateWindowEx(
+			0,
+			CLASS_NAME,
+			L"",
+			WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+			NULL,
+			NULL,
+			hInstance,
+			NULL
+	);
+		
+	// Create tray icon
+ 
+	nid.cbSize = sizeof(NOTIFYICONDATA);
+	nid.hWnd = hWnd;
+	nid.uCallbackMessage = WM_TRAY_ICON;
+	nid.hIcon = LoadIcon(hInstance, "ID");
+	nid.uFlags = NIF_ICON | NIF_MESSAGE;
+	 
+	Shell_NotifyIcon(NIM_ADD, &nid);
+}
+
 void initWindow(App *app, Config *cfg) {
   SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+	
+	initTrayIcon();
+	
   app->window =
       SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
   if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
