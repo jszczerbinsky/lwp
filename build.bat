@@ -9,7 +9,7 @@ copy defaultWin.cfg data || goto err
 copy LICENSE data\LICENSE.txt || goto err
 echo.
 echo ---                           Done!                                  ---
-echo --- Remember to put SDL2.dll into 'data' directory before installing ---
+copy SDL2.dll data || echo --- Remember to put SDL2.dll into 'data' directory before installing ---
 pause>nul
 exit
 
