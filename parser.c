@@ -171,7 +171,7 @@ int parseConfig(App *app, Config *cfg)
     lwpLog(LOG_INFO, "Can't find line 'target_fps' in config, setting to default value");
     cfg->targetFPS = 60;
   }
-	lwpLog(LOG_INFO, "	target_fps: %f", cfg->targetFPS);
+	lwpLog(LOG_INFO, "	target_fps: %d", cfg->targetFPS);
 
 #ifdef __LINUX
   if (!findLine(f, "reload_rootwindow", TYPE_INT, &cfg->reloadRootWnd))
