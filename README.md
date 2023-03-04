@@ -8,7 +8,7 @@ Each layer moves with Your mouse cursor, creating this beautiful effect.
 [![](https://img.shields.io/github/v/release/jszczerbinsky/lwp?style=for-the-badge)](https://github.com/jszczerbinsky/lwp/releases/latest)
 [![](https://img.shields.io/github/downloads/jszczerbinsky/lwp/total?style=for-the-badge)](https://github.com/jszczerbinsky/lwp/releases/latest)
 [![](https://img.shields.io/github/actions/workflow/status/jszczerbinsky/lwp/build.yml?style=for-the-badge)](https://github.com/jszczerbinsky/lwp)
-[![](https://img.shields.io/discord/1077955077974794322?label=DISCORD&style=for-the-badge)](https://discord.gg/gHpbkXJD)
+[![](https://img.shields.io/discord/1077955077974794322?label=DISCORD&style=for-the-badge)](https://discord.gg/JmkCqjYFQa)
 
 [Installation](#installation) •
 [Configuration](#configuration) •
@@ -150,7 +150,7 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 
 ## Creating Wallpapers
 
-Want to share Your wallpaper? Join our [discord](https://discord.gg/gHpbkXJD)!
+Want to share Your wallpaper? Join our [discord]https://discord.gg/JmkCqjYFQa)!
 
 Parallax wallpapers are not popular. Because of this if You want some cool parallax wallpaper, You have to either find a parallax game background on the internet and use it as a wallpaper or cut some real wallpaper into layers using Gimp or Photoshop.
 
