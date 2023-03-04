@@ -147,6 +147,7 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 | int    | monitor[n]_wallpaper_y | Position of the wallpaper relative to the monitor |
 | int    | monitor[n]_wallpaper_w | Wallpaper resolution |
 | int    | monitor[n]_wallpaper_h | Wallpaper resolution |
+| int    | target_fps     | How many times per second should the wallpaper render (imprecise, hence "target") |
 
 ## Creating Wallpapers
 
