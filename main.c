@@ -36,6 +36,7 @@ static int init(App *app, Config *cfg)
 #ifdef __WIN32
 static void initCmd()
 {
+	// Create console
   AllocConsole();
   AttachConsole(ATTACH_PARENT_PROCESS);
   freopen("CONOUT$", "w", stdout);
@@ -43,14 +44,24 @@ static void initCmd()
   DWORD  dwMode = 0;
   GetConsoleMode(hOut, &dwMode);
   SetConsoleMode(hOut, dwMode | 0x0004);
-
+	
+	// Remove closing button (because closing it closes the entire app)
+	HWND hwnd = GetConsoleWindow();
+	HMENU hMenu = GetSystemMenu(hwnd, FALSE);
+	DeleteMenu(hMenu, SC_CLOSE, MF_BYCOMMAND);
+	
+	// Set console title
+	SetConsoleTitle("Layered WallPaper");
 }
 #endif
 
 int main(int argc, char *argv[])
 {
+	lwpLog(LOG_INFO, "Starting Layered WallPaper");
+	
 #ifdef __WIN32
   if (argc == 2 && strcmp(argv[1], "/console") == 0) initCmd();
+	initTrayIcon();
 #endif
 
   App    app;

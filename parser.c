@@ -148,6 +148,8 @@ static int findLine(FILE *f, const char *name, int type, void *output)
 
 int parseConfig(App *app, Config *cfg)
 {
+	lwpLog(LOG_INFO, "Loading config file");
+	
   FILE *f = openConfigFile();
 
   if (!findLine(f, "monitors", TYPE_INT, &cfg->monitorsCount))
@@ -155,12 +157,14 @@ int parseConfig(App *app, Config *cfg)
     lwpLog(LOG_ERROR, "Can't find line 'monitors' in config");
     return 0;
   }
+	lwpLog(LOG_INFO, "	monitors: %d", cfg->monitorsCount);
 
   if (!findLine(f, "smooth", TYPE_FLOAT, &cfg->smooth))
   {
     lwpLog(LOG_INFO, "Can't find line 'smooth' in config, setting to default value");
     cfg->smooth = 8;
   }
+	lwpLog(LOG_INFO, "	smooth: %f", cfg->smooth);
 
 #ifdef __LINUX
   if (!findLine(f, "reload_rootwindow", TYPE_INT, &cfg->reloadRootWnd))
@@ -168,6 +172,7 @@ int parseConfig(App *app, Config *cfg)
     lwpLog(LOG_ERROR, "Can't find line 'reload_rootwindow' in config");
     return 0;
   }
+	lwpLog(LOG_INFO, "	reload_rootwindow: %d", cfg->reloadRootWnd);
 #endif
 
   cfg->monitors = malloc(cfg->monitorsCount * sizeof(Monitor));
@@ -202,6 +207,8 @@ int parseConfig(App *app, Config *cfg)
         lwpLog(LOG_ERROR, "Can't find line '%s' in config", str);
         return 0;
       }
+			if(p > 0) 
+				lwpLog(LOG_INFO, "		%s: %d", str, *(int*)(outputs[p]));
     }
 
 #ifdef __WIN32
@@ -216,14 +223,17 @@ int parseConfig(App *app, Config *cfg)
 #endif
 
     strncpy(cfg->monitors[m].wallpaper.dirPath, wallpaperPath, PATH_MAX);
+		lwpLog(LOG_INFO, "	monitor%d_wallpaper: %s", m+1, wallpaperPath);
   }
 
   fclose(f);
+	lwpLog(LOG_INFO, "Config file loaded");
   return 1;
 }
 
 int parseWallpaperConfig(Wallpaper *wallpaper, const char *path)
 {
+	lwpLog(LOG_INFO, "Loading wallpaper config");
   FILE *f = fopen(path, "r");
   if (!f)
   {
@@ -248,8 +258,15 @@ int parseWallpaperConfig(Wallpaper *wallpaper, const char *path)
       lwpLog(LOG_ERROR, "Can't find line '%s' in config", paramStr[p]);
       return 0;
     }
+		
+		if (types[p] == TYPE_FLOAT)
+			lwpLog(LOG_INFO, "	%s: %f", paramStr[p], *(float*)(outputs[p]));
+		else
+			lwpLog(LOG_INFO, "	%s: %d", paramStr[p], *(int*)(outputs[p]));
   }
   wallpaper->layers = malloc(wallpaper->layersCount * sizeof(Layer));
+
+	lwpLog(LOG_INFO, "	Each layer movements:");
 
   char str[100];
   for (int l = 0; l < wallpaper->layersCount; l++)
@@ -257,13 +274,17 @@ int parseWallpaperConfig(Wallpaper *wallpaper, const char *path)
     snprintf(str, 100, "movement%d_x", l + 1);
     if (!findLine(f, str, TYPE_FLOAT, &wallpaper->layers[l].sensitivityX))
       wallpaper->layers[l].sensitivityX = defaultMovementX * l;
+		lwpLog(LOG_INFO, "		%s: %f", str, wallpaper->layers[l].sensitivityX);
+		
     snprintf(str, 100, "movement%d_y", l + 1);
     if (!findLine(f, str, TYPE_FLOAT, &wallpaper->layers[l].sensitivityY))
       wallpaper->layers[l].sensitivityY = defaultMovementY * l;
+		lwpLog(LOG_INFO, "		%s: %f", str, wallpaper->layers[l].sensitivityY);
   }
 
   fclose(f);
-
+	
+	lwpLog(LOG_INFO, "Wallpaper config file loaded");
   return 1;
 }
 
