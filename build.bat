@@ -8,9 +8,14 @@ TYPE wallpapers\default-fullhd\wallpaper.cfg | FIND /V "" > data\wallpapers\defa
 copy uninstall.bat data || goto err
 copy defaultWin.cfg data || goto err
 copy LICENSE data\LICENSE.txt || goto err
+if exist SDL2.dll (
+  copy SDL2.dll data
+)
 echo.
 echo ---                           Done!                                  ---
-copy SDL2.dll data || echo --- Remember to put SDL2.dll into 'data' directory before installing ---
+if not exist SDL2.dll (
+  echo --- Remember to put SDL2.dll into 'data' directory before installing ---
+)
 pause>nul
 exit
 
