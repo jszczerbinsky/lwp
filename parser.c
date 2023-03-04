@@ -149,7 +149,7 @@ static int findLine(FILE *f, const char *name, int type, void *output)
 int parseConfig(App *app, Config *cfg)
 {
 	lwpLog(LOG_INFO, "Loading config file");
-	
+
   FILE *f = openConfigFile();
 
   if (!findLine(f, "monitors", TYPE_INT, &cfg->monitorsCount))
@@ -171,6 +171,7 @@ int parseConfig(App *app, Config *cfg)
     lwpLog(LOG_INFO, "Can't find line 'target_fps' in config, setting to default value");
     cfg->targetFPS = 60;
   }
+	lwpLog(LOG_INFO, "	target_fps: %f", cfg->targetFPS);
 
 #ifdef __LINUX
   if (!findLine(f, "reload_rootwindow", TYPE_INT, &cfg->reloadRootWnd))
@@ -213,7 +214,7 @@ int parseConfig(App *app, Config *cfg)
         lwpLog(LOG_ERROR, "Can't find line '%s' in config", str);
         return 0;
       }
-			if(p > 0) 
+			if(p > 0)
 				lwpLog(LOG_INFO, "		%s: %d", str, *(int*)(outputs[p]));
     }
 
@@ -264,7 +265,7 @@ int parseWallpaperConfig(Wallpaper *wallpaper, const char *path)
       lwpLog(LOG_ERROR, "Can't find line '%s' in config", paramStr[p]);
       return 0;
     }
-		
+
 		if (types[p] == TYPE_FLOAT)
 			lwpLog(LOG_INFO, "	%s: %f", paramStr[p], *(float*)(outputs[p]));
 		else
@@ -281,7 +282,7 @@ int parseWallpaperConfig(Wallpaper *wallpaper, const char *path)
     if (!findLine(f, str, TYPE_FLOAT, &wallpaper->layers[l].sensitivityX))
       wallpaper->layers[l].sensitivityX = defaultMovementX * l;
 		lwpLog(LOG_INFO, "		%s: %f", str, wallpaper->layers[l].sensitivityX);
-		
+
     snprintf(str, 100, "movement%d_y", l + 1);
     if (!findLine(f, str, TYPE_FLOAT, &wallpaper->layers[l].sensitivityY))
       wallpaper->layers[l].sensitivityY = defaultMovementY * l;
@@ -289,7 +290,7 @@ int parseWallpaperConfig(Wallpaper *wallpaper, const char *path)
   }
 
   fclose(f);
-	
+
 	lwpLog(LOG_INFO, "Wallpaper config file loaded");
   return 1;
 }
