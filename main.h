@@ -51,6 +51,7 @@ typedef struct
   int      reloadRootWnd;
   int      monitorsCount;
   float    smooth;
+  int      targetFPS;
   Monitor *monitors;
 } Config;
 

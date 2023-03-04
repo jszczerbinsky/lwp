@@ -44,12 +44,12 @@ static void initCmd()
   DWORD  dwMode = 0;
   GetConsoleMode(hOut, &dwMode);
   SetConsoleMode(hOut, dwMode | 0x0004);
-	
+
 	// Remove closing button (because closing it closes the entire app)
 	HWND hwnd = GetConsoleWindow();
 	HMENU hMenu = GetSystemMenu(hwnd, FALSE);
 	DeleteMenu(hMenu, SC_CLOSE, MF_BYCOMMAND);
-	
+
 	// Set console title
 	SetConsoleTitle("Layered WallPaper");
 }
@@ -58,7 +58,7 @@ static void initCmd()
 int main(int argc, char *argv[])
 {
 	lwpLog(LOG_INFO, "Starting Layered WallPaper");
-	
+
 #ifdef __WIN32
   if (argc == 2 && strcmp(argv[1], "/console") == 0) initCmd();
 	initTrayIcon();
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
   Config cfg;
 
 	int canRender = 1;
-	
+
   if (!parseConfig(&app, &cfg) || !init(&app, &cfg) || !loadMonitors(&app, &cfg)) canRender = 0;
 
   SDL_Event event;
@@ -188,12 +188,12 @@ int main(int argc, char *argv[])
 			}
 			SDL_RenderPresent(app.renderer);
 		}
-		SDL_Delay(1000 / 60);
+		SDL_Delay(1000 / cfg.targetFPS);
 #ifdef __WIN32
 		if(!updateTrayIcon()) quit = 1;
 #endif
   }
-	
+
 #ifdef __WIN32
 	removeTrayIcon();
 #endif

@@ -166,6 +166,12 @@ int parseConfig(App *app, Config *cfg)
   }
 	lwpLog(LOG_INFO, "	smooth: %f", cfg->smooth);
 
+  if (!findLine(f, "target_fps", TYPE_INT, &cfg->targetFPS))
+  {
+    lwpLog(LOG_INFO, "Can't find line 'target_fps' in config, setting to default value");
+    cfg->targetFPS = 60;
+  }
+
 #ifdef __LINUX
   if (!findLine(f, "reload_rootwindow", TYPE_INT, &cfg->reloadRootWnd))
   {
