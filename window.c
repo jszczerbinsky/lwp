@@ -107,7 +107,7 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     }
 }
 
-static void initTrayIcon()
+void initTrayIcon()
 {
 	// Create an invisible window to process tray icon events
 	
@@ -143,8 +143,6 @@ static void initTrayIcon()
 
 void initWindow(App *app, Config *cfg) {
   SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
-	
-	initTrayIcon();
 	
   app->window =
       SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
