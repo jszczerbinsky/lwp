@@ -85,7 +85,7 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   cd lwp
   build.bat
   ```
-  - Download [SDL2](https://github.com/libsdl-org/SDL/releases/latest) and put `SDL2.dll` in `data` directory
+  - Download [SDL2](https://github.com/libsdl-org/SDL/releases/latest) and put `SDL2.dll` in repository root
   - Run `install.bat` as Administrator
   - Lwp should run immediately after the installation
   
@@ -147,6 +147,7 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 | int    | monitor[n]_wallpaper_y | Position of the wallpaper relative to the monitor |
 | int    | monitor[n]_wallpaper_w | Wallpaper resolution |
 | int    | monitor[n]_wallpaper_h | Wallpaper resolution |
+| int    | target_fps     | How many times per second should the wallpaper render (imprecise, hence "target") |
 
 ## Creating Wallpapers
 
