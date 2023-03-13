@@ -2,16 +2,19 @@
 #include "main.h"
 
 #ifdef __WIN32
-#include <shellscalingapi.h>
 #include <shellapi.h>
 #include <tchar.h>
+#ifdef _MSC_VER
+#include <SDL_syswm.h>
 #else
 #include <SDL2/SDL_syswm.h>
-#endif
+#endif // _MSC_VER
+#endif // __WIN32
+
 #ifdef __LINUX
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
-#endif
+#endif //__LINUX
 
 #ifdef __WIN32
 
@@ -113,7 +116,8 @@ void initTrayIcon()
 	
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 	const wchar_t CLASS_NAME[]  = L"Hidden Window";
-	WNDCLASS wc = { };
+	WNDCLASS wc;
+	memset(&wc, 0, sizeof(WNDCLASS));
 	wc.lpfnWndProc   = wndProc;
 	wc.hInstance     = hInstance;
 	wc.lpszClassName = CLASS_NAME;
@@ -142,8 +146,6 @@ void initTrayIcon()
 }
 
 void initWindow(App *app, Config *cfg) {
-  SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
-	
   app->window =
       SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
   if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());

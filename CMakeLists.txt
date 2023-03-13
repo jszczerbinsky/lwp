@@ -21,6 +21,11 @@ set(_SOURCE_FILES
     wallpaper.c
     window.c
     )
+		
+# Windows resource file
+if(_UNAME STREQUAL "WIN32")
+	list(APPEND _SOURCE_FILES "resource.rc")
+endif()
 
 # SDL2 dependency
 find_package(sdl2 REQUIRED CONFIG)
@@ -43,14 +48,21 @@ option(LWP_INSTALL_LAUNCHD "Launch lwp on login (MacOSX only)" OFF)
 
 # Config file
 set(_DEFAULT_CONFIG_FILE default.cfg)
+if(_UNAME STREQUAL "WIN32")
+	set(_DEFAULT_CONFIG_FILE defaultWin.cfg)
+endif()
 if (_UNAME STREQUAL "DARWIN")
   set(_DEFAULT_CONFIG_FILE defaultMac.cfg)
 endif()
 
 # Main executable
-add_executable(lwp
-    ${_SOURCE_FILES}
-    )
+add_executable(lwp ${_SOURCE_FILES})
+
+# Windows specific properties for executable
+if(_UNAME STREQUAL "WIN32")
+	set_property(TARGET lwp PROPERTY VS_DPI_AWARE "PerMonitor")
+endif()
+
 target_compile_definitions(lwp PUBLIC __${_UNAME})
 target_include_directories(lwp PUBLIC ${_INCLUDE_DIRS})
 target_link_libraries(lwp PRIVATE ${_LIBS})

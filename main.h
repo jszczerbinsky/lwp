@@ -1,16 +1,16 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#ifdef _MSC_VER
+#define PATH_MAX MAX_PATH
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
 
 #ifdef __WIN32
-#include <SDL2/SDL_syswm.h>
 #include <stdio.h>
 #include <windows.h>
-// MSVC doesn't have PATH_MAX
-#ifndef PATH_MAX
-#define PATH_MAX MAX_PATH
-#endif
 #elif __DARWIN
 #include <objc/runtime.h>
 #include <objc/message.h>
