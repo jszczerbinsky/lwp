@@ -64,8 +64,8 @@ uninstall:
 # Build the launchd plist file.
 lwp.plist: lwp.template.plist
 	cp lwp.template.plist lwp.plist
-	sed -i "" "s/{{user}}/$$(whoami)/g" lwp.plist
-	sed -i "" "s^{{binpath}}^$(PREFIX)/bin/lwp^g" lwp.plist
+	sed -i "" "s/@user@/$$(whoami)/g" lwp.plist
+	sed -i "" "s^@binpath@^$(PREFIX)/bin/lwp^g" lwp.plist
 
 # Launch lwp on login (macOS only).
 install-launchd: lwp.plist

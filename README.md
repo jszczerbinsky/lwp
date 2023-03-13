@@ -91,6 +91,26 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   
 </details>
 
+## Build from source using CMake
+[CMake](https://cmake.org) is a cross-platform build system generator. Using CMake to build LWP can't be simpler: please install SDL2 first (see platform-specific instructions in the previous section) and then run the following commands:
+```shell
+mkdir -p build
+cd build
+cmake -Dsdl2_DIR=/path/to/SDL2/lib/cmake/SDL2 ../
+```
+The `-Dsdl2_DIR=/path/to/SDL2/lib/cmake/SDL2` flag can be omitted if SDL2 is installed in a commonly known location like `/usr/local`. On Windows however, it's almost certain that you need to pass this flag.
+
+The previous command will generate the real build system scripts. By default, it's Visual Studio project (MSVC) on Windows (if it's installed); on Linux, MinGW, and Mac OSX it's GNU Make.
+Now you can proceed to launch the build command:
+```shell
+cmake --build .
+```
+The executable should be in `build/bin/lwp` (or `build\bin\<build configuration>\lwp` for MSVC).
+
+Note that currently there are two limitations:
+  1. Even if you're generating to MSVC (on Windows), it still depends on MinGW version of SDL2, since it has a different include folder hierarchy than the SDL2 for MSVC.
+  2. On Mac OSX, to install LWP to launchd (i.e. start LWP upon login), instead of `make install-launchd` you have to set the `LWP_INSTALL_LAUNCHD` cmake variable to ON, either during configuration time or installation time like invoking `cmake_install.cmake`.
+
 ## Configuration
 
 #### Create a configuration file
