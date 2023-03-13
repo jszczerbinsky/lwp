@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.13)
 
 project(lwp
     LANGUAGES C)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+		
+string(REPLACE "\\" "/" sdl2_RUNTIME_DIR ${sdl2_RUNTIME_DIR})
 
 # Detect the platform
 if (APPLE)
@@ -68,14 +68,29 @@ target_include_directories(lwp PUBLIC ${_INCLUDE_DIRS})
 target_link_libraries(lwp PRIVATE ${_LIBS})
 
 # Installation rules
-install(TARGETS lwp)
-install(DIRECTORY wallpapers
-    DESTINATION share/lwp)
-install(FILES LICENSE
-    DESTINATION share/lwp)
-install(FILES ${_DEFAULT_CONFIG_FILE}
-    TYPE SYSCONF
-    RENAME lwp.cfg)
+if(_UNAME STREQUAL "WIN32")
+	install(TARGETS lwp
+			DESTINATION .)
+	install(DIRECTORY wallpapers
+			DESTINATION .)
+	install(FILES LICENSE.txt
+			DESTINATION .)
+	install(FILES ${_DEFAULT_CONFIG_FILE}
+			DESTINATION .)
+	install(FILES ${sdl2_RUNTIME_DIR}/SDL2.dll
+			DESTINATION .)
+	install(FILES ${sdl2_RUNTIME_DIR}/README-SDL.txt
+			DESTINATION .)
+else()
+	install(TARGETS lwp)
+	install(DIRECTORY wallpapers
+			DESTINATION share/lwp)
+	install(FILES LICENSE.txt
+			DESTINATION share/lwp)
+	install(FILES ${_DEFAULT_CONFIG_FILE}
+			TYPE SYSCONF
+			RENAME lwp.cfg)
+endif()
 
 if (_UNAME STREQUAL "DARWIN")
   # MacOSX specific installation rules
@@ -110,3 +125,21 @@ if (_UNAME STREQUAL "DARWIN")
     endif()
     ")
 endif()
+
+# Installer
+set(CPACK_GENERATOR WIX)
+set(CPACK_WIX_UPGRADE_GUID "1cb3edc1-1059-4b20-b87c-90186a76a713")
+set(CPACK_WIX_PRODUCT_ICON  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
+set(CPACK_WIX_UI_BANNER  ${CMAKE_CURRENT_SOURCE_DIR}/installer/banner.png)
+set(CPACK_WIX_UI_DIALOG  ${CMAKE_CURRENT_SOURCE_DIR}/installer/dialog.png)
+set(CPACK_PACKAGE_NAME "Layered WallPaper")
+set(CPACK_PACKAGE_VENDOR "Jakub Szczerbinski")
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt)
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Multi-platform parallax wallpapers")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "Layered WallPaper")
+
+INCLUDE(CPack)
