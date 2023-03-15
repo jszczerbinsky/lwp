@@ -55,9 +55,6 @@ static void initCmd()
 }
 #endif
 
-// Avoid duplicated definitions of 'main' from SDL2
-#undef main
-
 int main(int argc, char *argv[])
 {
 	lwpLog(LOG_INFO, "Starting Layered WallPaper");

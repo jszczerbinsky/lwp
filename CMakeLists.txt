@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.13)
 
 project(lwp
     LANGUAGES C)
-		
-string(REPLACE "\\" "/" sdl2_RUNTIME_DIR ${sdl2_RUNTIME_DIR})
+
+if(sdl2_RUNTIME_DIR)
+  string(REPLACE "\\" "/" sdl2_RUNTIME_DIR ${sdl2_RUNTIME_DIR})
+endif()
 
 # Detect the platform
 if (APPLE)
@@ -15,8 +17,8 @@ else()
 endif()
 
 set(_SOURCE_FILES
-    debug.c
     main.c
+		debug.c
     parser.c
     wallpaper.c
     window.c
@@ -24,6 +26,13 @@ set(_SOURCE_FILES
 		
 # Windows resource file
 if(_UNAME STREQUAL "WIN32")
+	if(MINGW)
+		set(CMAKE_RC_COMPILER_INIT windres)
+		ENABLE_LANGUAGE(RC)
+		SET(CMAKE_RC_COMPILE_OBJECT
+    "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+	endif(MINGW)
+
 	list(APPEND _SOURCE_FILES "resource.rc")
 endif()
 
@@ -61,6 +70,10 @@ add_executable(lwp ${_SOURCE_FILES})
 # Windows specific properties for executable
 if(_UNAME STREQUAL "WIN32")
 	set_property(TARGET lwp PROPERTY VS_DPI_AWARE "PerMonitor")
+endif()
+
+if(MSVC)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 endif()
 
 target_compile_definitions(lwp PUBLIC __${_UNAME})
