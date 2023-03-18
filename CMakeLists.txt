@@ -21,7 +21,7 @@ find_package(Git)
 if(Git_FOUND)
   execute_process(
     COMMAND ${GIT_EXECUTABLE} describe --tags --dirty --match "v*"
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     OUTPUT_VARIABLE GIT_DESCRIBE_VERSION
     RESULT_VARIABLE GIT_DESCRIBE_ERROR_CODE
     OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -51,7 +51,9 @@ if(_UNAME STREQUAL "WIN32")
 		SET(CMAKE_RC_COMPILE_OBJECT
     "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
 	endif(MINGW)
-
+	
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resource.template.rc ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc
+        @ONLY)
 	list(APPEND _SOURCE_FILES "resource.rc")
 endif()
 
