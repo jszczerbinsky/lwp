@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.13)
 project(lwp
     LANGUAGES C)
 
-if(sdl2_RUNTIME_DIR)
-  string(REPLACE "\\" "/" sdl2_RUNTIME_DIR ${sdl2_RUNTIME_DIR})
+if(SDL2_RUNTIME_DIR)
+	string(REPLACE "\\" "/" SDL2_RUNTIME_DIR ${SDL2_RUNTIME_DIR})
 endif()
 
 # Detect the platform
@@ -58,7 +58,7 @@ if(_UNAME STREQUAL "WIN32")
 endif()
 
 # SDL2 dependency
-find_package(sdl2 REQUIRED CONFIG)
+find_package(SDL2 REQUIRED CONFIG)
 set(_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
 set(_LIBS ${SDL2_LIBRARIES})
 
@@ -111,16 +111,17 @@ if(_UNAME STREQUAL "WIN32")
 			DESTINATION .)
 	install(FILES ${_DEFAULT_CONFIG_FILE}
 			DESTINATION .)
-	install(FILES ${sdl2_RUNTIME_DIR}/SDL2.dll
+	install(FILES ${SDL2_RUNTIME_DIR}/SDL2.dll
 			DESTINATION .)
-	install(FILES ${sdl2_RUNTIME_DIR}/README-SDL.txt
+	install(FILES ${SDL2_RUNTIME_DIR}/README-SDL.txt
 			DESTINATION .)
 else()
-	install(TARGETS lwp)
+	install(TARGETS lwp
+			DESTINATION usr/local/bin)
 	install(DIRECTORY wallpapers
-			DESTINATION share/lwp)
+			DESTINATION usr/local/share/lwp)
 	install(FILES LICENSE.txt
-			DESTINATION share/lwp)
+			DESTINATION usr/local/share/lwp)
 	install(FILES ${_DEFAULT_CONFIG_FILE}
 			TYPE SYSCONF
 			RENAME lwp.cfg)
@@ -161,7 +162,13 @@ if (_UNAME STREQUAL "DARWIN")
 endif()
 
 # Installer
-set(CPACK_GENERATOR NSIS)
+if (_UNAME STREQUAL "WIN32")
+	set(CPACK_GENERATOR NSIS)
+	set(CPACK_PACKAGE_INSTALL_DIRECTORY "Layered WallPaper")
+elseif(_UNAME STREQUAL "LINUX")
+	set(CPACK_GENERATOR TGZ)
+	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+endif()
 set(CPACK_NSIS_MUI_ICON  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
 set(CPACK_NSIS_MUI_UNIICON  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
 set(CPACK_NSIS_INSTALLED_ICON_NAME  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
@@ -177,6 +184,5 @@ set(CPACK_PACKAGE_VENDOR "Jakub Szczerbinski")
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Multi-platform parallax wallpapers")
 set(CPACK_PACKAGE_VERSION ${PROGRAM_VERSION})
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "Layered WallPaper")
 
 INCLUDE(CPack)

@@ -8,13 +8,14 @@
 #include <SDL_syswm.h>
 #else
 #include <SDL2/SDL_syswm.h>
-#endif // _MSC_VER
-#endif // __WIN32
+#endif  // _MSC_VER
+#endif  // __WIN32
 
 #ifdef __LINUX
+#include <SDL2/SDL_syswm.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
-#endif //__LINUX
+#endif  //__LINUX
 
 #ifdef __WIN32
 
@@ -36,116 +37,89 @@ static BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
   return TRUE;
 }
 
-#define WM_TRAY_ICON (WM_USER+1)
+#define WM_TRAY_ICON (WM_USER + 1)
 
 static NOTIFYICONDATA nid;
-static int quit = 0;
+static int            quit = 0;
 
-void removeTrayIcon()
-{
-	Shell_NotifyIcon(NIM_DELETE, &nid);
-}
+void removeTrayIcon() { Shell_NotifyIcon(NIM_DELETE, &nid); }
 
 int updateTrayIcon()
 {
-	MSG msg;
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+  MSG msg;
+  while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
   {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
   }
-	
-	return !quit;
+
+  return !quit;
 }
 
 static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg)
-    {
-			case WM_TRAY_ICON:
-			if (lParam == WM_RBUTTONDOWN || lParam == WM_LBUTTONDOWN)
-			{
-				int res = MessageBox(
-						NULL, 
-						"Do You want to run Layered WallPaper with debug console?", 
-						"Restart Layered WallPaper", 
-						MB_YESNOCANCEL | MB_ICONQUESTION
-					);
-					
-					TCHAR processParam = NULL;
-					
-					if(res != IDCANCEL)
-					{
-						TCHAR fileName[MAX_PATH];
-						GetModuleFileName(NULL, fileName, MAX_PATH);
-						
-						TCHAR cmd[MAX_PATH + 10];
-						_tcscpy(cmd, fileName);
-						
-						if(res == IDYES)
-								_tcscat(cmd, " /console");
-						
-						STARTUPINFO si;
-						memset(&si, 0, sizeof(STARTUPINFO));
-						
-						PROCESS_INFORMATION pi;
-						
-						CreateProcess(
-							NULL,
-							cmd,
-							NULL,
-							NULL,
-							FALSE,
-							0,
-							NULL,
-							NULL,
-							&si,
-							&pi
-						);
-						
-						quit = 1;
-					}
-			}
-			break;
-    }
+  switch (uMsg)
+  {
+    case WM_TRAY_ICON:
+      if (lParam == WM_RBUTTONDOWN || lParam == WM_LBUTTONDOWN)
+      {
+        int res = MessageBox(NULL, "Do You want to run Layered WallPaper with debug console?",
+                             "Restart Layered WallPaper", MB_YESNOCANCEL | MB_ICONQUESTION);
+
+        TCHAR processParam = NULL;
+
+        if (res != IDCANCEL)
+        {
+          TCHAR fileName[MAX_PATH];
+          GetModuleFileName(NULL, fileName, MAX_PATH);
+
+          TCHAR cmd[MAX_PATH + 10];
+          _tcscpy(cmd, fileName);
+
+          if (res == IDYES) _tcscat(cmd, " /console");
+
+          STARTUPINFO si;
+          memset(&si, 0, sizeof(STARTUPINFO));
+
+          PROCESS_INFORMATION pi;
+
+          CreateProcess(NULL, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+
+          quit = 1;
+        }
+      }
+      break;
+  }
 }
 
 void initTrayIcon()
 {
-	// Create an invisible window to process tray icon events
-	
-	HINSTANCE hInstance = GetModuleHandle(NULL);
-	const wchar_t CLASS_NAME[]  = L"Hidden Window";
-	WNDCLASS wc;
-	memset(&wc, 0, sizeof(WNDCLASS));
-	wc.lpfnWndProc   = wndProc;
-	wc.hInstance     = hInstance;
-	wc.lpszClassName = CLASS_NAME;
-	RegisterClass(&wc);
-	HWND hWnd = CreateWindowEx(
-			0,
-			CLASS_NAME,
-			L"",
-			WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-			NULL,
-			NULL,
-			hInstance,
-			NULL
-	);
-		
-	// Create tray icon
- 
-	nid.cbSize = sizeof(NOTIFYICONDATA);
-	nid.hWnd = hWnd;
-	nid.uCallbackMessage = WM_TRAY_ICON;
-	nid.hIcon = LoadIcon(hInstance, "ID");
-	nid.uFlags = NIF_ICON | NIF_MESSAGE;
-	 
-	Shell_NotifyIcon(NIM_ADD, &nid);
+  // Create an invisible window to process tray icon events
+
+  HINSTANCE     hInstance    = GetModuleHandle(NULL);
+  const wchar_t CLASS_NAME[] = L"Hidden Window";
+  WNDCLASS      wc;
+  memset(&wc, 0, sizeof(WNDCLASS));
+  wc.lpfnWndProc   = wndProc;
+  wc.hInstance     = hInstance;
+  wc.lpszClassName = CLASS_NAME;
+  RegisterClass(&wc);
+  HWND hWnd = CreateWindowEx(0, CLASS_NAME, L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+                             CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+
+  // Create tray icon
+
+  nid.cbSize           = sizeof(NOTIFYICONDATA);
+  nid.hWnd             = hWnd;
+  nid.uCallbackMessage = WM_TRAY_ICON;
+  nid.hIcon            = LoadIcon(hInstance, "ID");
+  nid.uFlags           = NIF_ICON | NIF_MESSAGE;
+
+  Shell_NotifyIcon(NIM_ADD, &nid);
 }
 
-void initWindow(App *app, Config *cfg) {
+void initWindow(App *app, Config *cfg)
+{
   app->window =
       SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
   if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
@@ -175,56 +149,50 @@ void initWindow(App *app, Config *cfg) {
 #elif __DARWIN
 
 // Helper macros for objc runtime interaction
-#define OBJC_MSG_INT      ((id (*)(id, SEL, int))       objc_msgSend)
-#define OBJC_MSG_ID       ((id (*)(id, SEL, id))        objc_msgSend)
-#define OBJC_MSG_PTR      ((id (*)(id, SEL, void*))     objc_msgSend)
-#define OBJC_MSG_CLS      ((id (*)(Class, SEL))         objc_msgSend)
-#define OBJC_MSG_CLS_CHR  ((id (*)(Class, SEL, char*))  objc_msgSend)
+#define OBJC_MSG_INT     ((id(*)(id, SEL, int))objc_msgSend)
+#define OBJC_MSG_ID      ((id(*)(id, SEL, id))objc_msgSend)
+#define OBJC_MSG_PTR     ((id(*)(id, SEL, void *))objc_msgSend)
+#define OBJC_MSG_CLS     ((id(*)(Class, SEL))objc_msgSend)
+#define OBJC_MSG_CLS_CHR ((id(*)(Class, SEL, char *))objc_msgSend)
 
-void initWindow(App *app, Config *cfg) {
+void initWindow(App *app, Config *cfg)
+{
   // Get main display size
   const CGDirectDisplayID displayID = CGMainDisplayID();
-  const size_t w = CGDisplayPixelsWide(displayID);
-  const size_t h = CGDisplayPixelsHigh(displayID);
-  const struct CGRect frameRect = { 0, 0, w, h };
+  const size_t            w         = CGDisplayPixelsWide(displayID);
+  const size_t            h         = CGDisplayPixelsHigh(displayID);
+  const struct CGRect     frameRect = {0, 0, w, h};
 
   // Get shared NSApplication instance
   const id ns_app = OBJC_MSG_CLS(objc_getClass("NSApplication"), sel_getUid("sharedApplication"));
-  OBJC_MSG_INT(ns_app, sel_getUid("setActivationPolicy:"), 0); // NSApplicationActivationPolicyRegular
+  OBJC_MSG_INT(ns_app, sel_getUid("setActivationPolicy:"),
+               0);  // NSApplicationActivationPolicyRegular
 
   // Create NSWindow
-  const id window = ((id (*)(id, SEL, struct CGRect, int, int, int))objc_msgSend)(
-    OBJC_MSG_CLS(objc_getClass("NSWindow"), sel_getUid("alloc")),
-    sel_getUid("initWithContentRect:styleMask:backing:defer:"),
-    frameRect,
-    0, // NSWindowStyleMaskBorderless
-    2, // NSBackingStoreBuffered
-    false
-  );
+  const id window = ((id(*)(id, SEL, struct CGRect, int, int, int))objc_msgSend)(
+      OBJC_MSG_CLS(objc_getClass("NSWindow"), sel_getUid("alloc")),
+      sel_getUid("initWithContentRect:styleMask:backing:defer:"), frameRect,
+      0,  // NSWindowStyleMaskBorderless
+      2,  // NSBackingStoreBuffered
+      false);
 
   // Set window attributes
-  OBJC_MSG_ID(
-    window,
-    sel_getUid("setTitle:"),
-    OBJC_MSG_CLS_CHR(
-      objc_getClass("NSString"),
-      sel_getUid("stringWithUTF8String:"),
-      "Parallax wallpaper"
-    )
-  );
+  OBJC_MSG_ID(window, sel_getUid("setTitle:"),
+              OBJC_MSG_CLS_CHR(objc_getClass("NSString"), sel_getUid("stringWithUTF8String:"),
+                               "Parallax wallpaper"));
   OBJC_MSG_PTR(window, sel_getUid("makeKeyAndOrderFront:"), nil);
   OBJC_MSG_INT(window, sel_getUid("setLevel:"), kCGDesktopWindowLevel - 1);
   OBJC_MSG_INT(ns_app, sel_getUid("activateIgnoringOtherApps:"), true);
 
   // Create SDL window from NSWindow
-  app->window = SDL_CreateWindowFrom((void*) window);
+  app->window = SDL_CreateWindowFrom((void *)window);
   if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
 }
 
 #elif __LINUX
 
-void initWindow(App *app, Config *cfg) {
-
+void initWindow(App *app, Config *cfg)
+{
   if (cfg->reloadRootWnd)
   {
     Display *display = XOpenDisplay(NULL);
