@@ -40,6 +40,7 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   
   #### Build from source instead
   - Install `SDL2` using Your package manager. On some distributions `SDL2` doesn't contain development files, so it may be also necessary to install development version of `SDL2`
+  - If You are using `Wayland`, You also must install `XWayland`
   - Install `CMake`
   - Clone the repository and prepare a `build` directory:
 
