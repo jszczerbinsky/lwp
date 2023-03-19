@@ -27,25 +27,40 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   
   #### Installation steps
   
+  - Install `SDL2` using Your package manager
+  - If You are using `Wayland`, You also must install `XWayland`
   - Download `.tar.gz` package from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
   - Extract the content to `/`:
   ```shell
   sudo tar -o -xvf [archive name].tar.gz --directory /
   ```
   - Test lwp by running `lwp`
+  - Setting `reload_rootwindow=1` in config file may be necessary on some distributions for Layered WallPaper to work properly (see [configuration](#configuration))
   - To make lwp run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
   
   #### Build from source instead
-  - Install `SDL2` using Your package manager
-  - Clone the repository and install `lwp`:
+  - Install `SDL2` using Your package manager. On some distributions `SDL2` doesn't contain development files, so it may be also necessary to install development version of `SDL2`
+  - Install `CMake`
+  - Clone the repository and prepare a `build` directory:
 
   ```shell
   git clone https://github.com/jszczerbinsky/lwp
   cd lwp
-  make
-  sudo make install
+  mkdir build
+  cd build
+  ```
+  - Compile the project and generate a `.tar.gz` package
+  ```shell
+  cmake ../
+  cmake --build .
+  cpack
+  ```
+  - Extract `.tar.gz` package
+  ```shell
+  sudo tar -o -xvf [archive name].tar.gz --directory /
   ```
   - Test lwp by running `lwp`
+  - Setting `reload_rootwindow=1` in config file may be necessary on some distributions for Layered WallPaper to work properly (see [configuration](#configuration))
   - To make lwp run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
   
 </details>
@@ -92,13 +107,13 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 
   For `MSVC`:
   ```shell
-  cmake -G "Visual Studio 17" -Dsdl2_DIR=[PATH TO SDL2-MSVC-DEVEL DIRECTORY]\cmake -Dsdl2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY]  ../
+  cmake -G "Visual Studio 17" -DSDL2_DIR=[PATH TO SDL2-MSVC-DEVEL DIRECTORY]\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY]  ../
   cmake --build . --config Release
   cpack
   ```
   For `MinGW`:
   ```shell
-  cmake -G "MinGW Makefiles" -Dsdl2_DIR==[PATH TO SDL2-MINGW-DEVEL DIRECTORY]\cmake -Dsdl2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] -DCMAKE_BUILD_TYPE=Release  ../
+  cmake -G "MinGW Makefiles" -DSDL2_DIR==[PATH TO SDL2-MINGW-DEVEL DIRECTORY]\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] -DCMAKE_BUILD_TYPE=Release  ../
   cmake --build .
   cpack
   ```
