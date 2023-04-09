@@ -39,10 +39,10 @@ jobs:
       run: |
         wget -nv https://github.com/libsdl-org/SDL/releases/download/release-2.26.3/SDL2-devel-2.26.3-mingw.zip
         7z x -bd SDL2-devel-2.26.3-mingw.zip
-        ren SDL2-devel-2.26.3 SDL2-devel-2.26.3-mingw
+        ren SDL2-2.26.3 SDL2-devel-2.26.3-mingw
         wget -nv https://github.com/libsdl-org/SDL/releases/download/release-2.26.3/SDL2-devel-2.26.3-VC.zip
         7z x -bd SDL2-devel-2.26.3-VC.zip
-        ren SDL2-devel-2.26.3 SDL2-devel-2.26.3-VC
+        ren SDL2-2.26.3 SDL2-devel-2.26.3-VC
     - name: Build with MSVC
       run: mkdir buildMSVC && cd buildMSVC && cmake -G "Visual Studio 17" -DSDL2_DIR=SDL2-devel-2.26.3-VC\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] ..\ && cmake --build . && cpack
     - name: Build with MinGW
