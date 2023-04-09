@@ -58,4 +58,4 @@ jobs:
     - name: Install dependencies`
       run: brew install sdl2
     - name: Build
-      run: mkdir build && cd build && cmake ..\ && cmake --build . && cpack
+      run: mkdir build && cd build && cmake ../ && cmake --build . && cpack
