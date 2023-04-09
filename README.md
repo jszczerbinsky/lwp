@@ -69,18 +69,32 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 <details>
   <summary>macOS</summary>
   
-  #### Build from source
+  #### Installation steps
+  - Download and run the installer from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
+  - Drag and drop Layered_WallPaper into Applications
+  - To make Layered WallPaper run on startup, run Toggle_Autorun.command
+    - To stop running Layered WallPaper on startup, run it again
+  
+  #### Build from source instead
   - Install `SDL2` (homebrew: `brew install sdl2`)
-  - Clone the repository and install `lwp`:
+  - To build this project, You need to install `cmake` (homebrew: `brew install cmake`)
+  - Clone the repository:
     ```zsh
     git clone https://github.com/jszczerbinsky/lwp
     cd lwp
-    make
-    sudo make install
+    
     ```
-  - Test lwp by running `/opt/lwp/bin/lwp`
-  - To make lwp run on startup, run `make install-launchd`
-    - To stop running lwp on startup, run `make uninstall-launchd`
+  - Compile and generate installer
+    ```zsh
+    mkdir build
+    cd build
+    cmake ../
+    cmake --build .
+    cpack -G DragNDrop
+    ```
+  - DMG installer should appear, open it and drag Layered_WallPaper into Applications
+  - To make Layered WallPaper run on startup, run Toggle_Autorun.command
+    - To stop running Layered WallPaper on startup, run it again
     
 </details>
 
