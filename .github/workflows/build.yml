@@ -15,11 +15,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Install cmake
-      uses: Symbitic/install-cmake@v0.1.0
+      uses: lukka/get-cmake@v3.26.0
     - name: Install dependencies
       run: sudo apt install libsdl2-dev 
     - name: Build
-      run: cmake ../ && cmake --build . && cpack
+      run: mkdir -p build && cd build && cmake ../ && cmake --build . && cpack
   
   windows:
     name: Build on Windows
@@ -29,7 +29,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Install cmake
-      uses: Symbitic/install-cmake@v0.1.0
+      uses: lukka/get-cmake@v3.26.0
     - name: Install MinGW, MSVC and wget
       run: |
         choco install mingw
@@ -42,9 +42,9 @@ jobs:
         wget -nv https://github.com/libsdl-org/SDL/releases/download/release-2.26.3/SDL2-devel-2.26.3-VC.zip
         7z x -bd SDL2-devel-2.26.3-VC.zip
     - name: Build with MSVC
-      run: cmake -G "Visual Studio 17" -DSDL2_DIR=SDL2-devel-2.26.3-VC\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] ..\ && cmake --build . && cpack
+      run: mkdir buildMSVC && cd buildMSVC && cmake -G "Visual Studio 17" -DSDL2_DIR=SDL2-devel-2.26.3-VC\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] ..\ && cmake --build . && cpack
     - name: Build with MinGW
-      run: cmake -G "MinGW Makefiles" -DSDL2_DIR=SDL2-devel-2.26.3-mingw\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] -DCMAKE_BUILD_TYPE=Release ..\ && cmake --build . && cpack
+      run: mkdir buildMinGW && cd buildMinGW && cmake -G "MinGW Makefiles" -DSDL2_DIR=SDL2-devel-2.26.3-mingw\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] -DCMAKE_BUILD_TYPE=Release ..\ && cmake --build . && cpack
 
   macOS:
     name: Build on MacOS
@@ -54,8 +54,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Install cmake
-      uses: Symbitic/install-cmake@v0.1.0
+      uses: lukka/get-cmake@v3.26.0
     - name: Install dependencies`
       run: brew install sdl2
     - name: Build
-      run: cmake ..\ && cmake --build . && cpack
+      run: mkdir build && cd build && cmake ..\ && cmake --build . && cpack
