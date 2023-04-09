@@ -44,9 +44,9 @@ jobs:
         7z x -bd SDL2-devel-2.26.3-VC.zip
         ren SDL2-2.26.3 SDL2-devel-2.26.3-VC
     - name: Build with MSVC
-      run: mkdir buildMSVC && cd buildMSVC && cmake -G "Visual Studio 17" -DSDL2_DIR=SDL2-devel-2.26.3-VC\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] ..\ && cmake --build . && cpack
+      run: mkdir buildMSVC && cd buildMSVC && cmake -G "Visual Studio 17" -DSDL2_DIR=..\SDL2-devel-2.26.3-VC\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] ..\ && cmake --build . && cpack
     - name: Build with MinGW
-      run: mkdir buildMinGW && cd buildMinGW && cmake -G "MinGW Makefiles" -DSDL2_DIR=SDL2-devel-2.26.3-mingw\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] -DCMAKE_BUILD_TYPE=Release ..\ && cmake --build . && cpack
+      run: mkdir buildMinGW && cd buildMinGW && cmake -G "MinGW Makefiles" -DSDL2_DIR=..\SDL2-devel-2.26.3-mingw\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] -DCMAKE_BUILD_TYPE=Release ..\ && cmake --build . && cpack
 
   macOS:
     name: Build on MacOS
