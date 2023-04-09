@@ -86,7 +86,11 @@ if (_UNAME STREQUAL "DARWIN")
 endif()
 
 # Main executable
-add_executable(lwp ${_SOURCE_FILES})
+if (_UNAME STREQUAL "DARWIN")
+  add_executable(lwp MACOSX_BUNDLE ${_SOURCE_FILES})
+else()
+  add_executable(lwp ${_SOURCE_FILES})
+endif()
 
 # Windows specific properties for executable
 if(_UNAME STREQUAL "WIN32")
@@ -115,7 +119,7 @@ if(_UNAME STREQUAL "WIN32")
 			DESTINATION .)
 	install(FILES ${SDL2_RUNTIME_DIR}/README-SDL.txt
 			DESTINATION .)
-else()
+elsef(_UNAME STREQUAL "LINUX")
 	install(TARGETS lwp
 			DESTINATION usr/local/bin)
 	install(DIRECTORY wallpapers
@@ -125,40 +129,27 @@ else()
 	install(FILES ${_DEFAULT_CONFIG_FILE}
 			TYPE SYSCONF
 			RENAME lwp.cfg)
-endif()
+else()
+	install(TARGETS lwp
+                        DESTINATION Layered_WallPaper)
+        install(DIRECTORY wallpapers
+                        DESTINATION Layered_WallPaper)
+        install(FILES LICENSE.txt
+                        DESTINATION Layered_WallPaper)
+        install(FILES ${_DEFAULT_CONFIG_FILE}
+			DESTINATION Layered_WallPaper 
+                        RENAME lwp.cfg)
+	install(FILES lwp.template.plist
+			DESTINATION Layered_WallPaper)
+	install (FILES setupPlist.command
+			DESTINATION Layered_WallPaper
+			RENAME Toggle_Autorun.command
+			PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+	install (FILES setupPlist.command
+			DESTINATION .
+			RENAME Toggle_Autorun.command
+			PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-if (_UNAME STREQUAL "DARWIN")
-  # MacOSX specific installation rules
-  execute_process(COMMAND whoami
-      OUTPUT_VARIABLE _USERNAME)
-
-  # The plist file needs absolute path to the binary. In order to
-  # do so we use `configure_file` to replace place holders in the
-  # template with the needed variable. However, users might change
-  # the install prefix during the installation time, and to account
-  # for that we provide a cmake code snippet instead of populating
-  # the install prefix prematurely during configuration time.
-  install(CODE "
-    set(user ${_USERNAME})
-    set(binpath \${CMAKE_INSTALL_PREFIX}/bin/lwp)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/lwp.template.plist
-        \${CMAKE_INSTALL_PREFIX}/lwp.plist
-        @ONLY)
-
-    # Install to launchd in order to run lwp on login
-    if (LWP_INSTALL_LAUNCHD)
-      message(STATUS \"Installing to launchd...\")
-      execute_process(
-        COMMAND mkdir -p ~/Library/LaunchAgents
-        )
-      execute_process(
-        COMMAND cp \${CMAKE_INSTALL_PREFIX}/lwp.plist ~/Library/LaunchAgents/
-        )
-      execute_process(
-        COMMAND launchctl load ~/Library/LaunchAgents/lwp.plist
-        )
-    endif()
-    ")
 endif()
 
 # Installer
@@ -168,6 +159,9 @@ if (_UNAME STREQUAL "WIN32")
 elseif(_UNAME STREQUAL "LINUX")
 	set(CPACK_GENERATOR TGZ)
 	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+elseif(_UNAME STREQUAL "DARWIN")
+	set(CPACK_DMG_BACKGROUND_IMAGE ${CMAKE_CURRENT_SOURCE_DIR}/dmgBg.png)
+	set(CPACK_DMG_DS_STORE_SETUP_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/setupDmg.applescript)
 endif()
 set(CPACK_NSIS_MUI_ICON  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
 set(CPACK_NSIS_MUI_UNIICON  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)

@@ -1,4 +1,6 @@
 resource.rc
+.DS_Store
+
 data/
 build/
 *.res

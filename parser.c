@@ -73,7 +73,7 @@ static FILE *openConfigFile()
 
     f = fopen(defaultConfigPath, "r");
 #elif __DARWIN
-    strcpy(defaultConfigPath, "/opt/lwp/lwp.cfg");
+    strcpy(defaultConfigPath, "/Applications/Layered_WallPaper/lwp.cfg");
 
     f = fopen(defaultConfigPath, "r");
 #else
