@@ -27,25 +27,41 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   
   #### Installation steps
   
+  - Install `SDL2` using Your package manager
+  - If You are using `Wayland`, You also must install `XWayland`
   - Download `.tar.gz` package from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
   - Extract the content to `/`:
   ```shell
   sudo tar -o -xvf [archive name].tar.gz --directory /
   ```
   - Test lwp by running `lwp`
+  - Setting `reload_rootwindow=1` in config file may be necessary on some distributions for Layered WallPaper to work properly (see [configuration](#configuration))
   - To make lwp run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
   
   #### Build from source instead
-  - Install `SDL2` using Your package manager
-  - Clone the repository and install `lwp`:
+  - Install `SDL2` using Your package manager. On some distributions `SDL2` doesn't contain development files, so it may be also necessary to install development version of `SDL2`
+  - If You are using `Wayland`, You also must install `XWayland`
+  - Install `CMake`
+  - Clone the repository and prepare a `build` directory:
 
   ```shell
   git clone https://github.com/jszczerbinsky/lwp
   cd lwp
-  make
-  sudo make install
+  mkdir build
+  cd build
+  ```
+  - Compile the project and generate a `.tar.gz` package
+  ```shell
+  cmake ../
+  cmake --build .
+  cpack
+  ```
+  - Extract `.tar.gz` package
+  ```shell
+  sudo tar -o -xvf [archive name].tar.gz --directory /
   ```
   - Test lwp by running `lwp`
+  - Setting `reload_rootwindow=1` in config file may be necessary on some distributions for Layered WallPaper to work properly (see [configuration](#configuration))
   - To make lwp run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
   
 </details>
@@ -53,18 +69,32 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 <details>
   <summary>macOS</summary>
   
-  #### Build from source
+  #### Installation steps
+  - Download and run the installer from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
+  - Drag and drop Layered_WallPaper into Applications
+  - To make Layered WallPaper run on startup, run Toggle_Autorun.command
+    - To stop running Layered WallPaper on startup, run it again
+  
+  #### Build from source instead
   - Install `SDL2` (homebrew: `brew install sdl2`)
-  - Clone the repository and install `lwp`:
+  - To build this project, You need to install `cmake` (homebrew: `brew install cmake`)
+  - Clone the repository:
     ```zsh
     git clone https://github.com/jszczerbinsky/lwp
     cd lwp
-    make
-    sudo make install
+    
     ```
-  - Test lwp by running `/opt/lwp/bin/lwp`
-  - To make lwp run on startup, run `make install-launchd`
-    - To stop running lwp on startup, run `make uninstall-launchd`
+  - Compile and generate installer
+    ```zsh
+    mkdir build
+    cd build
+    cmake ../
+    cmake --build .
+    cpack -G DragNDrop
+    ```
+  - DMG installer should appear, open it and drag Layered_WallPaper into Applications
+  - To make Layered WallPaper run on startup, run Toggle_Autorun.command
+    - To stop running Layered WallPaper on startup, run it again
     
 </details>
 
@@ -72,44 +102,39 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   <summary>Windows</summary>
   
   #### Installation steps
-  - Download `.zip` package from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
-  - Extract the package
-  - Run `install.bat` as Administrator
-  - Lwp should run immediately after the installation
+  - Download and run the installer from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
+  - Layered WallPaper should run immediately after the installation
   
   #### Build from source instead
-  - You need `MinGW` with [SDL2](https://github.com/libsdl-org/SDL/releases/latest)-devel
-
+  - Layered WallPaper is built using [cmake](https://cmake.org/), so You must install it.
+  - This project supports `MinGW` and `MSVC` compilers. Using different one could lead to unpredicted behavior. If You want to use `MSVC`, it should be installed with Visual Studio.
+  - Download `SDL2` and `SDL2-devel` package for Your compiler from [SDL2 releases](https://github.com/libsdl-org/SDL/releases/latest) and extract them somewhere.
+  - You also must install [NSIS](https://nsis.sourceforge.io/Download). It's required to build the installer, which is needed to correctly set the registry keys, that will make Layered WallPaper run on OS startup etc.
+  - Clone the repository and create `build` directory
   ```shell
   git clone https://github.com/jszczerbinsky/lwp
   cd lwp
-  build.bat
+  mkdir -p build
+  cd build
   ```
-  - Download [SDL2](https://github.com/libsdl-org/SDL/releases/latest) and put `SDL2.dll` in repository root
-  - Run `install.bat` as Administrator
-  - Lwp should run immediately after the installation
+  - Type the following commands, replace square brackets elements with paths to extracted `SDL2` packages, that You've downloaded:
+
+
+  For `MSVC`:
+  ```shell
+  cmake -G "Visual Studio 17" -DSDL2_DIR=[PATH TO SDL2-MSVC-DEVEL DIRECTORY]\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY]  ../
+  cmake --build . --config Release
+  cpack
+  ```
+  For `MinGW`:
+  ```shell
+  cmake -G "MinGW Makefiles" -DSDL2_DIR=[PATH TO SDL2-MINGW-DEVEL DIRECTORY]\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] -DCMAKE_BUILD_TYPE=Release  ../
+  cmake --build .
+  cpack
+  ```
+  - The installer should appear in `build` directory, that You've created earlier. After completing the installation Layered WallPaper should run immediately.
   
 </details>
-
-## Build from source using CMake
-[CMake](https://cmake.org) is a cross-platform build system generator. Using CMake to build LWP can't be simpler: please install SDL2 first (see platform-specific instructions in the previous section) and then run the following commands:
-```shell
-mkdir -p build
-cd build
-cmake -Dsdl2_DIR=/path/to/SDL2/lib/cmake/SDL2 ../
-```
-The `-Dsdl2_DIR=/path/to/SDL2/lib/cmake/SDL2` flag can be omitted if SDL2 is installed in a commonly known location like `/usr/local`. On Windows however, it's almost certain that you need to pass this flag.
-
-The previous command will generate the real build system scripts. By default, it's Visual Studio project (MSVC) on Windows (if it's installed); on Linux, MinGW, and Mac OSX it's GNU Make.
-Now you can proceed to launch the build command:
-```shell
-cmake --build .
-```
-The executable should be in `build/bin/lwp` (or `build\bin\<build configuration>\lwp` for MSVC).
-
-Note that currently there are two limitations:
-  1. Even if you're generating to MSVC (on Windows), it still depends on MinGW version of SDL2, since it has a different include folder hierarchy than the SDL2 for MSVC.
-  2. On Mac OSX, to install LWP to launchd (i.e. start LWP upon login), instead of `make install-launchd` you have to set the `LWP_INSTALL_LAUNCHD` cmake variable to ON, either during configuration time or installation time like invoking `cmake_install.cmake`.
 
 ## Configuration
 
