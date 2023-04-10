@@ -119,7 +119,7 @@ if(_UNAME STREQUAL "WIN32")
 			DESTINATION .)
 	install(FILES ${SDL2_RUNTIME_DIR}/README-SDL.txt
 			DESTINATION .)
-elsef(_UNAME STREQUAL "LINUX")
+elseif(_UNAME STREQUAL "LINUX")
 	install(TARGETS lwp
 			DESTINATION usr/local/bin)
 	install(DIRECTORY wallpapers

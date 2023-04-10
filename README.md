@@ -128,7 +128,7 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   ```
   For `MinGW`:
   ```shell
-  cmake -G "MinGW Makefiles" -DSDL2_DIR==[PATH TO SDL2-MINGW-DEVEL DIRECTORY]\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] -DCMAKE_BUILD_TYPE=Release  ../
+  cmake -G "MinGW Makefiles" -DSDL2_DIR=[PATH TO SDL2-MINGW-DEVEL DIRECTORY]\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] -DCMAKE_BUILD_TYPE=Release  ../
   cmake --build .
   cpack
   ```
