@@ -46,14 +46,14 @@ jobs:
       run: |
         mkdir buildMSVC
         cd buildMSVC 
-        cmake -G "Visual Studio 17" -DSDL2_DIR=..\msvc\SDL2-2.26.3\cmake -DSDL2_RUNTIME_DIR=..\msvc\SDL2-2.26.3\lib\x64 ..\ 
+        cmake -G "Visual Studio 17" -DSDL2_DIR=${{ github.workspace }}\msvc\SDL2-2.26.3\cmake -DSDL2_RUNTIME_DIR=${{ github.workspace }}\msvc\SDL2-2.26.3\lib\x64 ..\ 
         cmake --build .
         cpack && cd ..
     - name: Build with MinGW
       run: |
         mkdir buildMinGW 
         cd buildMinGW 
-        cmake -G "MinGW Makefiles" -DSDL2_DIR=..\mingw\SDL2-2.26.3\cmake -DSDL2_RUNTIME_DIR=..\mingw\SDL2-2.26.3\x86_64-mingw32\bin -DCMAKE_BUILD_TYPE=Release ..\
+        cmake -G "MinGW Makefiles" -DSDL2_DIR=${{ github.workspace }}\mingw\SDL2-2.26.3\cmake -DSDL2_RUNTIME_DIR=${{ github.workspace }}\mingw\SDL2-2.26.3\x86_64-mingw32\bin -DCMAKE_BUILD_TYPE=Release ..\
         cmake --build . 
         cpack
 
