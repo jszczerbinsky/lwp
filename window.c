@@ -140,10 +140,10 @@ void initWindow(App *app, Config *cfg)
                    WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOACTIVATE);
   SetWindowLongPtr(hWindow, GWL_STYLE, WS_CHILDWINDOW | WS_VISIBLE);
 
-  SetWindowPos(hWindow, NULL, GetSystemMetrics(SM_XVIRTUALSCREEN),
-               GetSystemMetrics(SM_YVIRTUALSCREEN), GetSystemMetrics(SM_CXVIRTUALSCREEN),
-               GetSystemMetrics(SM_CYVIRTUALSCREEN),
-               SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+  SetWindowPos(hWindow, NULL, 0, 0, 
+							GetSystemMetrics(SM_CXVIRTUALSCREEN),
+              GetSystemMetrics(SM_CYVIRTUALSCREEN),
+              SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
 #elif __DARWIN
