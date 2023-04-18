@@ -53,6 +53,36 @@ static void initCmd()
 	// Set console title
 	SetConsoleTitle("Layered WallPaper");
 }
+BOOL monitorenumproc(
+  HMONITOR monitor,
+  HDC hdc,
+  LPRECT rect,
+  LPARAM param
+)
+{
+	
+	int px = GetSystemMetrics(SM_XVIRTUALSCREEN);
+	int py = GetSystemMetrics(SM_YVIRTUALSCREEN);
+	
+	MONITORINFO monitorInfo;
+	monitorInfo.cbSize = sizeof(MONITORINFO);
+	
+	GetMonitorInfo(monitor, &monitorInfo);
+	lwpLog(LOG_INFO, "	Monitor: position %ldx%ld, size %ldx%ld %s", 
+			monitorInfo.rcMonitor.left - px,
+			monitorInfo.rcMonitor.top - py,
+			monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left,
+			monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top,
+			(monitorInfo.dwFlags & MONITORINFOF_PRIMARY) == MONITORINFOF_PRIMARY ? "primary" : ""
+	);
+	
+	return TRUE;
+}
+static void scanMonitors()
+{
+	lwpLog(LOG_INFO, "Scanning monitors...");
+	EnumDisplayMonitors(NULL, NULL, &monitorenumproc, NULL);
+}
 #endif
 
 int main(int argc, char *argv[])
@@ -62,6 +92,8 @@ int main(int argc, char *argv[])
 #ifdef __WIN32
   if (argc == 2 && strcmp(argv[1], "/console") == 0) initCmd();
 	initTrayIcon();
+	
+	scanMonitors();
 #endif
 
   App    app;
@@ -93,8 +125,8 @@ int main(int argc, char *argv[])
 	#ifdef __WIN32
 			POINT mPos;
 			GetCursorPos(&mPos);
-			mx = mPos.x;
-			my = mPos.y;
+			mx = mPos.x - GetSystemMetrics(SM_XVIRTUALSCREEN);
+			my = mPos.y - GetSystemMetrics(SM_YVIRTUALSCREEN);
 	#else
 			SDL_GetGlobalMouseState(&mx, &my);
 	#endif
