@@ -2,7 +2,7 @@ name: Build app
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main", "dev" ]
 
