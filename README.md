@@ -1,8 +1,8 @@
 <div align="center">
 
-# LWP
+# Layered WallPaper
 
-LWP allows You to create multi-layered parallax wallpapers.<br />
+Layered WallPaper allows You to create multi-layered parallax wallpapers.<br />
 Each layer moves with Your mouse cursor, creating this beautiful effect.
 
 [![](https://img.shields.io/github/v/release/jszczerbinsky/lwp?style=for-the-badge)](https://github.com/jszczerbinsky/lwp/releases/latest)
@@ -34,9 +34,9 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   ```shell
   sudo tar -o -xvf [archive name].tar.gz --directory /
   ```
-  - Test lwp by running `lwp`
+  - Test Layered WallPaper by running `lwp`
   - Setting `reload_rootwindow=1` in config file may be necessary on some distributions for Layered WallPaper to work properly (see [configuration](#configuration))
-  - To make lwp run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
+  - To make Layered WallPaper run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
   
   #### Build from source instead
   - Install `SDL2` using Your package manager. On some distributions `SDL2` doesn't contain development files, so it may be also necessary to install development version of `SDL2`
@@ -60,9 +60,9 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   ```shell
   sudo tar -o -xvf [archive name].tar.gz --directory /
   ```
-  - Test lwp by running `lwp`
+  - Test Layered WallPaper by running `lwp`
   - Setting `reload_rootwindow=1` in config file may be necessary on some distributions for Layered WallPaper to work properly (see [configuration](#configuration))
-  - To make lwp run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
+  - To make Layered WallPaper run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
   
 </details>
 
@@ -200,7 +200,7 @@ Want to share Your wallpaper? Join our [discord](https://discord.gg/JmkCqjYFQa)!
 
 Parallax wallpapers are not popular. Because of this if You want some cool parallax wallpaper, You have to either find a parallax game background on the internet and use it as a wallpaper or cut some real wallpaper into layers using Gimp or Photoshop.
 
-#### How to create a wallpaper for lwp
+#### How to create a wallpaper for Layered WallPaper
 - Create a directory for Your wallpaper
 - Save each layer to this directory as `.bmp` file and name them `1.bmp`, `2.bmp` ... (`1.bmp` is bottom most layer)
 - Create a wallpaper config file and name it `wallpaper.cfg` (You can make a copy from `C:\Program Files\lwp\wallpapers\default-fullhd\wallpaper.cfg`)
