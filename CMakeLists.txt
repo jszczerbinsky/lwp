@@ -101,7 +101,7 @@ if(MSVC)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 endif()
 
-target_compile_definitions(lwp PUBLIC __${_UNAME})
+target_compile_definitions(lwp PUBLIC __${_UNAME} VER="${PROGRAM_VERSION}")
 target_include_directories(lwp PUBLIC ${_INCLUDE_DIRS})
 target_link_libraries(lwp PRIVATE ${_LIBS})
 
