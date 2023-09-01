@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.13)
 project(lwp
     LANGUAGES C)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GTK4 REQUIRED IMPORTED_TARGET gtk4)
+
 if(SDL2_RUNTIME_DIR)
 	string(REPLACE "\\" "/" SDL2_RUNTIME_DIR ${SDL2_RUNTIME_DIR})
 endif()
@@ -41,6 +44,7 @@ set(_SOURCE_FILES
     parser.c
     wallpaper.c
     window.c
+		config_window.c
     )
 		
 # Windows resource file
@@ -60,7 +64,7 @@ endif()
 # SDL2 dependency
 find_package(SDL2 REQUIRED CONFIG)
 set(_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-set(_LIBS ${SDL2_LIBRARIES})
+set(_LIBS ${SDL2_LIBRARIES} PkgConfig::GTK4)
 
 if (_UNAME STREQUAL "DARWIN")
   # MacOSX framework dependencies
