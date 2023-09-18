@@ -6,8 +6,6 @@
 #include "wallpaper.h"
 #include "window.h"
 
-void initConfigWindow();
-
 static int lerp(int a, int b, float t)
 {
   if (t > 1) t = 1;
@@ -90,8 +88,6 @@ int main(int argc, char *argv[])
     printf("%s\n", VER);
     return 0;
   }
-
-  initConfigWindow();
 
   lwpLog(LOG_INFO, "Starting Layered WallPaper");
 

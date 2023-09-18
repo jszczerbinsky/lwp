@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 project(lwp
     LANGUAGES C)
-
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK4 REQUIRED IMPORTED_TARGET gtk4)
 
 if(SDL2_RUNTIME_DIR)
 	string(REPLACE "\\" "/" SDL2_RUNTIME_DIR ${SDL2_RUNTIME_DIR})
@@ -38,14 +37,17 @@ if(NOT DEFINED PROGRAM_VERSION)
   message(WARNING "Can't determine Layered WallPaper version")
 endif()
 
-set(_SOURCE_FILES
-    main.c
-		debug.c
-    parser.c
-    wallpaper.c
-    window.c
-		config_window.c
+set(_CORE_SOURCE_FILES
+    core/main.c
+		core/debug.c
+    core/parser.c
+    core/wallpaper.c
+    core/window.c
     )
+
+set(_CONTROL_SOURCE_FILES
+	control_panel/main.c
+	)
 		
 # Windows resource file
 if(_UNAME STREQUAL "WIN32")
@@ -58,24 +60,29 @@ if(_UNAME STREQUAL "WIN32")
 	
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resource.template.rc ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc
         @ONLY)
-	list(APPEND _SOURCE_FILES "resource.rc")
+	list(APPEND _CORE_SOURCE_FILES "resource.rc")
 endif()
 
 # SDL2 dependency
 find_package(SDL2 REQUIRED CONFIG)
-set(_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-set(_LIBS ${SDL2_LIBRARIES} PkgConfig::GTK4)
+set(_CORE_INCLUDE_DIRS ${SDL2_CORE_INCLUDE_DIRS})
+set(_CORE_LIBS ${SDL2_LIBRARIES})
+
+# GTK4 depenency
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GTK4 REQUIRED IMPORTED_TARGET gtk4)
+set(_CONTROL_LIBS PkgConfig::GTK4)
 
 if (_UNAME STREQUAL "DARWIN")
   # MacOSX framework dependencies
-  list(APPEND _LIBS "-framework CoreGraphics" "-framework Foundation")
+  list(APPEND _CORE_LIBS "-framework CoreGraphics" "-framework Foundation")
 endif()
 
 if (_UNAME STREQUAL "LINUX")
   # X11 dependency
   find_package(X11 REQUIRED)
-  list(APPEND _INCLUDE_DIRS ${X11_INCLUDE_DIR})
-  list(APPEND _LIBS ${X11_LIBRARIES})
+  list(APPEND _CORE_INCLUDE_DIRS ${X11_INCLUDE_DIR})
+  list(APPEND _CORE_LIBS ${X11_LIBRARIES})
 endif()
 
 option(LWP_INSTALL_LAUNCHD "Launch lwp on login (MacOSX only)" OFF)
@@ -89,12 +96,15 @@ if (_UNAME STREQUAL "DARWIN")
   set(_DEFAULT_CONFIG_FILE defaultMac.cfg)
 endif()
 
-# Main executable
+# Core executable
 if (_UNAME STREQUAL "DARWIN")
-  add_executable(lwp MACOSX_BUNDLE ${_SOURCE_FILES})
+  add_executable(lwpwlp MACOSX_BUNDLE ${_CORE_SOURCE_FILES})
 else()
-  add_executable(lwp ${_SOURCE_FILES})
+  add_executable(lwpwlp ${_CORE_SOURCE_FILES})
 endif()
+
+# Control executable
+add_executable(lwp ${_CONTROL_SOURCE_FILES})
 
 # Windows specific properties for executable
 if(_UNAME STREQUAL "WIN32")
@@ -105,13 +115,18 @@ if(MSVC)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 endif()
 
+target_compile_definitions(lwpwlp PUBLIC __${_UNAME} VER="${PROGRAM_VERSION}")
+target_include_directories(lwpwlp PUBLIC ${_CORE_INCLUDE_DIRS})
+target_link_libraries(lwpwlp PRIVATE ${_CORE_LIBS})
+
 target_compile_definitions(lwp PUBLIC __${_UNAME} VER="${PROGRAM_VERSION}")
-target_include_directories(lwp PUBLIC ${_INCLUDE_DIRS})
-target_link_libraries(lwp PRIVATE ${_LIBS})
+target_link_libraries(lwp PRIVATE ${_CONTROL_LIBS})
 
 # Installation rules
 if(_UNAME STREQUAL "WIN32")
 	install(TARGETS lwp
+			DESTINATION .)
+	install(TARGETS lwpwlp
 			DESTINATION .)
 	install(DIRECTORY wallpapers
 			DESTINATION .)
@@ -126,6 +141,8 @@ if(_UNAME STREQUAL "WIN32")
 elseif(_UNAME STREQUAL "LINUX")
 	install(TARGETS lwp
 			DESTINATION usr/local/bin)
+	install(TARGETS lwpwlp
+			DESTINATION usr/local/bin)
 	install(DIRECTORY wallpapers
 			DESTINATION usr/local/share/lwp)
 	install(FILES LICENSE.txt
@@ -136,6 +153,8 @@ elseif(_UNAME STREQUAL "LINUX")
 else()
 	install(TARGETS lwp
                         DESTINATION Layered_WallPaper)
+				install(TARGETS lwpwlp
+												DESTINATION Layered_WallPaper)
         install(DIRECTORY wallpapers
                         DESTINATION Layered_WallPaper)
         install(FILES LICENSE.txt

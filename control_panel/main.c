@@ -1,15 +1,18 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 
-static void apply_btn_click(GtkWidget *widget, gpointer data) {}
-static void close_btn_click(GtkWidget *widget, gpointer data)
-{
-  g_application_quit(G_APPLICATION(data));
-}
+static FILE      *proc;
+static GtkWidget *window = NULL;
 
-static void activate(GtkApplication *app, gpointer user_data)
+static void apply_btn_click(GtkWidget *widget, gpointer data)
 {
-  GtkWidget *window;
+  pclose(proc);
+  proc = popen("./lwpwlp", "r");
+}
+static void close_btn_click(GtkWidget *widget, gpointer data) {}
+
+static void startup(GtkApplication *app, gpointer user_data)
+{
   GtkWidget *box;
   GtkWidget *btn_box;
   GtkWidget *version_label;
@@ -19,6 +22,7 @@ static void activate(GtkApplication *app, gpointer user_data)
   window = gtk_application_window_new(app);
   gtk_window_set_title(GTK_WINDOW(window), "LayeredWallpaper Control Panel");
   gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
+  gtk_window_set_hide_on_close(GTK_WINDOW(window), TRUE);
 
   char version_label_str[1024];
   sprintf(version_label_str, "Layered WallPaper version: %s", VER);
@@ -40,17 +44,21 @@ static void activate(GtkApplication *app, gpointer user_data)
   gtk_box_append(GTK_BOX(box), btn_box);
 
   gtk_window_present(GTK_WINDOW(window));
+
+  gtk_widget_hide(window);
+
+  proc = popen("./lwpwlp", "r");
 }
 
-int initConfigWindow()
-{
-  int   argc = 0;
-  char *argv[1];
+static void activate(GtkApplication *app, gpointer user_data) { gtk_widget_show(window); }
 
+int main(int argc, char *argv[])
+{
   GtkApplication *app;
   int             status;
 
   app = gtk_application_new("com.github.jszczerbinsky.lwp", G_APPLICATION_DEFAULT_FLAGS);
+  g_signal_connect(app, "startup", G_CALLBACK(startup), NULL);
   g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
   status = g_application_run(G_APPLICATION(app), argc, argv);
   g_object_unref(app);
