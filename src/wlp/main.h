@@ -49,20 +49,17 @@ typedef struct
   int          wallpaperX, wallpaperY, wallpaperW, wallpaperH;
   SDL_Texture *tex;
   Wallpaper    wallpaper;
-} Monitor;
+} WallpaperDest;
+
 typedef struct
 {
   int      reloadRootWnd;
   int      monitorsCount;
   float    smooth;
   int      targetFPS;
-  Monitor *monitors;
-} Config;
-
-typedef struct
-{
+  WallpaperDest *monitors;
   SDL_Window   *window;
   SDL_Renderer *renderer;
-} App;
+} Config;
 
 #endif // MAIN_H

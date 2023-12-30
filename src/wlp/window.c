@@ -104,7 +104,7 @@ void initTrayIcon()
   wc.hInstance     = hInstance;
   wc.lpszClassName = CLASS_NAME;
   RegisterClass(&wc);
-  HWND hWnd = CreateWindowEx(0, CLASS_NAME, L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+  HWND hWnd = CreateWindowEx(0, CLASS_NAME, L"", WS_OVERLcfgEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
                              CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 
   // Create tray icon
@@ -118,15 +118,15 @@ void initTrayIcon()
   Shell_NotifyIcon(NIM_ADD, &nid);
 }
 
-void initWindow(App *app, Config *cfg)
+void initWindow(Config *cfg)
 {
-  app->window =
+  cfg->window =
       SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
-  if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
+  if (cfg->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
 
   SDL_SysWMinfo sysWmInfo;
   SDL_VERSION(&sysWmInfo.version)
-  SDL_GetWindowWMInfo(app->window, &sysWmInfo);
+  SDL_GetWindowWMInfo(cfg->window, &sysWmInfo);
   HWND hWindow = sysWmInfo.info.win.window;
 
   HWND progman = FindWindow("Progman", NULL);
@@ -155,7 +155,7 @@ void initWindow(App *app, Config *cfg)
 #define OBJC_MSG_CLS     ((id(*)(Class, SEL))objc_msgSend)
 #define OBJC_MSG_CLS_CHR ((id(*)(Class, SEL, char *))objc_msgSend)
 
-void initWindow(App *app, Config *cfg)
+void initWindow(Config *cfg)
 {
   // Get main display size
   const CGDirectDisplayID displayID = CGMainDisplayID();
@@ -163,10 +163,10 @@ void initWindow(App *app, Config *cfg)
   const size_t            h         = CGDisplayPixelsHigh(displayID);
   const struct CGRect     frameRect = {0, 0, w, h};
 
-  // Get shared NSApplication instance
-  const id ns_app = OBJC_MSG_CLS(objc_getClass("NSApplication"), sel_getUid("sharedApplication"));
-  OBJC_MSG_INT(ns_app, sel_getUid("setActivationPolicy:"),
-               0);  // NSApplicationActivationPolicyRegular
+  // Get shared NScfglication instance
+  const id ns_cfg = OBJC_MSG_CLS(objc_getClass("NScfglication"), sel_getUid("sharedcfglication"));
+  OBJC_MSG_INT(ns_cfg, sel_getUid("setActivationPolicy:"),
+               0);  // NScfglicationActivationPolicyRegular
 
   // Create NSWindow
   const id window = ((id(*)(id, SEL, struct CGRect, int, int, int))objc_msgSend)(
@@ -182,28 +182,28 @@ void initWindow(App *app, Config *cfg)
                                "Parallax wallpaper"));
   OBJC_MSG_PTR(window, sel_getUid("makeKeyAndOrderFront:"), nil);
   OBJC_MSG_INT(window, sel_getUid("setLevel:"), kCGDesktopWindowLevel - 1);
-  OBJC_MSG_INT(ns_app, sel_getUid("activateIgnoringOtherApps:"), true);
+  OBJC_MSG_INT(ns_cfg, sel_getUid("activateIgnoringOthercfgs:"), true);
 
   // Create SDL window from NSWindow
-  app->window = SDL_CreateWindowFrom((void *)window);
-  if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
+  cfg->window = SDL_CreateWindowFrom((void *)window);
+  if (cfg->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
 }
 
 #elif __LINUX
 
-void initWindow(App *app, Config *cfg)
+void initWindow(Config *cfg)
 {
   if (cfg->reloadRootWnd)
   {
     Display *display = XOpenDisplay(NULL);
     XCloseDisplay(display);
 
-    app->window = SDL_CreateWindow("Parallax wallpaper", 0, 0, DisplayWidth(display, 0),
+    cfg->window = SDL_CreateWindow("Parallax wallpaper", 0, 0, DisplayWidth(display, 0),
                                    DisplayHeight(display, 0), SDL_WINDOW_OPENGL);
 
     SDL_SysWMinfo wmInfo;
     SDL_GetVersion(&wmInfo.version);
-    SDL_GetWindowWMInfo(app->window, &wmInfo);
+    SDL_GetWindowWMInfo(cfg->window, &wmInfo);
 
     Window xWnd = wmInfo.info.x11.window;
     display     = wmInfo.info.x11.display;
@@ -223,10 +223,11 @@ void initWindow(App *app, Config *cfg)
   {
     Display *display    = XOpenDisplay(NULL);
     Window   rootWindow = RootWindow(display, DefaultScreen(display));
-    app->window         = SDL_CreateWindowFrom((void *)rootWindow);
+    cfg->window         = SDL_CreateWindowFrom((void *)rootWindow);
     XCloseDisplay(display);
   }
 
-  if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
+  if (cfg->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
+
 }
 #endif

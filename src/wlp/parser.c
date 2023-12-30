@@ -146,7 +146,7 @@ static int findLine(FILE *f, const char *name, int type, void *output)
   return found;
 }
 
-int parseConfig(App *app, Config *cfg)
+int parseConfig(Config *cfg)
 {
 	lwpLog(LOG_INFO, "Loading config file");
 
@@ -182,7 +182,7 @@ int parseConfig(App *app, Config *cfg)
 	lwpLog(LOG_INFO, "	reload_rootwindow: %d", cfg->reloadRootWnd);
 #endif
 
-  cfg->monitors = malloc(cfg->monitorsCount * sizeof(Monitor));
+  cfg->monitors = malloc(cfg->monitorsCount * sizeof(WallpaperDest));
 
   for (int m = 0; m < cfg->monitorsCount; m++)
   {

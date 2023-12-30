@@ -1,19 +1,17 @@
 cmake_minimum_required(VERSION 3.13)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 project(lwp
     LANGUAGES C)
 
-if(SDL2_RUNTIME_DIR)
-	string(REPLACE "\\" "/" SDL2_RUNTIME_DIR ${SDL2_RUNTIME_DIR})
-endif()
-
 # Detect the platform
 if (APPLE)
-  set(_UNAME "DARWIN")
+    set(_UNAME "DARWIN")
 elseif (WIN32)
-  set(_UNAME "WIN32")
+    set(_UNAME "WIN32")
 else()
-  set(_UNAME "LINUX")
+    set(_UNAME "LINUX")
 endif()
 
 # Detect version
@@ -35,47 +33,6 @@ if(NOT DEFINED PROGRAM_VERSION)
   message(WARNING "Can't determine Layered WallPaper version")
 endif()
 
-set(_SOURCE_FILES
-    main.c
-		debug.c
-    parser.c
-    wallpaper.c
-    window.c
-    )
-		
-# Windows resource file
-if(_UNAME STREQUAL "WIN32")
-	if(MINGW)
-		set(CMAKE_RC_COMPILER_INIT windres)
-		ENABLE_LANGUAGE(RC)
-		SET(CMAKE_RC_COMPILE_OBJECT
-    "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
-	endif(MINGW)
-	
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resource.template.rc ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc
-        @ONLY)
-	list(APPEND _SOURCE_FILES "resource.rc")
-endif()
-
-# SDL2 dependency
-find_package(SDL2 REQUIRED CONFIG)
-set(_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-set(_LIBS ${SDL2_LIBRARIES})
-
-if (_UNAME STREQUAL "DARWIN")
-  # MacOSX framework dependencies
-  list(APPEND _LIBS "-framework CoreGraphics" "-framework Foundation")
-endif()
-
-if (_UNAME STREQUAL "LINUX")
-  # X11 dependency
-  find_package(X11 REQUIRED)
-  list(APPEND _INCLUDE_DIRS ${X11_INCLUDE_DIR})
-  list(APPEND _LIBS ${X11_LIBRARIES})
-endif()
-
-option(LWP_INSTALL_LAUNCHD "Launch lwp on login (MacOSX only)" OFF)
-
 # Config file
 set(_DEFAULT_CONFIG_FILE default.cfg)
 if(_UNAME STREQUAL "WIN32")
@@ -85,31 +42,17 @@ if (_UNAME STREQUAL "DARWIN")
   set(_DEFAULT_CONFIG_FILE defaultMac.cfg)
 endif()
 
-# Main executable
-if (_UNAME STREQUAL "DARWIN")
-  add_executable(lwp MACOSX_BUNDLE ${_SOURCE_FILES})
-else()
-  add_executable(lwp ${_SOURCE_FILES})
-endif()
+add_subdirectory(src/wlp)
+link_directories(src/wlp) 
 
-# Windows specific properties for executable
-if(_UNAME STREQUAL "WIN32")
-	set_property(TARGET lwp PROPERTY VS_DPI_AWARE "PerMonitor")
-endif()
-
-if(MSVC)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
-endif()
-
-target_compile_definitions(lwp PUBLIC __${_UNAME})
-target_include_directories(lwp PUBLIC ${_INCLUDE_DIRS})
-target_link_libraries(lwp PRIVATE ${_LIBS})
+add_subdirectory(src/core)
+link_directories(src/core) 
 
 # Installation rules
 if(_UNAME STREQUAL "WIN32")
-	install(TARGETS lwp
-			DESTINATION .)
 	install(DIRECTORY wallpapers
+			DESTINATION .)
+	install(DIRECTORY src/window_templates
 			DESTINATION .)
 	install(FILES LICENSE.txt
 			DESTINATION .)
@@ -120,9 +63,9 @@ if(_UNAME STREQUAL "WIN32")
 	install(FILES ${SDL2_RUNTIME_DIR}/README-SDL.txt
 			DESTINATION .)
 elseif(_UNAME STREQUAL "LINUX")
-	install(TARGETS lwp
-			DESTINATION usr/local/bin)
 	install(DIRECTORY wallpapers
+			DESTINATION usr/local/share/lwp)
+	install(DIRECTORY src/window_templates
 			DESTINATION usr/local/share/lwp)
 	install(FILES LICENSE.txt
 			DESTINATION usr/local/share/lwp)
@@ -130,10 +73,10 @@ elseif(_UNAME STREQUAL "LINUX")
 			TYPE SYSCONF
 			RENAME lwp.cfg)
 else()
-	install(TARGETS lwp
-                        DESTINATION Layered_WallPaper)
         install(DIRECTORY wallpapers
                         DESTINATION Layered_WallPaper)
+		install(DIRECTORY src/window_templates
+						DESTINATION Layered_WallPaper)
         install(FILES LICENSE.txt
                         DESTINATION Layered_WallPaper)
         install(FILES ${_DEFAULT_CONFIG_FILE}
@@ -151,6 +94,7 @@ else()
 			PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 endif()
+
 
 # Installer
 if (_UNAME STREQUAL "WIN32")

@@ -4,7 +4,7 @@
 #include "main.h"
 #include "parser.h"
 
-void initWindow(App *app, Config *cfg);
+void initWindow(Config *cfg);
 
 #ifdef __WIN32
 void initTrayIcon();
