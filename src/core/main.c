@@ -9,6 +9,7 @@
 #endif
 
 GtkBuilder *builder = NULL;
+GtkWidget *exitDialog = NULL;
 static FILE *wlpProcess = NULL;
 int wlpPid = 0;
 
@@ -31,28 +32,46 @@ static void runWlp()
     wlpPid = atoi(buff);
 }
 
+static gboolean exitDialogResult(GtkWidget *btn, GdkEvent *event, gpointer userdata)
+{
+    if(userdata != NULL)
+    {
+        killWlp();
+        g_application_quit(G_APPLICATION(userdata));
+    }
+    else
+    {  
+        gtk_widget_set_visible(exitDialog, 0);
+    }
+}
+
 static gboolean exitClicked(GtkWidget *btn, GdkEvent *event, gpointer userdata)
 {
-    killWlp();
-    g_application_quit(G_APPLICATION(userdata));
+    gtk_widget_set_visible(exitDialog, 1);
 }
 
 static gboolean deleted(GtkWidget *window, GdkEvent *event, gpointer userdata)
 {
-    gtk_widget_hide(window);
+    gtk_widget_set_visible(window,0);
 }
 
 static void activate(GtkApplication *app, gpointer userdata)
 {
     builder = gtk_builder_new_from_file(MAIN_WINDOW_TEMPLATE_PATH);
+    
     GtkWidget  *window  = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow");
-    if (window == NULL) printf("wnd not found\n");
-
     g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(deleted), NULL);
 
-    GtkWidget *exitBtn = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_ExitBtn");
+    exitDialog = (GtkWidget *)gtk_builder_get_object(builder, "ExitDialog");
 
+    GtkWidget *exitDialogYesBtn =(GtkWidget *)gtk_builder_get_object(builder, "ExitDialog_Yes");
+    g_signal_connect(G_OBJECT(exitDialogYesBtn), "clicked", G_CALLBACK(exitDialogResult), app);
+    GtkWidget *exitDialogNoBtn =(GtkWidget *)gtk_builder_get_object(builder, "ExitDialog_No");
+    g_signal_connect(G_OBJECT(exitDialogNoBtn), "clicked", G_CALLBACK(exitDialogResult), NULL);
+
+    GtkWidget *exitBtn = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_ExitBtn");
     g_signal_connect(G_OBJECT(exitBtn), "clicked", G_CALLBACK(exitClicked), app);
+    
 
     gtk_window_set_application(GTK_WINDOW(window), GTK_APPLICATION(app));
     gtk_widget_set_visible(window, 1);

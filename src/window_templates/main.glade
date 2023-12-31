@@ -15,7 +15,7 @@
             <property name="can-focus">False</property>
             <property name="layout-style">end</property>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="ExitDialog_Yes">
                 <property name="label" translatable="yes">Yes</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -28,7 +28,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="ExitDialog_No">
                 <property name="label" translatable="yes">No</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
