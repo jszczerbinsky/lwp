@@ -1,5 +1,7 @@
 set(_SOURCE_FILES
     main.c
+	windowHandlers.c
+	monitorScanner.c
     )
 		
 # Windows resource file
@@ -14,6 +16,17 @@ if(_UNAME STREQUAL "WIN32")
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resource.template.rc ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc
         @ONLY)
 	list(APPEND _SOURCE_FILES "resource.rc")
+endif()
+
+if (_UNAME STREQUAL "LINUX")
+  # X11 and Xrandr dependency
+  include(FindX11)
+
+  list(APPEND _INCLUDE_DIRS ${X11_INCLUDE_DIR})
+  list(APPEND _LIBS ${X11_LIBRARIES})
+
+  list(APPEND _INCLUDE_DIRS ${X11_Xrandr_INCLUDE_PATH})
+  list(APPEND _LIBS ${X11_Xrandr_LIB})
 endif()
 
 # GTK dependency
@@ -32,6 +45,8 @@ endif()
 if(MSVC)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 endif()
+
+set_target_properties(lwp PROPERTIES ENABLE_EXPORTS on)
 
 target_compile_definitions(lwp PUBLIC __${_UNAME})
 target_include_directories(lwp PUBLIC ${_INCLUDE_DIRS})
