@@ -54,8 +54,30 @@ static void scanMonitors()
 }
 #endif
 
+static Config cfg;
+
+static void atExit()
+{
+  freeConfig(&cfg);
+
+  SDL_DestroyRenderer(cfg.renderer);
+  SDL_DestroyWindow(cfg.window);
+  SDL_Quit();
+}
+
+void exitSignalHandler(int s)
+{
+  exit(0);
+}
+
 int main(int argc, char *argv[])
 {
+  char pidStr[10];
+  sprintf(pidStr, "%d\0", getpid());
+  fputs(pidStr, stdout);
+
+  signal(SIGINT, exitSignalHandler);
+
   lwpLog(LOG_INFO, "Starting Layered WallPaper");
 
 #ifdef __WIN32
@@ -65,11 +87,12 @@ int main(int argc, char *argv[])
   scanMonitors();
 #endif
 
-  Config cfg;
   parseConfig(&cfg);
 
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
   initWindow(&cfg);
+
+  atexit(atExit);
 
   cfg.renderer =
       SDL_CreateRenderer(cfg.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -77,19 +100,11 @@ int main(int argc, char *argv[])
   {
     lwpLog(LOG_ERROR, "%s", SDL_GetError());
   }
-
   runWallpaperLoop(&cfg);
 
-
-#ifdef __WIN32
-  removeTrayIcon();
-#endif
-
-  freeConfig(&cfg);
-
-  SDL_DestroyRenderer(cfg.renderer);
-  SDL_DestroyWindow(cfg.window);
-  SDL_Quit();
+  #ifdef __WIN32
+    removeTrayIcon();
+  #endif
 
   return 0;
 }

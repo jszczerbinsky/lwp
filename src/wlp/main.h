@@ -18,12 +18,14 @@
 #include <CoreGraphics/CGDisplayConfiguration.h>
 #include <limits.h>
 #include <pwd.h>
+#include <signal.h>
 #elif __LINUX
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <linux/limits.h>
 #include <pwd.h>
 #include <unistd.h>
+#include <signal.h>
 #endif
 
 typedef struct
