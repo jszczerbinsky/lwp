@@ -19,6 +19,8 @@ G_MODULE_EXPORT void MainWindow_ManageWallpapersBtnClick()
   gtk_widget_set_visible(wallpaperMgrWnd, 1);
 }
 
+G_MODULE_EXPORT void MainWindow_MonitorEditBtnClick() { gtk_widget_set_visible(monitorWnd, 1); }
+
 G_MODULE_EXPORT void MainWindow_ExitBtnClick() { gtk_widget_set_visible(exitDialog, 1); }
 
 G_MODULE_EXPORT void MainWindowClose() { gtk_widget_set_visible(mainWnd, 0); }
@@ -27,4 +29,4 @@ G_MODULE_EXPORT void MainWindowClose() { gtk_widget_set_visible(mainWnd, 0); }
 
 G_MODULE_EXPORT void WallpaperManagerWindowClose() { gtk_widget_set_visible(wallpaperMgrWnd, 0); }
 
-G_MODULE_EXPORT void ScreenWindowClose() { gtk_widget_set_visible(screenWnd, 0); }
+G_MODULE_EXPORT void MonitorWindowClose() { gtk_widget_set_visible(monitorWnd, 0); }

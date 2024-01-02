@@ -14,8 +14,8 @@ GtkBuilder     *builder = NULL;
 GtkWidget *mainWnd         = NULL;
 GtkWidget *exitDialog      = NULL;
 GtkWidget *wallpaperMgrWnd = NULL;
-GtkWidget *screenWnd       = NULL;
-GtkWidget *screenListBox   = NULL;
+GtkWidget *monitorWnd      = NULL;
+GtkWidget *monitorListBox  = NULL;
 
 static FILE *wlpProcess = NULL;
 static int   wlpPid     = 0;
@@ -37,14 +37,14 @@ static void runWlp()
   wlpPid = atoi(buff);
 }
 
-static void reloadScreenListBox()
+static void reloadMonitorListBox()
 {
-  GList *rows = gtk_container_get_children(GTK_CONTAINER(screenListBox));
+  GList *rows = gtk_container_get_children(GTK_CONTAINER(monitorListBox));
 
   GList *ptr = rows;
   while (ptr)
   {
-    gtk_container_remove(GTK_CONTAINER(screenListBox), ptr->data);
+    gtk_container_remove(GTK_CONTAINER(monitorListBox), ptr->data);
     ptr = ptr->next;
   }
 
@@ -61,7 +61,7 @@ static void reloadScreenListBox()
     GtkWidget *row   = gtk_list_box_row_new();
     gtk_container_add(GTK_CONTAINER(row), label);
 
-    gtk_list_box_insert(GTK_LIST_BOX(screenListBox), row, 0);
+    gtk_list_box_insert(GTK_LIST_BOX(monitorListBox), row, 0);
     gtk_widget_show_all(row);
   }
 }
@@ -80,18 +80,18 @@ static void activate(GtkApplication *app, gpointer userdata)
     mainWnd         = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow");
     exitDialog      = (GtkWidget *)gtk_builder_get_object(builder, "ExitDialog");
     wallpaperMgrWnd = (GtkWidget *)gtk_builder_get_object(builder, "WallpaperManagerWindow");
-    screenWnd       = (GtkWidget *)gtk_builder_get_object(builder, "ScreenWindow");
-    screenListBox   = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_ScreenListBox");
+    monitorWnd      = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow");
+    monitorListBox  = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_MonitorListBox");
 
     gtk_window_set_application(GTK_WINDOW(mainWnd), GTK_APPLICATION(app));
     gtk_window_set_application(GTK_WINDOW(exitDialog), GTK_APPLICATION(app));
     gtk_window_set_application(GTK_WINDOW(wallpaperMgrWnd), GTK_APPLICATION(app));
-    gtk_window_set_application(GTK_WINDOW(screenWnd), GTK_APPLICATION(app));
+    gtk_window_set_application(GTK_WINDOW(monitorWnd), GTK_APPLICATION(app));
 
     runWlp();
   }
 
-  reloadScreenListBox();
+  reloadMonitorListBox();
 
   gtk_widget_set_visible(mainWnd, 1);
 }

@@ -135,7 +135,7 @@
                 <property name="can-focus">False</property>
                 <property name="margin-top">5</property>
                 <property name="margin-bottom">5</property>
-                <property name="label" translatable="yes">Setup your screens</property>
+                <property name="label" translatable="yes">Setup your monitors</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>
@@ -147,7 +147,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkListBox" id="MainWindow_ScreenListBox">
+              <object class="GtkListBox" id="MainWindow_MonitorListBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="margin-start">40</property>
@@ -157,6 +157,20 @@
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="MainWindow_MonitorEditBtn">
+                <property name="label" translatable="yes">Edit settings</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="clicked" handler="MainWindow_MonitorEditBtnClick" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>
@@ -251,9 +265,9 @@
       </object>
     </child>
   </object>
-  <object class="GtkWindow" id="ScreenWindow">
+  <object class="GtkWindow" id="MonitorWindow">
     <property name="can-focus">False</property>
-    <signal name="delete-event" handler="ScreenWindowClose" swapped="no"/>
+    <signal name="delete-event" handler="MonitorWindowClose" swapped="no"/>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>

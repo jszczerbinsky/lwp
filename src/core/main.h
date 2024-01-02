@@ -32,8 +32,7 @@ extern GtkApplication *app;
 extern GtkWidget *mainWnd;
 extern GtkWidget *exitDialog;
 extern GtkWidget *wallpaperMgrWnd;
-extern GtkWidget *screenWnd;
-extern GtkWidget *screenListBox;
+extern GtkWidget *monitorWnd;
 
 void killWlp();
 
