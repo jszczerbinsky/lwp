@@ -9,20 +9,6 @@ set(_SOURCE_FILES
     wallpaper.c
     window.c
     )
-		
-# Windows resource file
-if(_UNAME STREQUAL "WIN32")
-	if(MINGW)
-		set(CMAKE_RC_COMPILER_INIT windres)
-		ENABLE_LANGUAGE(RC)
-		SET(CMAKE_RC_COMPILE_OBJECT
-    "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
-	endif(MINGW)
-	
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resource.template.rc ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc
-        @ONLY)
-	list(APPEND _SOURCE_FILES "resource.rc")
-endif()
 
 # SDL2 dependency
 find_package(SDL2 REQUIRED CONFIG)

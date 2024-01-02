@@ -35,6 +35,7 @@ pkg_check_modules (GTK3 REQUIRED gtk+-3.0)
 list(APPEND _INCLUDE_DIRS ${GTK3_INCLUDE_DIRS})
 list(APPEND _LIBS ${GTK3_LINK_LIBRARIES})
 
+
 # Main executable
 if (_UNAME STREQUAL "DARWIN")
   add_executable(lwp MACOSX_BUNDLE ${_SOURCE_FILES})

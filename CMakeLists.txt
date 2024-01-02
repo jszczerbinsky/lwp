@@ -8,10 +8,12 @@ project(lwp
 # Detect the platform
 if (APPLE)
     set(_UNAME "DARWIN")
-elseif (WIN32)
+elseif (MSYS OR MINGW)
     set(_UNAME "WIN32")
-else()
+elseif(UNIX)
     set(_UNAME "LINUX")
+else()
+	message(FATAL_ERROR "Unsupported platform")
 endif()
 
 # Detect version
@@ -46,11 +48,13 @@ add_subdirectory(src/wlp)
 link_directories(src/wlp) 
 
 add_subdirectory(src/core)
-link_directories(src/core) 
+link_directories(src/core)
 
 # Installation rules
 if(_UNAME STREQUAL "WIN32")
 	install(DIRECTORY wallpapers
+			DESTINATION .)
+	install(DIRECTORY build/dlls/ 
 			DESTINATION .)
 	install(DIRECTORY src/window_templates
 			DESTINATION .)
@@ -73,15 +77,15 @@ elseif(_UNAME STREQUAL "LINUX")
 			TYPE SYSCONF
 			RENAME lwp.cfg)
 else()
-        install(DIRECTORY wallpapers
-                        DESTINATION Layered_WallPaper)
-		install(DIRECTORY src/window_templates
-						DESTINATION Layered_WallPaper)
-        install(FILES LICENSE.txt
-                        DESTINATION Layered_WallPaper)
-        install(FILES ${_DEFAULT_CONFIG_FILE}
+    install(DIRECTORY wallpapers
+            DESTINATION Layered_WallPaper)
+	install(DIRECTORY src/window_templates
+			DESTINATION Layered_WallPaper)
+    install(FILES LICENSE.txt
+            DESTINATION Layered_WallPaper)
+    install(FILES ${_DEFAULT_CONFIG_FILE}
 			DESTINATION Layered_WallPaper 
-                        RENAME lwp.cfg)
+            RENAME lwp.cfg)
 	install(FILES lwp.template.plist
 			DESTINATION Layered_WallPaper)
 	install (FILES setupPlist.command

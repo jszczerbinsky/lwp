@@ -65,10 +65,12 @@ static void atExit()
   SDL_Quit();
 }
 
+#ifndef __WIN32
 void exitSignalHandler(int s)
 {
   exit(0);
 }
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -76,7 +78,9 @@ int main(int argc, char *argv[])
   sprintf(pidStr, "%d\0", getpid());
   fputs(pidStr, stdout);
 
+#ifndef __WIN32
   signal(SIGINT, exitSignalHandler);
+#endif
 
   lwpLog(LOG_INFO, "Starting Layered WallPaper");
 

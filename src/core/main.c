@@ -1,7 +1,7 @@
 #include "main.h"
 
 #ifdef __WIN32
-#define MAIN_WINDOW_TEMPLATE_PATH ""
+#define MAIN_WINDOW_TEMPLATE_PATH "./window_templates/main.glade"
 #elif __DARWIN
 #define MAIN_WINDOW_TEMPLATE_PATH ""
 #else
@@ -22,11 +22,13 @@ static int   wlpPid     = 0;
 
 void killWlp()
 {
+  #ifndef __WIN32
   if (wlpPid != 0) kill(wlpPid, SIGINT);
   if (wlpProcess != NULL) pclose(wlpProcess);
 
   wlpPid     = 0;
   wlpProcess = NULL;
+  #endif
 }
 
 static void runWlp()

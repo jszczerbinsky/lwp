@@ -104,7 +104,7 @@ void initTrayIcon()
   wc.hInstance     = hInstance;
   wc.lpszClassName = CLASS_NAME;
   RegisterClass(&wc);
-  HWND hWnd = CreateWindowEx(0, CLASS_NAME, L"", WS_OVERLcfgEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+  HWND hWnd = CreateWindowEx(0, CLASS_NAME, L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
                              CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 
   // Create tray icon
