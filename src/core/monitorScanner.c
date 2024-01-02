@@ -5,7 +5,7 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/Xrandr.h>
 
-Monitor* scanMonitors()
+Monitor* scanMonitors(int *count)
 {
     int monitorCount;
     Display *display = XOpenDisplay((getenv("DISPLAY")));
@@ -27,5 +27,8 @@ Monitor* scanMonitors()
         info++;
         i++;
     }
+
+    *count = monitorCount;
+    
     return m;
 }

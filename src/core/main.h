@@ -7,35 +7,36 @@
 
 typedef struct
 {
-    int x;
-    int y;
-    int w;
-    int h;
+  int x;
+  int y;
+  int w;
+  int h;
 } Bounds;
 
 typedef struct
 {
-    int set;
-    char wlpPath[PATH_MAX];
-    Bounds wlpBounds;
+  int    set;
+  char   wlpPath[PATH_MAX];
+  Bounds wlpBounds;
 } MonitorConfig;
 
 typedef struct
 {
-    char name[MONITOR_NAME_MAX];
-    Bounds bounds;
-    MonitorConfig config;
+  char          name[MONITOR_NAME_MAX];
+  Bounds        bounds;
+  MonitorConfig config;
 } Monitor;
 
 extern GtkApplication *app;
 
-extern GtkWidget  *mainWnd;
+extern GtkWidget *mainWnd;
 extern GtkWidget *exitDialog;
 extern GtkWidget *wallpaperMgrWnd;
 extern GtkWidget *screenWnd;
+extern GtkWidget *screenListBox;
 
 void killWlp();
 
-Monitor* scanMonitors();
+Monitor *scanMonitors(int *count);
 
 #endif
