@@ -1,3 +1,4 @@
+
 <div align="center">
 
 # Layered WallPaper
@@ -106,33 +107,50 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   - Layered WallPaper should run immediately after the installation
   
   #### Build from source instead
-  - Layered WallPaper is built using [cmake](https://cmake.org/), so You must install it.
-  - This project supports `MinGW` and `MSVC` compilers. Using different one could lead to unpredicted behavior. If You want to use `MSVC`, it should be installed with Visual Studio.
-  - Download `SDL2` and `SDL2-devel` package for Your compiler from [SDL2 releases](https://github.com/libsdl-org/SDL/releases/latest) and extract them somewhere.
-  - You also must install [NSIS](https://nsis.sourceforge.io/Download). It's required to build the installer, which is needed to correctly set the registry keys, that will make Layered WallPaper run on OS startup etc.
-  - Clone the repository and create `build` directory
-  ```shell
-  git clone https://github.com/jszczerbinsky/lwp
-  cd lwp
-  mkdir -p build
-  cd build
-  ```
-  - Type the following commands, replace square brackets elements with paths to extracted `SDL2` packages, that You've downloaded:
+  To compile Layered WallPaper on Windows you need to install [MSYS2](https://www.msys2.org/). After the installation follow the guide for setting up [GTK development enviroment](https://www.gtk.org/docs/installations/windows#using-gtk-from-msys2-packages). From now on continue using MSYS2 MinGW terminal (make sure you're using `MSYS2 MINGW64`/`MSYS2 MINGW32` instead of `MSYS2`).
 
+##### Install the remaining dependencies
+There is a problem with the newest version of SDL2 on MSYS2 repository (see [issue](https://github.com/haskell-game/sdl2/issues/277)), that leads to a compilation error, thus You should install an older version of SDL2 instead.
+```shell
+# For 64bit:
+curl -O https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-SDL2-2.0.14-2-any.pkg.tar.zst
+pacman -U mingw-w64-x86_64-SDL2-2.0.14-2-any.pkg.tar.zst
 
-  For `MSVC`:
-  ```shell
-  cmake -G "Visual Studio 17" -DSDL2_DIR=[PATH TO SDL2-MSVC-DEVEL DIRECTORY]\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY]  ../
-  cmake --build . --config Release
-  cpack
-  ```
-  For `MinGW`:
-  ```shell
-  cmake -G "MinGW Makefiles" -DSDL2_DIR=[PATH TO SDL2-MINGW-DEVEL DIRECTORY]\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] -DCMAKE_BUILD_TYPE=Release  ../
-  cmake --build .
-  cpack
-  ```
-  - The installer should appear in `build` directory, that You've created earlier. After completing the installation Layered WallPaper should run immediately.
+# For 32bit:
+curl -O https://repo.msys2.org/mingw/i686/mingw-w64-i686-SDL2-2.0.14-2-any.pkg.tar.zst
+pacman -U mingw-w64-i686-SDL2-2.0.14-2-any.pkg.tar.zst
+```
+
+You also have to install cmake
+```shell
+# For 64bit:
+pacman -S mingw-w64-x86_64-cmake
+
+# For 32bit:
+pacman -S mingw-w64-i686-cmake
+```
+
+##### Clone the repository
+```shell
+git clone https://github.com/jszczerbinsky/lwp
+cd lwp
+mkdir build
+cd build
+```
+
+##### Compile and install
+- Download [SDL2](https://github.com/libsdl-org/SDL/releases/latest) runtime package and unpack it.
+- Compile the program
+```shell
+# Remember to use unix path format (instead of C:/path/to/dir use /c/path/to/dir)
+cmake -DSDL2_RUNTIME_DIR=/path/to/dir ../
+cmake --build .
+# Prepare the DLLs, that will be shipped with the program.
+# The script is going to ask you which version of gdbus.exe should it use (32bit or 64bit)
+../distributeDLLs.sh
+cpack
+```
+After this the installer should appear in the current directory.
   
 </details>
 
