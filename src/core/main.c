@@ -17,28 +17,6 @@ GtkWidget *wallpaperMgrWnd = NULL;
 GtkWidget *monitorWnd      = NULL;
 GtkWidget *monitorListBox  = NULL;
 
-static FILE *wlpProcess = NULL;
-static int   wlpPid     = 0;
-
-void killWlp()
-{
-  #ifndef __WIN32
-  if (wlpPid != 0) kill(wlpPid, SIGINT);
-  if (wlpProcess != NULL) pclose(wlpProcess);
-
-  wlpPid     = 0;
-  wlpProcess = NULL;
-  #endif
-}
-
-static void runWlp()
-{
-  wlpProcess = popen("/home/cziken/Projects/lwp/build/src/wlp/lwpwlp", "r");
-  char buff[10];
-  fgets(buff, sizeof(buff) - 1, wlpProcess);
-  wlpPid = atoi(buff);
-}
-
 static void reloadMonitorListBox()
 {
   GList *rows = gtk_container_get_children(GTK_CONTAINER(monitorListBox));

@@ -2,6 +2,7 @@ set(_SOURCE_FILES
     main.c
 	windowHandlers.c
 	monitorScanner.c
+	wlp.c
     )
 		
 # Windows resource file

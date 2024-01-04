@@ -65,12 +65,10 @@ static void atExit()
   SDL_Quit();
 }
 
-#ifndef __WIN32
 void exitSignalHandler(int s)
 {
   exit(0);
 }
-#endif
 
 int main(int argc, char *argv[])
 {
@@ -78,7 +76,9 @@ int main(int argc, char *argv[])
   sprintf(pidStr, "%d\0", getpid());
   fputs(pidStr, stdout);
 
-#ifndef __WIN32
+#ifdef __WIN32
+  signal(SIGTERM, exitSignalHandler);
+#else
   signal(SIGINT, exitSignalHandler);
 #endif
 

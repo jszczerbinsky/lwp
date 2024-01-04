@@ -34,6 +34,7 @@ extern GtkWidget *exitDialog;
 extern GtkWidget *wallpaperMgrWnd;
 extern GtkWidget *monitorWnd;
 
+void runWlp();
 void killWlp();
 
 Monitor *scanMonitors(int *count);

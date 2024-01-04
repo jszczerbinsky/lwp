@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir -p dlls
+
 echo
 PS3='Choose the correct version of gdbus: '
 options=("/mingw64/bin/gdbus.exe" "/mingw32/bin/gdbus.exe")
@@ -12,7 +14,6 @@ done
 
 echo "Preparing DLLs..."
 
-mkdir -p dlls
 ldd ./src/core/lwp.exe | grep '\/mingw.*\.dll' -o | xargs -I{} cp "{}" ./dlls/
 
 echo "Done"
