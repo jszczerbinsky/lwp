@@ -72,10 +72,10 @@ static void activate(GtkApplication *app, gpointer userdata)
         (GtkWidget *)gtk_builder_get_object(builder, "WallpaperManagerWindow_WallpaperListBox");
     wallpaperComboBox =
         (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_WallpaperComboBox");
-    xPosSpinBtn  = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_XPosSpinBtn");
-    yPosSpinBtn  = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_YPosSpinBtn");
-    widthSpinBtn = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_WidthSpinBtn");
-    widthSpinBtn = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_HeightSpinBtn");
+    xPosSpinBtn   = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_XPosSpinBtn");
+    yPosSpinBtn   = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_YPosSpinBtn");
+    widthSpinBtn  = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_WidthSpinBtn");
+    heightSpinBtn = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_HeightSpinBtn");
 
     gtk_window_set_application(GTK_WINDOW(mainWnd), GTK_APPLICATION(app));
     gtk_window_set_application(GTK_WINDOW(exitDialog), GTK_APPLICATION(app));

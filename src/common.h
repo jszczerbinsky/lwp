@@ -45,4 +45,6 @@ typedef struct
 
 WallpaperInfo *scanWallpapers(int *count);
 
+void saveMonitorConfig(MonitorConfig *mc);
+
 #endif

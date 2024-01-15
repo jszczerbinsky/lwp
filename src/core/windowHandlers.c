@@ -74,6 +74,8 @@ G_MODULE_EXPORT void MonitorWindow_ApplyBtnClick()
   mc.wlpBounds.w = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(widthSpinBtn));
   mc.wlpBounds.h = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(heightSpinBtn));
 
+  saveMonitorConfig(&mc);
+
   killWlp();
   runWlp();
 }

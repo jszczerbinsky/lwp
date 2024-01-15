@@ -4,6 +4,7 @@ set(_SOURCE_FILES
 		wlp.c
 		../common/wallpaperScanner.c
 		../common/monitorScanner.c
+		../common/config.c
 	)
 		
 # Windows resource file
@@ -20,6 +21,8 @@ if(_UNAME STREQUAL "WIN32")
 	list(APPEND _SOURCE_FILES "resource.rc")
 endif()
 
+find_package (PkgConfig REQUIRED)
+
 if (_UNAME STREQUAL "LINUX")
   # X11 and Xrandr dependency
   include(FindX11)
@@ -32,11 +35,14 @@ if (_UNAME STREQUAL "LINUX")
 endif()
 
 # GTK dependency
-find_package (PkgConfig REQUIRED)
 pkg_check_modules (GTK3 REQUIRED gtk+-3.0)
 list(APPEND _INCLUDE_DIRS ${GTK3_INCLUDE_DIRS})
 list(APPEND _LIBS ${GTK3_LINK_LIBRARIES})
 
+# libconfig dependency
+pkg_check_modules (libconfig REQUIRED libconfig)
+list(APPEND _INCLUDE_DIRS ${libconfig_INCLUDE_DIRS})
+list(APPEND _LIBS ${libconfig_LINK_LIBRARIES})
 
 # Main executable
 if (_UNAME STREQUAL "DARWIN")
