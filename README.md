@@ -14,7 +14,7 @@ Each layer moves with Your mouse cursor, creating this beautiful effect.
 [Configuration](#configuration) •
 [Creating Wallpapers](#creating-wallpapers)
 
-<a href="https://www.buymeacoffee.com/jszczerbinsky" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<a href="https://www.buymeacoffee.com/jszczerbinsky"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=jszczerbinsky&button_colour=FFDD00&font_colour=000000&font_family=Comic&outline_colour=000000&coffee_colour=ffffff" /></a>
 
 https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-b147-b345e8a8949a.mp4
 
