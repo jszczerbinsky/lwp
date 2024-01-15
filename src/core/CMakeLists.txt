@@ -1,9 +1,10 @@
 set(_SOURCE_FILES
     main.c
-	windowHandlers.c
-	monitorScanner.c
-	wlp.c
-    )
+		windowHandlers.c
+		wlp.c
+		../common/wallpaperScanner.c
+		../common/monitorScanner.c
+	)
 		
 # Windows resource file
 if(_UNAME STREQUAL "WIN32")

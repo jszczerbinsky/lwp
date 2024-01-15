@@ -11,11 +11,12 @@
 GtkApplication *app     = NULL;
 GtkBuilder     *builder = NULL;
 
-GtkWidget *mainWnd         = NULL;
-GtkWidget *exitDialog      = NULL;
-GtkWidget *wallpaperMgrWnd = NULL;
-GtkWidget *monitorWnd      = NULL;
-GtkWidget *monitorListBox  = NULL;
+GtkWidget *mainWnd          = NULL;
+GtkWidget *exitDialog       = NULL;
+GtkWidget *wallpaperMgrWnd  = NULL;
+GtkWidget *monitorWnd       = NULL;
+GtkWidget *monitorListBox   = NULL;
+GtkWidget *wallpaperListBox = NULL;
 
 static void reloadMonitorListBox()
 {
@@ -35,7 +36,7 @@ static void reloadMonitorListBox()
 
   monitors = scanMonitors(&monitorsCount);
 
-  for (int i = 0; i < 1; i++)
+  for (int i = 0; i < monitorsCount; i++)
   {
     GtkWidget *label = gtk_label_new(monitors[i].name);
     GtkWidget *row   = gtk_list_box_row_new();
@@ -62,6 +63,8 @@ static void activate(GtkApplication *app, gpointer userdata)
     wallpaperMgrWnd = (GtkWidget *)gtk_builder_get_object(builder, "WallpaperManagerWindow");
     monitorWnd      = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow");
     monitorListBox  = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_MonitorListBox");
+    wallpaperListBox =
+        (GtkWidget *)gtk_builder_get_object(builder, "WallpaperManagerWindow_WallpaperListBox");
 
     gtk_window_set_application(GTK_WINDOW(mainWnd), GTK_APPLICATION(app));
     gtk_window_set_application(GTK_WINDOW(exitDialog), GTK_APPLICATION(app));

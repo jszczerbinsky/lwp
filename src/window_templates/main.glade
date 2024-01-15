@@ -285,6 +285,7 @@
   <object class="GtkWindow" id="WallpaperManagerWindow">
     <property name="can-focus">False</property>
     <signal name="delete-event" handler="WallpaperManagerWindowClose" swapped="no"/>
+    <signal name="show" handler="WallpaperManagerWindowShow" swapped="no"/>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
@@ -308,7 +309,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkListBox">
+          <object class="GtkListBox" id="WallpaperManagerWindow_WallpaperListBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
           </object>

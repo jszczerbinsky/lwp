@@ -29,4 +29,24 @@ G_MODULE_EXPORT void MainWindowClose() { gtk_widget_set_visible(mainWnd, 0); }
 
 G_MODULE_EXPORT void WallpaperManagerWindowClose() { gtk_widget_set_visible(wallpaperMgrWnd, 0); }
 
+G_MODULE_EXPORT void WallpaperManagerWindowShow()
+{
+  int            wlpCount;
+  WallpaperInfo *wlpList = scanWallpapers(&wlpCount);
+
+  for (int i = 0; i < wlpCount; i++)
+  {
+    GtkWidget *label = gtk_label_new(wlpList[i].name);
+    GtkWidget *row   = gtk_list_box_row_new();
+    gtk_container_add(GTK_CONTAINER(row), label);
+
+    gtk_list_box_insert(GTK_LIST_BOX(wallpaperListBox), row, 0);
+    gtk_widget_show_all(row);
+  }
+
+  free(wlpList);
+}
+
+// Monitor Window handlers
+
 G_MODULE_EXPORT void MonitorWindowClose() { gtk_widget_set_visible(monitorWnd, 0); }
