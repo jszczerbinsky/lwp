@@ -50,3 +50,30 @@ G_MODULE_EXPORT void WallpaperManagerWindowShow()
 // Monitor Window handlers
 
 G_MODULE_EXPORT void MonitorWindowClose() { gtk_widget_set_visible(monitorWnd, 0); }
+G_MODULE_EXPORT void MonitorWindowShow()
+{
+  int            wlpCount;
+  WallpaperInfo *wlpList = scanWallpapers(&wlpCount);
+
+  for (int i = 0; i < wlpCount; i++)
+  {
+    gtk_combo_box_text_insert(
+        GTK_COMBO_BOX_TEXT(wallpaperComboBox), 0, wlpList[i].dirPath, wlpList[i].name
+    );
+  }
+
+  free(wlpList);
+}
+
+G_MODULE_EXPORT void MonitorWindow_ApplyBtnClick()
+{
+  MonitorConfig mc;
+  strcpy(mc.wlpPath, gtk_combo_box_get_active_id(GTK_COMBO_BOX(wallpaperComboBox)));
+  mc.wlpBounds.x = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(xPosSpinBtn));
+  mc.wlpBounds.y = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(yPosSpinBtn));
+  mc.wlpBounds.w = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(widthSpinBtn));
+  mc.wlpBounds.h = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(heightSpinBtn));
+
+  killWlp();
+  runWlp();
+}

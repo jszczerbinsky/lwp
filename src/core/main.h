@@ -12,6 +12,11 @@ extern GtkWidget *exitDialog;
 extern GtkWidget *wallpaperMgrWnd;
 extern GtkWidget *monitorWnd;
 extern GtkWidget *wallpaperListBox;
+extern GtkWidget *wallpaperComboBox;
+extern GtkWidget *xPosSpinBtn;
+extern GtkWidget *yPosSpinBtn;
+extern GtkWidget *widthSpinBtn;
+extern GtkWidget *heightSpinBtn;
 
 void runWlp();
 void killWlp();

@@ -11,12 +11,17 @@
 GtkApplication *app     = NULL;
 GtkBuilder     *builder = NULL;
 
-GtkWidget *mainWnd          = NULL;
-GtkWidget *exitDialog       = NULL;
-GtkWidget *wallpaperMgrWnd  = NULL;
-GtkWidget *monitorWnd       = NULL;
-GtkWidget *monitorListBox   = NULL;
-GtkWidget *wallpaperListBox = NULL;
+GtkWidget *mainWnd           = NULL;
+GtkWidget *exitDialog        = NULL;
+GtkWidget *wallpaperMgrWnd   = NULL;
+GtkWidget *monitorWnd        = NULL;
+GtkWidget *monitorListBox    = NULL;
+GtkWidget *wallpaperListBox  = NULL;
+GtkWidget *wallpaperComboBox = NULL;
+GtkWidget *xPosSpinBtn       = NULL;
+GtkWidget *yPosSpinBtn       = NULL;
+GtkWidget *widthSpinBtn      = NULL;
+GtkWidget *heightSpinBtn     = NULL;
 
 static void reloadMonitorListBox()
 {
@@ -65,6 +70,12 @@ static void activate(GtkApplication *app, gpointer userdata)
     monitorListBox  = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_MonitorListBox");
     wallpaperListBox =
         (GtkWidget *)gtk_builder_get_object(builder, "WallpaperManagerWindow_WallpaperListBox");
+    wallpaperComboBox =
+        (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_WallpaperComboBox");
+    xPosSpinBtn  = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_XPosSpinBtn");
+    yPosSpinBtn  = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_YPosSpinBtn");
+    widthSpinBtn = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_WidthSpinBtn");
+    widthSpinBtn = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_HeightSpinBtn");
 
     gtk_window_set_application(GTK_WINDOW(mainWnd), GTK_APPLICATION(app));
     gtk_window_set_application(GTK_WINDOW(exitDialog), GTK_APPLICATION(app));
