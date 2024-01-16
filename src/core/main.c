@@ -22,6 +22,7 @@ GtkWidget *xPosSpinBtn       = NULL;
 GtkWidget *yPosSpinBtn       = NULL;
 GtkWidget *widthSpinBtn      = NULL;
 GtkWidget *heightSpinBtn     = NULL;
+GtkWidget *monitorNameLabel  = NULL;
 
 static void reloadMonitorListBox()
 {
@@ -36,8 +37,8 @@ static void reloadMonitorListBox()
 
   g_list_free(rows);
 
-  int      monitorsCount;
-  Monitor *monitors;
+  int          monitorsCount;
+  MonitorInfo *monitors;
 
   monitors = scanMonitors(&monitorsCount);
 
@@ -76,6 +77,8 @@ static void activate(GtkApplication *app, gpointer userdata)
     yPosSpinBtn   = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_YPosSpinBtn");
     widthSpinBtn  = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_WidthSpinBtn");
     heightSpinBtn = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_HeightSpinBtn");
+    monitorNameLabel =
+        (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_MonitorNameLabel");
 
     gtk_window_set_application(GTK_WINDOW(mainWnd), GTK_APPLICATION(app));
     gtk_window_set_application(GTK_WINDOW(exitDialog), GTK_APPLICATION(app));

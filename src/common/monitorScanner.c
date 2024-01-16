@@ -40,10 +40,10 @@ BOOL monitorenumproc(HMONITOR monitor, HDC hdc, LPRECT rect, LPARAM param)
 }
 #endif
 
-Monitor *scanMonitors(int *count)
+MonitorInfo *scanMonitors(int *count)
 {
-  int      monitorCount;
-  Monitor *m = NULL;
+  int          monitorCount;
+  MonitorInfo *m = NULL;
 
 #ifdef __WIN32
   monitorCount = GetSystemMetrics(SM_CMONITORS);
@@ -57,7 +57,7 @@ Monitor *scanMonitors(int *count)
   Window          wnd     = DefaultRootWindow(display);
   XRRMonitorInfo *info    = XRRGetMonitors(display, wnd, 0, &monitorCount);
 
-  m = malloc(sizeof(Monitor) * monitorCount);
+  m = malloc(sizeof(MonitorInfo) * monitorCount);
 
   int i = 0;
   while (i < monitorCount)

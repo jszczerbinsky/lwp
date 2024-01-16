@@ -376,7 +376,7 @@
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkLabel">
+          <object class="GtkLabel" id="MonitorWindow_MonitorNameLabel">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="margin-top">10</property>
@@ -406,6 +406,7 @@
               <object class="GtkComboBoxText" id="MonitorWindow_WallpaperComboBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="active">0</property>
               </object>
               <packing>
                 <property name="left-attach">1</property>

@@ -23,7 +23,7 @@ typedef struct
 typedef struct
 {
   int    set;
-  char   wlpPath[PATH_MAX];
+  char   wlpName[WALLPAPER_NAME_MAX];
   Bounds wlpBounds;
 } MonitorConfig;
 
@@ -32,9 +32,9 @@ typedef struct
   char          name[MONITOR_NAME_MAX];
   Bounds        bounds;
   MonitorConfig config;
-} Monitor;
+} MonitorInfo;
 
-Monitor *scanMonitors(int *count);
+MonitorInfo *scanMonitors(int *count);
 
 typedef struct
 {
@@ -45,6 +45,7 @@ typedef struct
 
 WallpaperInfo *scanWallpapers(int *count);
 
-void saveMonitorConfig(MonitorConfig *mc);
+void saveMonitorConfig(const char *name, MonitorConfig *mc);
+int  loadMonitorConfig(const char *name, MonitorConfig *mc);
 
 #endif

@@ -52,29 +52,50 @@ G_MODULE_EXPORT void WallpaperManagerWindowShow()
 G_MODULE_EXPORT void MonitorWindowClose() { gtk_widget_set_visible(monitorWnd, 0); }
 G_MODULE_EXPORT void MonitorWindowShow()
 {
+  // Load wallpaper list
   int            wlpCount;
   WallpaperInfo *wlpList = scanWallpapers(&wlpCount);
 
   for (int i = 0; i < wlpCount; i++)
   {
     gtk_combo_box_text_insert(
-        GTK_COMBO_BOX_TEXT(wallpaperComboBox), 0, wlpList[i].dirPath, wlpList[i].name
+        GTK_COMBO_BOX_TEXT(wallpaperComboBox), 0, wlpList[i].name, wlpList[i].name
     );
   }
+  gtk_combo_box_set_active(GTK_COMBO_BOX(wallpaperComboBox), 0);
 
   free(wlpList);
+
+  // Find selected monitor name
+  GtkListBoxRow *listBoxRow  = gtk_list_box_get_selected_row(GTK_LIST_BOX(monitorListBox));
+  GList         *children    = gtk_container_get_children(GTK_CONTAINER(listBoxRow));
+  const char    *monitorName = gtk_label_get_label(GTK_LABEL(children->data));
+  gtk_label_set_text(GTK_LABEL(monitorNameLabel), monitorName);
+  g_list_free(children);
+
+  // Read configuration from config file
+  MonitorConfig mc;
+  if (loadMonitorConfig(monitorName, &mc))
+  {
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(xPosSpinBtn), (gdouble)mc.wlpBounds.x);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(yPosSpinBtn), (gdouble)mc.wlpBounds.y);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(widthSpinBtn), (gdouble)mc.wlpBounds.w);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(heightSpinBtn), (gdouble)mc.wlpBounds.h);
+
+    gtk_combo_box_set_active_id(GTK_COMBO_BOX(wallpaperComboBox), mc.wlpName);
+  }
 }
 
 G_MODULE_EXPORT void MonitorWindow_ApplyBtnClick()
 {
   MonitorConfig mc;
-  strcpy(mc.wlpPath, gtk_combo_box_get_active_id(GTK_COMBO_BOX(wallpaperComboBox)));
+  strcpy(mc.wlpName, gtk_combo_box_get_active_id(GTK_COMBO_BOX(wallpaperComboBox)));
   mc.wlpBounds.x = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(xPosSpinBtn));
   mc.wlpBounds.y = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(yPosSpinBtn));
   mc.wlpBounds.w = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(widthSpinBtn));
   mc.wlpBounds.h = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(heightSpinBtn));
 
-  saveMonitorConfig(&mc);
+  saveMonitorConfig(gtk_label_get_text(GTK_LABEL(monitorNameLabel)), &mc);
 
   killWlp();
   runWlp();
