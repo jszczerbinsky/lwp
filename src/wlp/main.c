@@ -55,11 +55,24 @@ static App app;
 
 static void atExit()
 {
-  // freeConfig(&cfg);
-  /*
-    SDL_DestroyRenderer(app.renderer);
-    SDL_DestroyWindow(app.window);
-    SDL_Quit();*/
+  for (int i = 0; i < app.monitorsCount; i++)
+  {
+    Monitor *m = app.monitors + i;
+    if (m->tex) SDL_DestroyTexture(m->tex);
+    if (m->wlp.tex) SDL_DestroyTexture(m->wlp.tex);
+
+    for (int l = 0; l < m->wlp.info.config.layersCount; l++)
+      SDL_DestroyTexture(m->wlp.layers[l].tex);
+    free(m->wlp.layers);
+
+    m++;
+  }
+  free(app.monitors);
+
+  if (app.renderer) SDL_DestroyRenderer(app.renderer);
+  if (app.window) SDL_DestroyWindow(app.window);
+
+  SDL_Quit();
 }
 
 void exitSignalHandler(int s)
@@ -194,6 +207,8 @@ int initMonitors(App *app)
 
 int main(int argc, char *argv[])
 {
+  memset(&app, 0, sizeof(App));
+
   char pidStr[10];
   sprintf(pidStr, "%d\0", getpid());
   fputs(pidStr, stdout);
