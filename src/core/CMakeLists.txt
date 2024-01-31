@@ -2,9 +2,9 @@ set(_SOURCE_FILES
     main.c
 		windowHandlers.c
 		wlp.c
-		../common/wallpaperScanner.c
 		../common/monitorScanner.c
 		../common/config.c
+		../common/wallpaperScanner.c
 	)
 		
 # Windows resource file

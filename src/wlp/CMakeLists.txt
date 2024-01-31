@@ -3,17 +3,41 @@ if(SDL2_RUNTIME_DIR)
 endif()
 
 set(_SOURCE_FILES
+		../common/monitorScanner.c
+		../common/config.c
+		../common/wallpaperScanner.c
     main.c
-	debug.c
-    parser.c
+		debug.c
     wallpaper.c
     window.c
-    )
+	)
+
+# GLIB dependency
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLIB REQUIRED glib-2.0)
+set(_INCLUDE_DIRS ${GLIB_INCLUDE_DIRS})
+set(_LIBS ${GLIB_LDFLAGS})
+
+if (_UNAME STREQUAL "LINUX")
+  # X11 and Xrandr dependency
+  include(FindX11)
+
+  list(APPEND _INCLUDE_DIRS ${X11_INCLUDE_DIR})
+  list(APPEND _LIBS ${X11_LIBRARIES})
+
+  list(APPEND _INCLUDE_DIRS ${X11_Xrandr_INCLUDE_PATH})
+  list(APPEND _LIBS ${X11_Xrandr_LIB})
+endif()
+
+# libconfig dependency
+pkg_check_modules (libconfig REQUIRED libconfig)
+list(APPEND _INCLUDE_DIRS ${libconfig_INCLUDE_DIRS})
+list(APPEND _LIBS ${libconfig_LINK_LIBRARIES})
 
 # SDL2 dependency
 find_package(SDL2 REQUIRED CONFIG)
-set(_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-set(_LIBS ${SDL2_LIBRARIES})
+list(APPEND _INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
+list(APPEND _LIBS ${SDL2_LIBRARIES})
 
 if (_UNAME STREQUAL "DARWIN")
   # MacOSX framework dependencies

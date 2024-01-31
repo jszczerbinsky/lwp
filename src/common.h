@@ -22,6 +22,29 @@ typedef struct
 
 typedef struct
 {
+  float sensitivityX;
+  float sensitivityY;
+} LayerConfig;
+
+typedef struct
+{
+  int          set;
+  int          repeatX;
+  int          repeatY;
+  int          layersCount;
+  LayerConfig *layerConfigs;
+} WallpaperConfig;
+
+typedef struct
+{
+  char            name[WALLPAPER_NAME_MAX];
+  char            dirPath[PATH_MAX];
+  int             isDefault;
+  WallpaperConfig config;
+} WallpaperInfo;
+
+typedef struct
+{
   int    set;
   char   wlpName[WALLPAPER_NAME_MAX];
   Bounds wlpBounds;
@@ -34,18 +57,20 @@ typedef struct
   MonitorConfig config;
 } MonitorInfo;
 
-MonitorInfo *scanMonitors(int *count);
-
 typedef struct
 {
-  char name[WALLPAPER_NAME_MAX];
-  char dirPath[PATH_MAX];
-  int  isDefault;
-} WallpaperInfo;
+  int drawOnRootWindow;
+  int targetFps;
+} AppConfig;
 
+MonitorInfo   *scanMonitors(int *count);
 WallpaperInfo *scanWallpapers(int *count);
 
 void saveMonitorConfig(const char *name, MonitorConfig *mc);
 int  loadMonitorConfig(const char *name, MonitorConfig *mc);
+
+int loadAppConfig(AppConfig *ac);
+
+int loadWallpaperConfig(const char *dirName, WallpaperConfig *wc);
 
 #endif

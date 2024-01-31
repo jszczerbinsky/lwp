@@ -4,11 +4,9 @@
 #include "main.h"
 #include "parser.h"
 
-void initWindow(Config *cfg);
-
 #ifdef __WIN32
 void initTrayIcon();
-int updateTrayIcon();
+int  updateTrayIcon();
 void removeTrayIcon();
 #endif
 

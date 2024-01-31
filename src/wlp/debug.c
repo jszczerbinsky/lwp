@@ -5,33 +5,32 @@
 
 void lwpLog(int type, const char *str, ...)
 {
-  char *typePrefixCodes;
   char *typePrefix;
+
+  FILE *file = fopen("/home/cziken/.config/lwp/log", "a");
 
   switch (type)
   {
     case LOG_ERROR:
-      typePrefixCodes = "\x1b[31m\x1b[1m";
-      typePrefix      = "ERROR";
+      typePrefix = "ERROR";
       break;
     case LOG_INFO:
-      typePrefixCodes = "\x1b[34m\x1b[1m";
-      typePrefix      = "INFO";
+      typePrefix = "INFO";
       break;
     case LOG_WARNING:
-      typePrefixCodes = "\x1b[33m\x1b[1m";
-      typePrefix      = "WARNING";
+      typePrefix = "WARNING";
       break;
   }
 
-  printf("%s%s: \x1b[0m", typePrefixCodes, typePrefix);
+  fprintf(file, "%s: ", typePrefix);
 
   va_list args;
   va_start(args, str);
-  vprintf(str, args);
+  vfprintf(file, str, args);
   va_end(args);
 
-  putchar('\n');
-  fflush(stdout);
+  fprintf(file, "\n");
+
+  fclose(file);
 }
 

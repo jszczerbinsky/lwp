@@ -63,8 +63,12 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     case WM_TRAY_ICON:
       if (lParam == WM_RBUTTONDOWN || lParam == WM_LBUTTONDOWN)
       {
-        int res = MessageBox(NULL, "Do You want to run Layered WallPaper with debug console?",
-                             "Restart Layered WallPaper", MB_YESNOCANCEL | MB_ICONQUESTION);
+        int res = MessageBox(
+            NULL,
+            "Do You want to run Layered WallPaper with debug console?",
+            "Restart Layered WallPaper",
+            MB_YESNOCANCEL | MB_ICONQUESTION
+        );
 
         TCHAR processParam = NULL;
 
@@ -104,8 +108,20 @@ void initTrayIcon()
   wc.hInstance     = hInstance;
   wc.lpszClassName = CLASS_NAME;
   RegisterClass(&wc);
-  HWND hWnd = CreateWindowEx(0, CLASS_NAME, L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-                             CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+  HWND hWnd = CreateWindowEx(
+      0,
+      CLASS_NAME,
+      L"",
+      WS_OVERLAPPEDWINDOW,
+      CW_USEDEFAULT,
+      CW_USEDEFAULT,
+      CW_USEDEFAULT,
+      CW_USEDEFAULT,
+      NULL,
+      NULL,
+      hInstance,
+      NULL
+  );
 
   // Create tray icon
 
@@ -136,14 +152,20 @@ void initWindow(Config *cfg)
 
   HWND wallpaperWorkerw = GetWindow(iconWorkerw, GW_HWNDNEXT);
   SetParent(hWindow, wallpaperWorkerw);
-  SetWindowLongPtr(hWindow, GWL_EXSTYLE,
-                   WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOACTIVATE);
+  SetWindowLongPtr(
+      hWindow, GWL_EXSTYLE, WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOACTIVATE
+  );
   SetWindowLongPtr(hWindow, GWL_STYLE, WS_CHILDWINDOW | WS_VISIBLE);
 
-  SetWindowPos(hWindow, NULL, 0, 0, 
-							GetSystemMetrics(SM_CXVIRTUALSCREEN),
-              GetSystemMetrics(SM_CYVIRTUALSCREEN),
-              SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+  SetWindowPos(
+      hWindow,
+      NULL,
+      0,
+      0,
+      GetSystemMetrics(SM_CXVIRTUALSCREEN),
+      GetSystemMetrics(SM_CYVIRTUALSCREEN),
+      SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW
+  );
 }
 
 #elif __DARWIN
@@ -165,21 +187,30 @@ void initWindow(Config *cfg)
 
   // Get shared NScfglication instance
   const id ns_cfg = OBJC_MSG_CLS(objc_getClass("NScfglication"), sel_getUid("sharedcfglication"));
-  OBJC_MSG_INT(ns_cfg, sel_getUid("setActivationPolicy:"),
-               0);  // NScfglicationActivationPolicyRegular
+  OBJC_MSG_INT(
+      ns_cfg,
+      sel_getUid("setActivationPolicy:"),
+      0
+  );  // NScfglicationActivationPolicyRegular
 
   // Create NSWindow
   const id window = ((id(*)(id, SEL, struct CGRect, int, int, int))objc_msgSend)(
       OBJC_MSG_CLS(objc_getClass("NSWindow"), sel_getUid("alloc")),
-      sel_getUid("initWithContentRect:styleMask:backing:defer:"), frameRect,
+      sel_getUid("initWithContentRect:styleMask:backing:defer:"),
+      frameRect,
       0,  // NSWindowStyleMaskBorderless
       2,  // NSBackingStoreBuffered
-      false);
+      false
+  );
 
   // Set window attributes
-  OBJC_MSG_ID(window, sel_getUid("setTitle:"),
-              OBJC_MSG_CLS_CHR(objc_getClass("NSString"), sel_getUid("stringWithUTF8String:"),
-                               "Parallax wallpaper"));
+  OBJC_MSG_ID(
+      window,
+      sel_getUid("setTitle:"),
+      OBJC_MSG_CLS_CHR(
+          objc_getClass("NSString"), sel_getUid("stringWithUTF8String:"), "Parallax wallpaper"
+      )
+  );
   OBJC_MSG_PTR(window, sel_getUid("makeKeyAndOrderFront:"), nil);
   OBJC_MSG_INT(window, sel_getUid("setLevel:"), kCGDesktopWindowLevel - 1);
   OBJC_MSG_INT(ns_cfg, sel_getUid("activateIgnoringOthercfgs:"), true);
@@ -188,30 +219,43 @@ void initWindow(Config *cfg)
   cfg->window = SDL_CreateWindowFrom((void *)window);
   if (cfg->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
 }
+#endif
 
-#elif __LINUX
-
-void initWindow(Config *cfg)
+void initWindow(App *app)
 {
-  if (cfg->reloadRootWnd)
+  if (!app->config.drawOnRootWindow)
   {
     Display *display = XOpenDisplay(NULL);
     XCloseDisplay(display);
 
-    cfg->window = SDL_CreateWindow("Parallax wallpaper", 0, 0, DisplayWidth(display, 0),
-                                   DisplayHeight(display, 0), SDL_WINDOW_OPENGL);
+    app->window = SDL_CreateWindow(
+        "Layered WallPaper",
+        0,
+        0,
+        DisplayWidth(display, 0),
+        DisplayHeight(display, 0),
+        SDL_WINDOW_OPENGL
+    );
 
     SDL_SysWMinfo wmInfo;
     SDL_GetVersion(&wmInfo.version);
-    SDL_GetWindowWMInfo(cfg->window, &wmInfo);
+    SDL_GetWindowWMInfo(app->window, &wmInfo);
 
     Window xWnd = wmInfo.info.x11.window;
     display     = wmInfo.info.x11.display;
 
     Atom atomType    = XInternAtom(display, "_NET_WM_WINDOW_TYPE", 0);
     Atom atomDesktop = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DESKTOP", 0);
-    XChangeProperty(display, xWnd, atomType, XA_ATOM, 32, PropModeReplace,
-                    (const unsigned char *)&atomDesktop, 1);
+    XChangeProperty(
+        display,
+        xWnd,
+        atomType,
+        XA_ATOM,
+        32,
+        PropModeReplace,
+        (const unsigned char *)&atomDesktop,
+        1
+    );
 
     Window rootWindow = RootWindow(display, DefaultScreen(display));
 
@@ -223,11 +267,13 @@ void initWindow(Config *cfg)
   {
     Display *display    = XOpenDisplay(NULL);
     Window   rootWindow = RootWindow(display, DefaultScreen(display));
-    cfg->window         = SDL_CreateWindowFrom((void *)rootWindow);
+    app->window         = SDL_CreateWindowFrom((void *)rootWindow);
     XCloseDisplay(display);
   }
 
-  if (cfg->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
+  if (app->window == NULL) lwpLog(LOG_ERROR, "Failed to initialize window: %s", SDL_GetError());
 
+  app->renderer =
+      SDL_CreateRenderer(app->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+  if (app->renderer == NULL) lwpLog(LOG_ERROR, "Failed to initialize renderer: %s", SDL_GetError());
 }
-#endif

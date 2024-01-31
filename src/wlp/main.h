@@ -14,11 +14,11 @@
 #include <stdio.h>
 #include <windows.h>
 #elif __DARWIN
-#include <objc/runtime.h>
-#include <objc/message.h>
 #include <Carbon/Carbon.h>
 #include <CoreGraphics/CGDisplayConfiguration.h>
 #include <limits.h>
+#include <objc/message.h>
+#include <objc/runtime.h>
 #include <pwd.h>
 #elif __LINUX
 #include <X11/Xatom.h>
@@ -28,40 +28,39 @@
 #include <unistd.h>
 #endif
 
+#include "../common.h"
+
 typedef struct
 {
-  float        sensitivityX;
-  float        sensitivityY;
   SDL_Texture *tex;
 } Layer;
 
 typedef struct
 {
-  char         dirPath[PATH_MAX];
-  int          repeatX, repeatY;
-  int          layersCount;
-  Layer       *layers;
-  int          originalW, originalH;
-  SDL_Texture *tex;
+  WallpaperInfo info;
+  int           originalW;
+  int           originalH;
+  SDL_Texture  *tex;
+  Layer        *layers;
 } Wallpaper;
 
 typedef struct
 {
-  int          x, y, w, h;
-  int          wallpaperX, wallpaperY, wallpaperW, wallpaperH;
+  MonitorInfo  info;
   SDL_Texture *tex;
-  Wallpaper    wallpaper;
-} WallpaperDest;
+  Wallpaper    wlp;
+} Monitor;
 
 typedef struct
 {
-  int      reloadRootWnd;
-  int      monitorsCount;
-  float    smooth;
-  int      targetFPS;
-  WallpaperDest *monitors;
+  AppConfig     config;
+  int           monitorsCount;
+  Monitor      *monitors;
   SDL_Window   *window;
   SDL_Renderer *renderer;
-} Config;
+} App;
 
-#endif // MAIN_H
+void initWindow(App *app);
+void runWallpaperLoop(App *app);
+
+#endif  // MAIN_H
