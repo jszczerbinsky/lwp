@@ -52,6 +52,9 @@ G_MODULE_EXPORT void WallpaperManagerWindowShow()
 G_MODULE_EXPORT void MonitorWindowClose() { gtk_widget_set_visible(monitorWnd, 0); }
 G_MODULE_EXPORT void MonitorWindowShow()
 {
+  // Clear wallpaper list
+  gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(wallpaperComboBox));
+
   // Load wallpaper list
   int            wlpCount;
   WallpaperInfo *wlpList = scanWallpapers(&wlpCount);
@@ -100,3 +103,5 @@ G_MODULE_EXPORT void MonitorWindow_ApplyBtnClick()
   killWlp();
   runWlp();
 }
+
+G_MODULE_EXPORT void MonitorWindow_ExitBtnClick() { gtk_widget_set_visible(monitorWnd, 0); }

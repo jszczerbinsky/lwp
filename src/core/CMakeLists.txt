@@ -57,7 +57,7 @@ endif()
 
 set_target_properties(lwp PROPERTIES ENABLE_EXPORTS on)
 
-target_compile_definitions(lwp PUBLIC __${_UNAME})
+target_compile_definitions(lwp PUBLIC __${_UNAME} PROGRAM_VERSION="${PROGRAM_VERSION}")
 target_include_directories(lwp PUBLIC ${_INCLUDE_DIRS})
 target_link_libraries(lwp PRIVATE ${_LIBS})
 

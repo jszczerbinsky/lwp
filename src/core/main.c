@@ -25,6 +25,7 @@ GtkWidget *yPosSpinBtn       = NULL;
 GtkWidget *widthSpinBtn      = NULL;
 GtkWidget *heightSpinBtn     = NULL;
 GtkWidget *monitorNameLabel  = NULL;
+GtkWidget *versionLabel      = NULL;
 
 static void reloadMonitorListBox()
 {
@@ -71,6 +72,7 @@ static void activate(GtkApplication *app, gpointer userdata)
     wallpaperMgrWnd = (GtkWidget *)gtk_builder_get_object(builder, "WallpaperManagerWindow");
     monitorWnd      = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow");
     monitorListBox  = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_MonitorListBox");
+    versionLabel    = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_VersionLabel");
     wallpaperListBox =
         (GtkWidget *)gtk_builder_get_object(builder, "WallpaperManagerWindow_WallpaperListBox");
     wallpaperComboBox =
@@ -86,6 +88,8 @@ static void activate(GtkApplication *app, gpointer userdata)
     gtk_window_set_application(GTK_WINDOW(exitDialog), GTK_APPLICATION(app));
     gtk_window_set_application(GTK_WINDOW(wallpaperMgrWnd), GTK_APPLICATION(app));
     gtk_window_set_application(GTK_WINDOW(monitorWnd), GTK_APPLICATION(app));
+
+    gtk_label_set_text(GTK_LABEL(versionLabel), PROGRAM_VERSION);
 
     runWlp();
   }
