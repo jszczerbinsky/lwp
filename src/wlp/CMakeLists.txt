@@ -8,7 +8,7 @@ set(_SOURCE_FILES
 		../common/wallpaperScanner.c
     main.c
 		debug.c
-    wallpaper.c
+    render.c
     window.c
 	)
 

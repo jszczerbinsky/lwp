@@ -1,5 +1,7 @@
 #include "main.h"
 
+#include "../platform_guard.h"
+
 #ifdef __WIN32
 #define MAIN_WINDOW_TEMPLATE_PATH "./window_templates/main.glade"
 #elif __DARWIN

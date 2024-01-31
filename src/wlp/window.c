@@ -1,4 +1,3 @@
-#include "debug.h"
 #include "main.h"
 
 #ifdef __WIN32

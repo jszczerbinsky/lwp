@@ -1,8 +1,6 @@
 #include "main.h"
 
-#include "debug.h"
-#include "platform_guard.h"
-#include "wallpaper.h"
+#include "../platform_guard.h"
 
 #ifdef __WIN32
 static void initCmd()

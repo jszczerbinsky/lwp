@@ -1,7 +1,7 @@
-#include "debug.h"
-
 #include <stdarg.h>
 #include <stdio.h>
+
+#include "main.h"
 
 void lwpLog(int type, const char *str, ...)
 {

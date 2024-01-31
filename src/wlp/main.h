@@ -30,6 +30,10 @@
 
 #include "../common.h"
 
+#define LOG_ERROR   0
+#define LOG_INFO    1
+#define LOG_WARNING 2
+
 typedef struct
 {
   SDL_Texture *tex;
@@ -59,6 +63,8 @@ typedef struct
   SDL_Window   *window;
   SDL_Renderer *renderer;
 } App;
+
+void lwpLog(int type, const char *str, ...);
 
 void initWindow(App *app);
 void runWallpaperLoop(App *app);
