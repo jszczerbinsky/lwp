@@ -28,7 +28,7 @@ typedef struct
 
 typedef struct
 {
-  int          set;
+  int          loaded;
   int          repeatX;
   int          repeatY;
   int          layersCount;
@@ -45,7 +45,7 @@ typedef struct
 
 typedef struct
 {
-  int    set;
+  int    loaded;
   char   wlpName[WALLPAPER_NAME_MAX];
   Bounds wlpBounds;
 } MonitorConfig;

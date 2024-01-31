@@ -12,6 +12,14 @@ void getMonitorConfigPath(const char *name, char *path)
   sprintf(path, "%s/.config/lwp/monitors/%s.cfg", g_get_home_dir(), name);
 }
 
+void getWallpaperConfigPath(const char *dirName, char *path, int type)
+{
+  if (type == CONFIG_DEFAULT)
+    sprintf(path, "%s/wallpaper.cfg", dirName);
+  else
+    sprintf(path, "%s/wallpaper.cfg", dirName);
+}
+
 void getAppConfigPath(char *path, int type)
 {
   if (type == CONFIG_DEFAULT)
@@ -54,6 +62,8 @@ void saveMonitorConfig(const char *name, MonitorConfig *mc)
 
 int loadMonitorConfig(const char *name, MonitorConfig *mc)
 {
+  mc->loaded = 0;
+
   config_t          cfg;
   config_setting_t *root, *setting;
 
@@ -78,6 +88,7 @@ int loadMonitorConfig(const char *name, MonitorConfig *mc)
 
   config_destroy(&cfg);
 
+  mc->loaded = 1;
   return 1;
 }
 
@@ -109,14 +120,21 @@ int loadAppConfig(AppConfig *ac)
 
 int loadWallpaperConfig(const char *dirName, WallpaperConfig *wc)
 {
-  char path[PATH_MAX];
-  sprintf(path, "%s/wallpaper.cfg", dirName);
+  wc->loaded = 0;
 
   config_t          cfg;
   config_setting_t *root, *setting;
 
   config_init(&cfg);
-  if (config_read_file(&cfg, path) == CONFIG_FALSE) return 0;
+
+  char path[PATH_MAX];
+  getWallpaperConfigPath(dirName, path, CONFIG_USER);
+
+  if (config_read_file(&cfg, path) == CONFIG_FALSE)
+  {
+    getWallpaperConfigPath(dirName, path, CONFIG_DEFAULT);
+    if (config_read_file(&cfg, path) == CONFIG_FALSE) return 0;
+  }
   root = config_root_setting(&cfg);
 
   setting         = config_setting_get_member(root, "count");
@@ -142,6 +160,8 @@ int loadWallpaperConfig(const char *dirName, WallpaperConfig *wc)
   }
 
   config_destroy(&cfg);
+
+  wc->loaded = 1;
 
   return 1;
 }

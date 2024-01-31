@@ -30,7 +30,8 @@ WallpaperInfo *scanWallpapers(int *count)
   {
     sprintf(ptr->name, "%s", filename);
     sprintf(ptr->dirPath, "%s/%s", SYSTEM_WALLPAPERS_PATH, filename);
-    ptr->isDefault = 1;
+    ptr->isDefault     = 1;
+    ptr->config.loaded = 0;
     ptr++;
   }
 
@@ -38,8 +39,9 @@ WallpaperInfo *scanWallpapers(int *count)
   while ((filename = g_dir_read_name(dir)))
   {
     sprintf(ptr->name, "%s", filename);
-    sprintf(ptr->dirPath, "%s/%s", SYSTEM_WALLPAPERS_PATH, filename);
-    ptr->isDefault = 0;
+    sprintf(ptr->dirPath, "%s/%s/%s", g_get_home_dir(), ".config/lwp/wallpapers", filename);
+    ptr->isDefault     = 0;
+    ptr->config.loaded = 0;
     ptr++;
   }
 

@@ -29,11 +29,11 @@ BOOL monitorenumproc(HMONITOR monitor, HDC hdc, LPRECT rect, LPARAM param)
       monitorEnumIndex + 1,
       info.dwFlags == MONITORINFOF_PRIMARY ? " (main)" : ""
   );
-  m[monitorEnumIndex].bounds.x   = info.rcWork.left;
-  m[monitorEnumIndex].bounds.y   = info.rcWork.top;
-  m[monitorEnumIndex].bounds.w   = info.rcWork.right - info.rcWork.left;
-  m[monitorEnumIndex].bounds.h   = info.rcWork.bottom - info.rcWork.top;
-  m[monitorEnumIndex].config.set = 0;
+  m[monitorEnumIndex].bounds.x      = info.rcWork.left;
+  m[monitorEnumIndex].bounds.y      = info.rcWork.top;
+  m[monitorEnumIndex].bounds.w      = info.rcWork.right - info.rcWork.left;
+  m[monitorEnumIndex].bounds.h      = info.rcWork.bottom - info.rcWork.top;
+  m[monitorEnumIndex].config.loaded = 0;
 
   monitorEnumIndex++;
   return TRUE;
@@ -63,11 +63,11 @@ MonitorInfo *scanMonitors(int *count)
   while (i < monitorCount)
   {
     snprintf(m[i].name, MONITOR_NAME_MAX, "%s", XGetAtomName(display, info->name));
-    m[i].bounds.x   = info->x;
-    m[i].bounds.y   = info->y;
-    m[i].bounds.w   = info->width;
-    m[i].bounds.h   = info->height;
-    m[i].config.set = 0;
+    m[i].bounds.x      = info->x;
+    m[i].bounds.y      = info->y;
+    m[i].bounds.w      = info->width;
+    m[i].bounds.h      = info->height;
+    m[i].config.loaded = 0;
 
     info++;
     i++;

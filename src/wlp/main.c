@@ -84,7 +84,6 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
 
       if (!loadWallpaperConfig(m->wlp.info.dirPath, &m->wlp.info.config))
       {
-        m->wlp.info.config.set = 0;
         lwpLog(LOG_WARNING, "Could not load the wallpaper config");
       }
       else
@@ -150,7 +149,7 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
   if (!foundWlp) lwpLog(LOG_WARNING, "Couldn't find the wallpaper. Ignoring...");
 }
 
-void initMonitors(App *app)
+int initMonitors(App *app)
 {
   MonitorInfo *monitors = scanMonitors(&app->monitorsCount);
   app->monitors         = malloc(sizeof(Monitor) * app->monitorsCount);
@@ -170,7 +169,6 @@ void initMonitors(App *app)
     if (!loadMonitorConfig(mi->name, &mi->config))
     {
       lwpLog(LOG_WARNING, "Couldn't find config file for monitor %s. Ignoring...", mi->name);
-      mi->config.set = 0;
     }
     else
     {

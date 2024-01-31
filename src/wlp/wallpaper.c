@@ -123,6 +123,9 @@ void runWallpaperLoop(App *app)
 
     for (int m = 0; m < app->monitorsCount; m++)
     {
+      if (!app->monitors[m].info.config.loaded || !app->monitors[m].wlp.info.config.loaded)
+        continue;
+
       int relativeCurrentX = currentX - app->monitors[m].info.bounds.x;
       int relativeCurrentY = currentY - app->monitors[m].info.bounds.y;
 
