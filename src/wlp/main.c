@@ -2,55 +2,6 @@
 
 #include "../platform_guard.h"
 
-#ifdef __WIN32
-static void initCmd()
-{
-  // Create console
-  AllocConsole();
-  AttachConsole(ATTACH_PARENT_PROCESS);
-  freopen("CONOUT$", "w", stdout);
-  HANDLE hOut   = GetStdHandle(STD_OUTPUT_HANDLE);
-  DWORD  dwMode = 0;
-  GetConsoleMode(hOut, &dwMode);
-  SetConsoleMode(hOut, dwMode | 0x0004);
-
-  // Remove closing button (because closing it closes the entire app)
-  HWND  hwnd  = GetConsoleWindow();
-  HMENU hMenu = GetSystemMenu(hwnd, FALSE);
-  DeleteMenu(hMenu, SC_CLOSE, MF_BYCOMMAND);
-
-  // Set console title
-  SetConsoleTitle("Layered WallPaper");
-}
-BOOLmonitorenumproc(HMONITOR monitor, HDC hdc, LPRECT rect, LPARAM param)
-{
-  int px = GetSystemMetrics(SM_XVIRTUALSCREEN);
-  int py = GetSystemMetrics(SM_YVIRTUALSCREEN);
-
-  MONITORINFO monitorInfo;
-  monitorInfo.cbSize = sizeof(MONITORINFO);
-
-  GetMonitorInfo(monitor, &monitorInfo);
-  lwpLog(
-      LOG_INFO,
-      "	Monitor: position %ldx%ld, size %ldx%ld %s",
-      monitorInfo.rcMonitor.left - px,
-      monitorInfo.rcMonitor.top - py,
-      monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left,
-      monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top,
-      (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) == MONITORINFOF_PRIMARY ? "primary" : ""
-  );
-
-  return TRUE;
-}
-/*
-static void scanMonitors()
-{
-  lwpLog(LOG_INFO, "Scanning monitors...");
-  EnumDisplayMonitors(NULL, NULL, &monitorenumproc, NULL);
-}*/
-#endif
-
 static App app;
 
 static void atExit()
@@ -223,13 +174,6 @@ int main(int argc, char *argv[])
 
   lwpLog(LOG_INFO, "Starting Layered WallPaper");
 
-#ifdef __WIN32
-  if (argc == 2 && strcmp(argv[1], "/console") == 0) initCmd();
-  initTrayIcon();
-
-  // scanMonitors();
-#endif
-
   lwpLog(LOG_INFO, "Loading app config");
   loadAppConfig(&app.config);
 
@@ -246,10 +190,6 @@ int main(int argc, char *argv[])
 
   lwpLog(LOG_INFO, "Starting wallpaper loop");
   runWallpaperLoop(&app);
-
-#ifdef __WIN32
-  removeTrayIcon();
-#endif
 
   return 0;
 }

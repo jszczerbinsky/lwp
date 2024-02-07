@@ -159,8 +159,5 @@ void runWallpaperLoop(App *app)
     }
     SDL_RenderPresent(app->renderer);
     SDL_Delay(1000 / app->config.targetFps);
-#ifdef __WIN32
-    if (!updateTrayIcon()) quit = 1;
-#endif
   }
 }

@@ -47,6 +47,7 @@ static void reloadMonitorListBox()
 
   for (int i = 0; i < monitorsCount; i++)
   {
+    printf("%s\n", monitors[i].name);
     GtkWidget *label = gtk_label_new(monitors[i].name);
     GtkWidget *row   = gtk_list_box_row_new();
     gtk_container_add(GTK_CONTAINER(row), label);

@@ -3,11 +3,7 @@
 #ifdef __WIN32
 #include <shellapi.h>
 #include <tchar.h>
-#ifdef _MSC_VER
-#include <SDL_syswm.h>
-#else
 #include <SDL2/SDL_syswm.h>
-#endif  // _MSC_VER
 #endif  // __WIN32
 
 #ifdef __LINUX
@@ -35,7 +31,7 @@ static BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
   }
   return TRUE;
 }
-
+/*
 #define WM_TRAY_ICON (WM_USER + 1)
 
 static NOTIFYICONDATA nid;
@@ -131,41 +127,7 @@ void initTrayIcon()
   nid.uFlags           = NIF_ICON | NIF_MESSAGE;
 
   Shell_NotifyIcon(NIM_ADD, &nid);
-}
-
-void initWindow(Config *cfg)
-{
-  cfg->window =
-      SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
-  if (cfg->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
-
-  SDL_SysWMinfo sysWmInfo;
-  SDL_VERSION(&sysWmInfo.version)
-  SDL_GetWindowWMInfo(cfg->window, &sysWmInfo);
-  HWND hWindow = sysWmInfo.info.win.window;
-
-  HWND progman = FindWindow("Progman", NULL);
-  iconWorkerw  = progman;
-  SendMessageTimeout(progman, 0x052C, NULL, NULL, SMTO_NORMAL, 1000, NULL);
-  if (!FindWindowEx(progman, NULL, "SHELLDLL_DefView", NULL)) EnumWindows(getIconWorkerw, NULL);
-
-  HWND wallpaperWorkerw = GetWindow(iconWorkerw, GW_HWNDNEXT);
-  SetParent(hWindow, wallpaperWorkerw);
-  SetWindowLongPtr(
-      hWindow, GWL_EXSTYLE, WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOACTIVATE
-  );
-  SetWindowLongPtr(hWindow, GWL_STYLE, WS_CHILDWINDOW | WS_VISIBLE);
-
-  SetWindowPos(
-      hWindow,
-      NULL,
-      0,
-      0,
-      GetSystemMetrics(SM_CXVIRTUALSCREEN),
-      GetSystemMetrics(SM_CYVIRTUALSCREEN),
-      SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW
-  );
-}
+}*/
 
 #elif __DARWIN
 
@@ -222,6 +184,43 @@ void initWindow(Config *cfg)
 
 void initWindow(App *app)
 {
+  #ifdef __WIN32
+
+  app->window =
+      SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
+  if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
+
+  SDL_SysWMinfo sysWmInfo;
+  SDL_VERSION(&sysWmInfo.version)
+  SDL_GetWindowWMInfo(app->window, &sysWmInfo);
+  HWND hWindow = sysWmInfo.info.win.window;
+
+  HWND progman = FindWindow("Progman", NULL);
+  iconWorkerw  = progman;
+  SendMessageTimeout(progman, 0x052C, NULL, NULL, SMTO_NORMAL, 1000, NULL);
+  if (!FindWindowEx(progman, NULL, "SHELLDLL_DefView", NULL)) EnumWindows(getIconWorkerw, NULL);
+
+  HWND wallpaperWorkerw = GetWindow(iconWorkerw, GW_HWNDNEXT);
+  SetParent(hWindow, wallpaperWorkerw);
+  SetWindowLongPtr(
+      hWindow, GWL_EXSTYLE, WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOACTIVATE
+  );
+  SetWindowLongPtr(hWindow, GWL_STYLE, WS_CHILDWINDOW | WS_VISIBLE);
+
+  SetWindowPos(
+      hWindow,
+      NULL,
+      0,
+      0,
+      GetSystemMetrics(SM_CXVIRTUALSCREEN),
+      GetSystemMetrics(SM_CYVIRTUALSCREEN),
+      SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW
+  );
+
+  #elif __DARWIN
+
+  #else
+
   if (!app->config.drawOnRootWindow)
   {
     Display *display = XOpenDisplay(NULL);
@@ -269,6 +268,8 @@ void initWindow(App *app)
     app->window         = SDL_CreateWindowFrom((void *)rootWindow);
     XCloseDisplay(display);
   }
+
+  #endif
 
   if (app->window == NULL) lwpLog(LOG_ERROR, "Failed to initialize window: %s", SDL_GetError());
 
