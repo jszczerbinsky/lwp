@@ -56,6 +56,8 @@ option(LWP_INSTALL_LAUNCHD "Launch lwp on login (MacOSX only)" OFF)
 # Main executable
 if (_UNAME STREQUAL "DARWIN")
   add_executable(lwpwlp MACOSX_BUNDLE ${_SOURCE_FILES})
+elseif(_UNAME STREQUAL "WIN32")
+  add_executable(lwpwlp WIN32 ${_SOURCE_FILES})
 else()
   add_executable(lwpwlp ${_SOURCE_FILES})
 endif()
@@ -63,10 +65,6 @@ endif()
 # Windows specific properties for executable
 if(_UNAME STREQUAL "WIN32")
 	set_property(TARGET lwpwlp PROPERTY VS_DPI_AWARE "PerMonitor")
-endif()
-
-if(MSVC)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 endif()
 
 target_compile_definitions(lwpwlp PUBLIC __${_UNAME})

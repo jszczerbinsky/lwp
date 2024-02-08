@@ -23,4 +23,9 @@ extern GtkWidget *monitorNameLabel;
 void runWlp();
 void killWlp();
 
+#ifdef __WIN32
+void initTrayIcon();
+void removeTrayIcon();
+#endif
+
 #endif

@@ -47,7 +47,6 @@ static void reloadMonitorListBox()
 
   for (int i = 0; i < monitorsCount; i++)
   {
-    printf("%s\n", monitors[i].name);
     GtkWidget *label = gtk_label_new(monitors[i].name);
     GtkWidget *row   = gtk_list_box_row_new();
     gtk_container_add(GTK_CONTAINER(row), label);
@@ -104,10 +103,14 @@ int main(int argc, char *argv[])
 {
   int status;
 
+  initTrayIcon();
+
   app = gtk_application_new("com.github.jszczerbinsky.lwp", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
   status = g_application_run(G_APPLICATION(app), argc, argv);
   g_object_unref(app);
+
+  removeTrayIcon();
 
   return status;
 }

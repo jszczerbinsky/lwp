@@ -2,6 +2,7 @@ set(_SOURCE_FILES
     main.c
 		windowHandlers.c
 		wlp.c
+		trayIcon.c
 		../common/monitorScanner.c
 		../common/config.c
 		../common/wallpaperScanner.c
@@ -47,12 +48,10 @@ list(APPEND _LIBS ${libconfig_LINK_LIBRARIES})
 # Main executable
 if (_UNAME STREQUAL "DARWIN")
   add_executable(lwp MACOSX_BUNDLE ${_SOURCE_FILES})
+elseif(_UNAME STREQUAL "WIN32")
+  add_executable(lwp WIN32 ${_SOURCE_FILES})
 else()
   add_executable(lwp ${_SOURCE_FILES})
-endif()
-
-if(MSVC)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 endif()
 
 set_target_properties(lwp PROPERTIES ENABLE_EXPORTS on)
