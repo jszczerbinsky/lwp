@@ -3,8 +3,9 @@ if(SDL2_RUNTIME_DIR)
 endif()
 
 set(_SOURCE_FILES
-		../common/monitorScanner.c
+		../common/paths.c
 		../common/config.c
+		../common/monitorScanner.c
 		../common/wallpaperScanner.c
     main.c
 		debug.c

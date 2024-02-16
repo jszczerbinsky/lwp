@@ -1,22 +1,13 @@
+#include <glib.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <glib.h>
 
 #include "main.h"
-
-void getLogFilePath(char *path)
-{
-  #ifdef __WIN32
-  sprintf(path, "%s\\lwp\\lwp.log", g_get_user_data_dir());
-  #else
-  sprintf(path, "/home/cziken/.config/lwp/log");
-  #endif
-}
 
 void lwpLog(int type, const char *str, ...)
 {
   char path[PATH_MAX];
-  getLogFilePath(path);
+  getLogPath(path);
 
   FILE *file = fopen(path, "a");
 

@@ -12,6 +12,8 @@
 #define MONITOR_NAME_MAX   100
 #define WALLPAPER_NAME_MAX 100
 
+#define DEFAULT_LINUX_PREFIX "/usr/local"
+
 typedef struct
 {
   int x;
@@ -63,8 +65,36 @@ typedef struct
   int targetFps;
 } AppConfig;
 
-MonitorInfo   *scanMonitors(int *count);
+//
+// paths.c
+//
+
+#define APP_DIR_BIN           0
+#define APP_DIR_SHARE         1
+#define APP_DIR_USER_SETTINGS 2
+
+void getAppDir(char *buff, int type);
+
+void getMonitorCfgPath(char *buff, const char *name);
+void getWlpCfgPath(char *buff, const char *dirPath);
+void getAppCfgPath(char *buff);
+void getLogPath(char *buff);
+
+//
+// monitorScanner.c
+//
+
+MonitorInfo *scanMonitors(int *count);
+
+//
+// wallpaperScanner.c
+//
+
 WallpaperInfo *scanWallpapers(int *count);
+
+//
+// config.c
+//
 
 void saveMonitorConfig(const char *name, MonitorConfig *mc);
 int  loadMonitorConfig(const char *name, MonitorConfig *mc);

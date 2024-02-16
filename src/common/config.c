@@ -5,9 +5,9 @@
 #include "../common.h"
 
 #define CONFIG_DEFAULT 0
-#define CONFIG_USER 1
+#define CONFIG_USER    1
 
-void getMonitorConfigPath(const char *name, char *path) {
+/*void getMonitorConfigPath(const char *name, char *path) {
 #ifdef __WIN32
   sprintf(path, "%s\\lwp\\monitors\\%s.cfg", g_get_user_data_dir(), name);
 #else
@@ -15,11 +15,11 @@ void getMonitorConfigPath(const char *name, char *path) {
 #endif
 }
 
-void getWallpaperConfigPath(const char *dirName, char *path, int type) {
+void getWallpaperConfigPath(const char *dirPath, char *path, int type) {
   if (type == CONFIG_DEFAULT)
-    sprintf(path, "%s/wallpaper.cfg", dirName);
+    sprintf(path, "%s/wallpaper.cfg", dirPath);
   else
-    sprintf(path, "%s/wallpaper.cfg", dirName);
+    sprintf(path, "%s/wallpaper.cfg", dirPath);
 }
 
 void getAppConfigPath(char *path, int type) {
@@ -34,9 +34,10 @@ void getAppConfigPath(char *path, int type) {
   else
     sprintf(path, "%s/.config/lwp/lwp.cfg", g_get_home_dir());
 #endif
-}
+}*/
 
-static void generateEmptyMonitorConfig(MonitorConfig *mc) {
+static void generateEmptyMonitorConfig(MonitorConfig *mc)
+{
   sprintf(mc->wlpName, "");
   mc->wlpBounds.x = 0;
   mc->wlpBounds.y = 0;
@@ -44,8 +45,9 @@ static void generateEmptyMonitorConfig(MonitorConfig *mc) {
   mc->wlpBounds.h = 1080;
 }
 
-void saveMonitorConfig(const char *name, MonitorConfig *mc) {
-  config_t cfg;
+void saveMonitorConfig(const char *name, MonitorConfig *mc)
+{
+  config_t          cfg;
   config_setting_t *root, *setting;
 
   config_init(&cfg);
@@ -64,9 +66,10 @@ void saveMonitorConfig(const char *name, MonitorConfig *mc) {
   config_setting_set_int(setting, mc->wlpBounds.h);
 
   char path[PATH_MAX];
-  getMonitorConfigPath(name, path);
+  getMonitorCfgPath(path, name);
 
-  if (!config_write_file(&cfg, path)) {
+  if (!config_write_file(&cfg, path))
+  {
     fprintf(stderr, "Error while writing file.\n");
     config_destroy(&cfg);
   }
@@ -74,36 +77,37 @@ void saveMonitorConfig(const char *name, MonitorConfig *mc) {
   config_destroy(&cfg);
 }
 
-int loadMonitorConfig(const char *name, MonitorConfig *mc) {
+int loadMonitorConfig(const char *name, MonitorConfig *mc)
+{
   mc->loaded = 0;
 
-  config_t cfg;
+  config_t          cfg;
   config_setting_t *root, *setting;
 
   char path[PATH_MAX];
-  getMonitorConfigPath(name, path);
+  getMonitorCfgPath(path, name);
 
-  if (!g_file_test(path, G_FILE_TEST_IS_REGULAR | G_FILE_TEST_EXISTS)) {
+  if (!g_file_test(path, G_FILE_TEST_IS_REGULAR | G_FILE_TEST_EXISTS))
+  {
     generateEmptyMonitorConfig(mc);
     saveMonitorConfig(name, mc);
     return 1;
   }
 
   config_init(&cfg);
-  if (config_read_file(&cfg, path) == CONFIG_FALSE)
-    return 0;
+  if (config_read_file(&cfg, path) == CONFIG_FALSE) return 0;
   root = config_root_setting(&cfg);
 
   setting = config_setting_get_member(root, "wlpName");
   strcpy(mc->wlpName, config_setting_get_string(setting));
 
-  setting = config_setting_get_member(root, "x");
+  setting         = config_setting_get_member(root, "x");
   mc->wlpBounds.x = config_setting_get_int(setting);
-  setting = config_setting_get_member(root, "y");
+  setting         = config_setting_get_member(root, "y");
   mc->wlpBounds.y = config_setting_get_int(setting);
-  setting = config_setting_get_member(root, "w");
+  setting         = config_setting_get_member(root, "w");
   mc->wlpBounds.w = config_setting_get_int(setting);
-  setting = config_setting_get_member(root, "h");
+  setting         = config_setting_get_member(root, "h");
   mc->wlpBounds.h = config_setting_get_int(setting);
 
   config_destroy(&cfg);
@@ -112,26 +116,27 @@ int loadMonitorConfig(const char *name, MonitorConfig *mc) {
   return 1;
 }
 
-int loadAppConfig(AppConfig *ac) {
-  config_t cfg;
+int loadAppConfig(AppConfig *ac)
+{
+  config_t          cfg;
   config_setting_t *root, *setting;
 
   char path[PATH_MAX];
-  getAppConfigPath(path, CONFIG_USER);
+  getAppCfgPath(path);
 
   config_init(&cfg);
-  if (config_read_file(&cfg, path) == CONFIG_FALSE) {
-    getAppConfigPath(path, CONFIG_DEFAULT);
-    if (config_read_file(&cfg, path) == CONFIG_FALSE)
-      return 0;
+  if (config_read_file(&cfg, path) == CONFIG_FALSE)
+  {
+    // todo: set default config values
+    return 0;
   }
   root = config_root_setting(&cfg);
 
 #ifdef __LINUX
-  setting = config_setting_get_member(root, "draw_on_rootwindow");
+  setting              = config_setting_get_member(root, "draw_on_rootwindow");
   ac->drawOnRootWindow = config_setting_get_int(setting);
 #endif
-  setting = config_setting_get_member(root, "target_fps");
+  setting       = config_setting_get_member(root, "target_fps");
   ac->targetFps = config_setting_get_int(setting);
 
   config_destroy(&cfg);
@@ -139,39 +144,41 @@ int loadAppConfig(AppConfig *ac) {
   return 1;
 }
 
-int loadWallpaperConfig(const char *dirName, WallpaperConfig *wc) {
+int loadWallpaperConfig(const char *dirPath, WallpaperConfig *wc)
+{
   wc->loaded = 0;
 
-  config_t cfg;
+  config_t          cfg;
   config_setting_t *root, *setting;
 
   config_init(&cfg);
 
   char path[PATH_MAX];
-  getWallpaperConfigPath(dirName, path, CONFIG_USER);
+  getWlpCfgPath(path, dirPath);
 
-  if (config_read_file(&cfg, path) == CONFIG_FALSE) {
-    getWallpaperConfigPath(dirName, path, CONFIG_DEFAULT);
-    if (config_read_file(&cfg, path) == CONFIG_FALSE)
-      return 0;
+  if (config_read_file(&cfg, path) == CONFIG_FALSE)
+  {
+    getWlpCfgPath(path, dirPath);
+    if (config_read_file(&cfg, path) == CONFIG_FALSE) return 0;
   }
   root = config_root_setting(&cfg);
 
-  setting = config_setting_get_member(root, "count");
+  setting         = config_setting_get_member(root, "count");
   wc->layersCount = config_setting_get_int(setting);
-  setting = config_setting_get_member(root, "repeat_x");
-  wc->repeatX = config_setting_get_int(setting);
-  setting = config_setting_get_member(root, "repeat_y");
-  wc->repeatY = config_setting_get_int(setting);
+  setting         = config_setting_get_member(root, "repeat_x");
+  wc->repeatX     = config_setting_get_int(setting);
+  setting         = config_setting_get_member(root, "repeat_y");
+  wc->repeatY     = config_setting_get_int(setting);
 
   wc->layerConfigs = malloc(wc->layersCount * sizeof(LayerConfig));
 
-  setting = config_setting_get_member(root, "movement_x");
+  setting    = config_setting_get_member(root, "movement_x");
   float movX = config_setting_get_float(setting);
-  setting = config_setting_get_member(root, "movement_y");
+  setting    = config_setting_get_member(root, "movement_y");
   float movY = config_setting_get_float(setting);
 
-  for (int i = 0; i < wc->layersCount; i++) {
+  for (int i = 0; i < wc->layersCount; i++)
+  {
     LayerConfig *lc = wc->layerConfigs + i;
 
     lc->sensitivityX = movX * i;

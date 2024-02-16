@@ -1,12 +1,13 @@
 set(_SOURCE_FILES
+		../common/paths.c
+		../common/config.c
+		../common/wallpaperScanner.c
+		../common/monitorScanner.c
     main.c
 		windowHandlers.c
 		wlp.c
 		trayIcon.c
-		../common/monitorScanner.c
-		../common/config.c
-		../common/wallpaperScanner.c
-	)
+)
 		
 # Windows resource file
 if(_UNAME STREQUAL "WIN32")

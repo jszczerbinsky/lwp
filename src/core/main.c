@@ -64,7 +64,16 @@ static void activate(GtkApplication *app, gpointer userdata)
   {
     alreadyRunning = 1;
 
-    builder = gtk_builder_new_from_file(MAIN_WINDOW_TEMPLATE_PATH);
+    char gladefilePath[PATH_MAX];
+    getAppDir(gladefilePath, APP_DIR_SHARE);
+#ifdef __WIN32
+    const char *format = "%s\\window_templates\\main.glade";
+#else
+    const char *format = "%s/window_templates/main.glade";
+#endif
+    sprintf(gladefilePath, format, gladefilePath);
+
+    builder = gtk_builder_new_from_file(gladefilePath);
     gtk_builder_connect_signals(builder, NULL);
 
     mainWnd         = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow");
@@ -103,14 +112,18 @@ int main(int argc, char *argv[])
 {
   int status;
 
+#ifdef __WIN32
   initTrayIcon();
+#endif
 
   app = gtk_application_new("com.github.jszczerbinsky.lwp", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
   status = g_application_run(G_APPLICATION(app), argc, argv);
   g_object_unref(app);
 
+#ifdef __WIN32
   removeTrayIcon();
+#endif
 
   return status;
 }
