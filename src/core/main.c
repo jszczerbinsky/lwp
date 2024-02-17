@@ -40,6 +40,17 @@ static void reloadMonitorListBox()
 
   g_list_free(rows);
 
+  char iconPath[PATH_MAX];
+  getAppDir(iconPath, APP_DIR_SHARE);
+#ifdef __WIN32
+  const char *format = "%s\\%s\\%s\\%s";
+#else
+  const char *format = "%s/%s/%s/%s";
+#endif
+  sprintf(
+      iconPath, format, iconPath, "window_templates", "assets", "screen-monitor-svgrepo-com.svg"
+  );
+
   int          monitorsCount;
   MonitorInfo *monitors;
 
@@ -47,11 +58,32 @@ static void reloadMonitorListBox()
 
   for (int i = 0; i < monitorsCount; i++)
   {
-    GtkWidget *label = gtk_label_new(monitors[i].name);
-    GtkWidget *row   = gtk_list_box_row_new();
-    gtk_container_add(GTK_CONTAINER(row), label);
+    char resStr[12];
+    sprintf(resStr, "%dx%d", monitors[i].bounds.w, monitors[i].bounds.h);
+
+    GtkWidget *nameLabel = gtk_label_new(monitors[i].name);
+    GtkWidget *resLabel  = gtk_label_new(resStr);
+    GtkWidget *icon      = gtk_image_new_from_file(iconPath);
+
+    GtkWidget *labelBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_add(GTK_CONTAINER(labelBox), nameLabel);
+    gtk_container_add(GTK_CONTAINER(labelBox), resLabel);
+    gtk_box_set_child_packing(GTK_BOX(labelBox), nameLabel, 1, 1, 0, GTK_PACK_START);
+
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_container_add(GTK_CONTAINER(box), icon);
+    gtk_container_add(GTK_CONTAINER(box), labelBox);
+    gtk_box_set_child_packing(GTK_BOX(box), labelBox, 1, 1, 0, GTK_PACK_START);
+
+    GtkWidget *row = gtk_list_box_row_new();
+    gtk_container_add(GTK_CONTAINER(row), box);
 
     gtk_list_box_insert(GTK_LIST_BOX(monitorListBox), row, 0);
+
+    char *nameBuff = malloc(sizeof(strlen(monitors[i].name)));
+    strcpy(nameBuff, monitors[i].name);
+    g_object_set_data(G_OBJECT(row), "monitor_name", (gpointer)nameBuff);
+
     gtk_widget_show_all(row);
   }
 }

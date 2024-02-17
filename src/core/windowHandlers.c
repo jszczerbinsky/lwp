@@ -71,10 +71,8 @@ G_MODULE_EXPORT void MonitorWindowShow()
 
   // Find selected monitor name
   GtkListBoxRow *listBoxRow  = gtk_list_box_get_selected_row(GTK_LIST_BOX(monitorListBox));
-  GList         *children    = gtk_container_get_children(GTK_CONTAINER(listBoxRow));
-  const char    *monitorName = gtk_label_get_label(GTK_LABEL(children->data));
+  const char    *monitorName = g_object_get_data(G_OBJECT(listBoxRow), "monitor_name");
   gtk_label_set_text(GTK_LABEL(monitorNameLabel), monitorName);
-  g_list_free(children);
 
   // Read configuration from config file
   MonitorConfig mc;
