@@ -368,7 +368,6 @@
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="orientation">vertical</property>
-                        <property name="homogeneous">True</property>
                         <child>
                           <object class="GtkImage">
                             <property name="visible">True</property>
@@ -387,6 +386,8 @@
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="margin-top">15</property>
+                            <property name="margin-bottom">15</property>
                             <property name="label" translatable="yes">Manage
 wallpapers</property>
                             <property name="justify">center</property>
@@ -412,13 +413,63 @@ wallpapers</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <signal name="clicked" handler="MainWindow_AppSettingsBtnClick" swapped="no"/>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="margin-top">20</property>
+                            <property name="pixbuf">assets/settings-svgrepo-com.svg</property>
+                            <property name="icon_size">6</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="margin-top">15</property>
+                            <property name="margin-bottom">15</property>
+                            <property name="label" translatable="yes">Application
+settings</property>
+                            <property name="justify">center</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="pack-type">end</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
                     <signal name="clicked" handler="MainWindow_ExitBtnClick" swapped="no"/>
                     <child>
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="orientation">vertical</property>
-                        <property name="homogeneous">True</property>
                         <child>
                           <object class="GtkImage">
                             <property name="visible">True</property>
@@ -437,6 +488,8 @@ wallpapers</property>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="margin-top">15</property>
+                            <property name="margin-bottom">15</property>
                             <property name="label" translatable="yes">Turn off
 Layered WallPaper</property>
                             <property name="justify">center</property>
@@ -454,7 +507,7 @@ Layered WallPaper</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
               </object>
@@ -503,6 +556,207 @@ Layered WallPaper</property>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="pack-type">end</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack-type">end</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkWindow" id="SettingsWindow">
+    <property name="can-focus">False</property>
+    <property name="resizable">False</property>
+    <property name="default-width">500</property>
+    <property name="default-height">250</property>
+    <signal name="show" handler="SettingsWindowShow" swapped="no"/>
+    <child>
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="orientation">vertical</property>
+        <signal name="delete-event" handler="SettingsWindowClose" swapped="no"/>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">center</property>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="pixbuf">assets/settings-svgrepo-com.svg</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="MonitorWindow_MonitorNameLabel1">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-top">10</property>
+                <property name="margin-bottom">10</property>
+                <property name="label" translatable="yes">Application settings</property>
+                <property name="justify">center</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <!-- n-columns=2 n-rows=3 -->
+          <object class="GtkGrid">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="margin-start">20</property>
+            <property name="margin-end">20</property>
+            <property name="row-spacing">15</property>
+            <property name="row-homogeneous">True</property>
+            <property name="column-homogeneous">True</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Target FPS</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Texture filtering</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="SettingsWindow_TexFilteringComboBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <items>
+                  <item id="best" translatable="yes">Anisotropic</item>
+                  <item id="linear" translatable="yes">Linear</item>
+                  <item id="nearest" translatable="yes">Nearest-neighbour</item>
+                </items>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Draw on root window (Linux only)</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="SettingsWindow_DrawOnRootWndComboBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <items>
+                  <item id="0" translatable="yes">No</item>
+                  <item id="1" translatable="yes">Yes</item>
+                </items>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="SettingsWindow_TargetFpsComboBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <items>
+                  <item id="30" translatable="yes">30 fps</item>
+                  <item id="60" translatable="yes">60 fps</item>
+                  <item id="120" translatable="yes">120 fps</item>
+                  <item id="144" translatable="yes">144 fps</item>
+                  <item id="240" translatable="yes">240 fps</item>
+                </items>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">center</property>
+            <property name="margin-top">20</property>
+            <property name="margin-bottom">20</property>
+            <property name="spacing">50</property>
+            <property name="homogeneous">True</property>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Apply</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="clicked" handler="SettingsWindow_ApplyBtnClick" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Exit</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="clicked" handler="SettingsWindow_ExitBtnClick" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -821,7 +1075,7 @@ Layered WallPaper</property>
             <property name="spacing">50</property>
             <property name="homogeneous">True</property>
             <child>
-              <object class="GtkButton" id="MonitorWindow_ApplyBtn">
+              <object class="GtkButton">
                 <property name="label" translatable="yes">Apply</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>

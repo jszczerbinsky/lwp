@@ -23,6 +23,8 @@ G_MODULE_EXPORT void MainWindow_MonitorEditBtnClick() { gtk_widget_set_visible(m
 
 G_MODULE_EXPORT void MainWindow_ExitBtnClick() { gtk_widget_set_visible(exitDialog, 1); }
 
+G_MODULE_EXPORT void MainWindow_AppSettingsBtnClick() { gtk_widget_set_visible(appSettingsWnd, 1); }
+
 G_MODULE_EXPORT void MainWindowClose() { gtk_widget_set_visible(mainWnd, 0); }
 
 // Wallpapaer Manager Window handlers
@@ -103,3 +105,37 @@ G_MODULE_EXPORT void MonitorWindow_ApplyBtnClick()
 }
 
 G_MODULE_EXPORT void MonitorWindow_ExitBtnClick() { gtk_widget_set_visible(monitorWnd, 0); }
+
+// App Settings Window handlers
+
+G_MODULE_EXPORT void SettingsWindowShow()
+{
+  AppConfig ac;
+  loadAppConfig(&ac);
+
+  char targetFpsStr[4];
+  sprintf(targetFpsStr, "%d", ac.targetFps);
+  char drawOnRootWindowStr[2];
+  sprintf(drawOnRootWindowStr, "%d", ac.drawOnRootWindow);
+
+  gtk_combo_box_set_active_id(GTK_COMBO_BOX(renderQualityComboBox), ac.renderQuality);
+  gtk_combo_box_set_active_id(GTK_COMBO_BOX(targetFpsComboBox), targetFpsStr);
+  gtk_combo_box_set_active_id(GTK_COMBO_BOX(drawOnRootWndComboBox), drawOnRootWindowStr);
+}
+
+G_MODULE_EXPORT void SettingsWindowClose() { gtk_widget_set_visible(appSettingsWnd, 0); }
+
+G_MODULE_EXPORT void SettingsWindow_ApplyBtnClick()
+{
+  AppConfig ac;
+  strcpy(ac.renderQuality, gtk_combo_box_get_active_id(GTK_COMBO_BOX(renderQualityComboBox)));
+  ac.targetFps        = atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(targetFpsComboBox)));
+  ac.drawOnRootWindow = atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(drawOnRootWndComboBox)));
+
+  saveAppConfig(&ac);
+
+  killWlp();
+  runWlp();
+}
+
+G_MODULE_EXPORT void SettingsWindow_ExitBtnClick() { gtk_widget_set_visible(appSettingsWnd, 0); }

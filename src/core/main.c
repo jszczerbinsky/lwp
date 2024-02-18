@@ -2,30 +2,26 @@
 
 #include "../platform_guard.h"
 
-#ifdef __WIN32
-#define MAIN_WINDOW_TEMPLATE_PATH "./window_templates/main.glade"
-#elif __DARWIN
-#define MAIN_WINDOW_TEMPLATE_PATH ""
-#else
-#define MAIN_WINDOW_TEMPLATE_PATH "/usr/local/share/lwp/window_templates/main.glade"
-#endif
-
 GtkApplication *app     = NULL;
 GtkBuilder     *builder = NULL;
 
-GtkWidget *mainWnd           = NULL;
-GtkWidget *exitDialog        = NULL;
-GtkWidget *wallpaperMgrWnd   = NULL;
-GtkWidget *monitorWnd        = NULL;
-GtkWidget *monitorListBox    = NULL;
-GtkWidget *wallpaperListBox  = NULL;
-GtkWidget *wallpaperComboBox = NULL;
-GtkWidget *xPosSpinBtn       = NULL;
-GtkWidget *yPosSpinBtn       = NULL;
-GtkWidget *widthSpinBtn      = NULL;
-GtkWidget *heightSpinBtn     = NULL;
-GtkWidget *monitorNameLabel  = NULL;
-GtkWidget *versionLabel      = NULL;
+GtkWidget *mainWnd               = NULL;
+GtkWidget *exitDialog            = NULL;
+GtkWidget *wallpaperMgrWnd       = NULL;
+GtkWidget *monitorWnd            = NULL;
+GtkWidget *monitorListBox        = NULL;
+GtkWidget *wallpaperListBox      = NULL;
+GtkWidget *wallpaperComboBox     = NULL;
+GtkWidget *xPosSpinBtn           = NULL;
+GtkWidget *yPosSpinBtn           = NULL;
+GtkWidget *widthSpinBtn          = NULL;
+GtkWidget *heightSpinBtn         = NULL;
+GtkWidget *monitorNameLabel      = NULL;
+GtkWidget *versionLabel          = NULL;
+GtkWidget *appSettingsWnd        = NULL;
+GtkWidget *targetFpsComboBox     = NULL;
+GtkWidget *renderQualityComboBox = NULL;
+GtkWidget *drawOnRootWndComboBox = NULL;
 
 static void reloadMonitorListBox()
 {
@@ -112,6 +108,7 @@ static void activate(GtkApplication *app, gpointer userdata)
     exitDialog      = (GtkWidget *)gtk_builder_get_object(builder, "ExitDialog");
     wallpaperMgrWnd = (GtkWidget *)gtk_builder_get_object(builder, "WallpaperManagerWindow");
     monitorWnd      = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow");
+    appSettingsWnd  = (GtkWidget *)gtk_builder_get_object(builder, "SettingsWindow");
     monitorListBox  = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_MonitorListBox");
     versionLabel    = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_VersionLabel");
     wallpaperListBox =
@@ -124,11 +121,18 @@ static void activate(GtkApplication *app, gpointer userdata)
     heightSpinBtn = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_HeightSpinBtn");
     monitorNameLabel =
         (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_MonitorNameLabel");
+    targetFpsComboBox =
+        (GtkWidget *)gtk_builder_get_object(builder, "SettingsWindow_TargetFpsComboBox");
+    renderQualityComboBox =
+        (GtkWidget *)gtk_builder_get_object(builder, "SettingsWindow_TexFilteringComboBox");
+    drawOnRootWndComboBox =
+        (GtkWidget *)gtk_builder_get_object(builder, "SettingsWindow_DrawOnRootWndComboBox");
 
     gtk_window_set_application(GTK_WINDOW(mainWnd), GTK_APPLICATION(app));
     gtk_window_set_application(GTK_WINDOW(exitDialog), GTK_APPLICATION(app));
     gtk_window_set_application(GTK_WINDOW(wallpaperMgrWnd), GTK_APPLICATION(app));
     gtk_window_set_application(GTK_WINDOW(monitorWnd), GTK_APPLICATION(app));
+    gtk_window_set_application(GTK_WINDOW(appSettingsWnd), GTK_APPLICATION(app));
 
     gtk_label_set_text(GTK_LABEL(versionLabel), PROGRAM_VERSION);
 

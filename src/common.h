@@ -61,8 +61,9 @@ typedef struct
 
 typedef struct
 {
-  int drawOnRootWindow;
-  int targetFps;
+  int  drawOnRootWindow;
+  int  targetFps;
+  char renderQuality[8];
 } AppConfig;
 
 //
@@ -99,7 +100,8 @@ WallpaperInfo *scanWallpapers(int *count);
 void saveMonitorConfig(const char *name, MonitorConfig *mc);
 int  loadMonitorConfig(const char *name, MonitorConfig *mc);
 
-int loadAppConfig(AppConfig *ac);
+int  loadAppConfig(AppConfig *ac);
+void saveAppConfig(AppConfig *ac);
 
 int loadWallpaperConfig(const char *dirName, WallpaperConfig *wc);
 

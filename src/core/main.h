@@ -19,6 +19,10 @@ extern GtkWidget *yPosSpinBtn;
 extern GtkWidget *widthSpinBtn;
 extern GtkWidget *heightSpinBtn;
 extern GtkWidget *monitorNameLabel;
+extern GtkWidget *appSettingsWnd;
+extern GtkWidget *targetFpsComboBox;
+extern GtkWidget *renderQualityComboBox;
+extern GtkWidget *drawOnRootWndComboBox;
 
 void runWlp();
 void killWlp();

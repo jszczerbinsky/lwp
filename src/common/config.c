@@ -7,35 +7,6 @@
 #define CONFIG_DEFAULT 0
 #define CONFIG_USER    1
 
-/*void getMonitorConfigPath(const char *name, char *path) {
-#ifdef __WIN32
-  sprintf(path, "%s\\lwp\\monitors\\%s.cfg", g_get_user_data_dir(), name);
-#else
-  sprintf(path, "%s/.config/lwp/monitors/%s.cfg", g_get_home_dir(), name);
-#endif
-}
-
-void getWallpaperConfigPath(const char *dirPath, char *path, int type) {
-  if (type == CONFIG_DEFAULT)
-    sprintf(path, "%s/wallpaper.cfg", dirPath);
-  else
-    sprintf(path, "%s/wallpaper.cfg", dirPath);
-}
-
-void getAppConfigPath(char *path, int type) {
-#ifdef __WIN32
-  if (type == CONFIG_DEFAULT)
-    sprintf(path, "/etc/lwp.cfg");
-  else
-    sprintf(path, "%s\\lwp\\lwp.cfg", g_get_user_data_dir());
-#else
-  if (type == CONFIG_DEFAULT)
-    sprintf(path, "/etc/lwp.cfg");
-  else
-    sprintf(path, "%s/.config/lwp/lwp.cfg", g_get_home_dir());
-#endif
-}*/
-
 static void generateEmptyMonitorConfig(MonitorConfig *mc)
 {
   sprintf(mc->wlpName, "");
@@ -116,6 +87,42 @@ int loadMonitorConfig(const char *name, MonitorConfig *mc)
   return 1;
 }
 
+static void useDefaultAppCfg(AppConfig *ac)
+{
+#ifdef __LINUX
+  ac->drawOnRootWindow = 0;
+#endif
+  ac->targetFps = 60;
+  strcpy(ac->renderQuality, "best");
+}
+
+void saveAppConfig(AppConfig *ac)
+{
+  config_t          cfg;
+  config_setting_t *root, *setting;
+
+  config_init(&cfg);
+  root = config_root_setting(&cfg);
+
+  setting = config_setting_add(root, "draw_on_rootwindow", CONFIG_TYPE_INT);
+  config_setting_set_int(setting, ac->drawOnRootWindow);
+  setting = config_setting_add(root, "target_fps", CONFIG_TYPE_INT);
+  config_setting_set_int(setting, ac->targetFps);
+  setting = config_setting_add(root, "render_quality", CONFIG_TYPE_STRING);
+  config_setting_set_string(setting, ac->renderQuality);
+
+  char path[PATH_MAX];
+  getAppCfgPath(path);
+
+  if (!config_write_file(&cfg, path))
+  {
+    fprintf(stderr, "Error while writing file.\n");
+    config_destroy(&cfg);
+  }
+
+  config_destroy(&cfg);
+}
+
 int loadAppConfig(AppConfig *ac)
 {
   config_t          cfg;
@@ -127,8 +134,8 @@ int loadAppConfig(AppConfig *ac)
   config_init(&cfg);
   if (config_read_file(&cfg, path) == CONFIG_FALSE)
   {
-    // todo: set default config values
-    return 0;
+    useDefaultAppCfg(ac);
+    return 1;
   }
   root = config_root_setting(&cfg);
 
@@ -138,6 +145,8 @@ int loadAppConfig(AppConfig *ac)
 #endif
   setting       = config_setting_get_member(root, "target_fps");
   ac->targetFps = config_setting_get_int(setting);
+  setting       = config_setting_get_member(root, "render_quality");
+  strcpy(ac->renderQuality, config_setting_get_string(setting));
 
   config_destroy(&cfg);
 

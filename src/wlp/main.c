@@ -179,6 +179,7 @@ int main(int argc, char *argv[])
 
   lwpLog(LOG_INFO, "Initializing SDL");
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, app.config.renderQuality);
 
   lwpLog(LOG_INFO, "Initializing window");
   initWindow(&app);
