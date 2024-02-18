@@ -25,11 +25,12 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 
 <details>
   <summary>Linux</summary>
-  
-  #### Installation steps
-  
+
+  ### Dependencies
   - Install `SDL2` using Your package manager
   - If You are using `Wayland`, You also must install `XWayland`
+  
+  #### Installation steps
   - Download `.tar.gz` package from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
   - Extract the content to `/`:
   ```shell
@@ -40,8 +41,7 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   - To make Layered WallPaper run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
   
   #### Build from source instead
-  - Install `SDL2` using Your package manager. On some distributions `SDL2` doesn't contain development files, so it may be also necessary to install development version of `SDL2`
-  - If You are using `Wayland`, You also must install `XWayland`
+  - In some distributions `SDL2` doesn't contain development files, so it may be also necessary to install development version of `SDL2`
   - Install `CMake`
   - Clone the repository and prepare a `build` directory:
 
@@ -69,6 +69,9 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 
 <details>
   <summary>macOS</summary>
+
+  ### Dependencies
+  Install the dependencies (homebrew: `brew install sdl2 gtk+3 libconfig`)
   
   #### Installation steps
   - Download and run the installer from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
@@ -77,7 +80,6 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
     - To stop running Layered WallPaper on startup, run it again
   
   #### Build from source instead
-  - Install `SDL2` (homebrew: `brew install sdl2`)
   - To build this project, You need to install `cmake` (homebrew: `brew install cmake`)
   - Clone the repository:
     ```zsh
