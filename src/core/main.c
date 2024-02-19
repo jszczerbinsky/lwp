@@ -148,6 +148,8 @@ int main(int argc, char *argv[])
 {
   int status;
 
+  createUserDirs();
+
 #ifdef __WIN32
   initTrayIcon();
 #endif

@@ -81,6 +81,8 @@ void getWlpCfgPath(char *buff, const char *dirPath);
 void getAppCfgPath(char *buff);
 void getLogPath(char *buff);
 
+void createUserDirs();
+
 //
 // monitorScanner.c
 //

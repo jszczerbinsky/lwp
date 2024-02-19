@@ -5,6 +5,25 @@
 
 #include "../common.h"
 
+void createUserDirs()
+{
+#ifdef __WIN32
+  const char *format = "%s\\%s";
+#else
+  const char *format = "%s/%s";
+#endif
+
+  char path[PATH_MAX];
+
+  getAppDir(path, APP_DIR_USER_SETTINGS);
+  sprintf(path, format, path, "wallpapers");
+  g_mkdir_with_parents(path, 484);
+
+  getAppDir(path, APP_DIR_USER_SETTINGS);
+  sprintf(path, format, path, "monitors");
+  g_mkdir_with_parents(path, 484);
+}
+
 static void removeLastPathEntry(char *path)
 {
   char *ptr = path + strlen(path) - 1;
