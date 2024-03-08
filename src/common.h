@@ -3,8 +3,6 @@
 
 #ifdef __LINUX
 #include <linux/limits.h>
-#elif __DARWIN
-#include <limits.h>
 #else
 #include <windows.h>
 #endif

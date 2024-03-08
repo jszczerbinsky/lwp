@@ -53,7 +53,11 @@ void runWlp()
     printf("Failed to start a wallpaper subprocess");
 
 #else
-  wlpProcess = popen("/usr/local/bin/lwpwlp", "r");
+  char path[PATH_MAX];
+  getAppDir(path, APP_DIR_BIN);
+  strcat(path, "/lwpwlp");
+
+  wlpProcess = popen(path, "r");
   char buff[10];
   fgets(buff, sizeof(buff) - 1, wlpProcess);
   wlpPid = atoi(buff);

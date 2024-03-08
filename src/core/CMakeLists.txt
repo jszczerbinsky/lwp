@@ -47,9 +47,7 @@ list(APPEND _INCLUDE_DIRS ${libconfig_INCLUDE_DIRS})
 list(APPEND _LIBS ${libconfig_LINK_LIBRARIES})
 
 # Main executable
-if (_UNAME STREQUAL "DARWIN")
-  add_executable(lwp MACOSX_BUNDLE ${_SOURCE_FILES})
-elseif(_UNAME STREQUAL "WIN32")
+if(_UNAME STREQUAL "WIN32")
   add_executable(lwp WIN32 ${_SOURCE_FILES})
 else()
   add_executable(lwp ${_SOURCE_FILES})
@@ -67,9 +65,6 @@ if(_UNAME STREQUAL "WIN32")
 			DESTINATION .)
 elseif(_UNAME STREQUAL "LINUX")
 	install(TARGETS lwp
-			DESTINATION usr/local/bin)
-else()
-	install(TARGETS lwp 
-			DESTINATION Layered_WallPaper)
+			DESTINATION bin)
 endif()
 

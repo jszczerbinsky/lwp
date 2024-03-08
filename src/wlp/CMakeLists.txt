@@ -40,11 +40,6 @@ find_package(SDL2 REQUIRED CONFIG)
 list(APPEND _INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
 list(APPEND _LIBS ${SDL2_LIBRARIES})
 
-if (_UNAME STREQUAL "DARWIN")
-  # MacOSX framework dependencies
-  list(APPEND _LIBS "-framework CoreGraphics" "-framework Foundation")
-endif()
-
 if (_UNAME STREQUAL "LINUX")
   # X11 dependency
   find_package(X11 REQUIRED)
@@ -55,9 +50,7 @@ endif()
 option(LWP_INSTALL_LAUNCHD "Launch lwp on login (MacOSX only)" OFF)
 
 # Main executable
-if (_UNAME STREQUAL "DARWIN")
-  add_executable(lwpwlp MACOSX_BUNDLE ${_SOURCE_FILES})
-elseif(_UNAME STREQUAL "WIN32")
+if(_UNAME STREQUAL "WIN32")
   add_executable(lwpwlp WIN32 ${_SOURCE_FILES})
 else()
   add_executable(lwpwlp ${_SOURCE_FILES})
@@ -76,11 +69,8 @@ target_link_libraries(lwpwlp PRIVATE ${_LIBS})
 if(_UNAME STREQUAL "WIN32")
 	install(TARGETS lwpwlp
 			DESTINATION .)
-elseif(_UNAME STREQUAL "LINUX")
-	install(TARGETS lwpwlp
-			DESTINATION usr/local/bin)
 else()
-	install(TARGETS lwpwlp 
-			DESTINATION Layered_WallPaper)
+	install(TARGETS lwpwlp
+			DESTINATION bin)
 endif()
 

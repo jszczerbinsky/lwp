@@ -13,13 +13,6 @@
 #ifdef __WIN32
 #include <stdio.h>
 #include <windows.h>
-#elif __DARWIN
-#include <Carbon/Carbon.h>
-#include <CoreGraphics/CGDisplayConfiguration.h>
-#include <limits.h>
-#include <objc/message.h>
-#include <objc/runtime.h>
-#include <pwd.h>
 #elif __LINUX
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>

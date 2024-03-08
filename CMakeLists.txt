@@ -6,9 +6,7 @@ project(lwp
     LANGUAGES C)
 
 # Detect the platform
-if (APPLE)
-    set(_UNAME "DARWIN")
-elseif (MSYS OR MINGW)
+if (MSYS OR MINGW)
     set(_UNAME "WIN32")
 elseif(UNIX)
     set(_UNAME "LINUX")
@@ -40,9 +38,6 @@ set(_DEFAULT_CONFIG_FILE default.cfg)
 if(_UNAME STREQUAL "WIN32")
 	set(_DEFAULT_CONFIG_FILE defaultWin.cfg)
 endif()
-if (_UNAME STREQUAL "DARWIN")
-  set(_DEFAULT_CONFIG_FILE defaultMac.cfg)
-endif()
 
 add_subdirectory(src/wlp)
 link_directories(src/wlp) 
@@ -60,43 +55,17 @@ if(_UNAME STREQUAL "WIN32")
 			DESTINATION .)
 	install(FILES LICENSE.txt
 			DESTINATION .)
-	install(FILES ${_DEFAULT_CONFIG_FILE}
-			DESTINATION .)
 	install(FILES ${SDL2_RUNTIME_DIR}/SDL2.dll
 			DESTINATION .)
 	install(FILES ${SDL2_RUNTIME_DIR}/README-SDL.txt
 			DESTINATION .)
-elseif(_UNAME STREQUAL "LINUX")
-	install(DIRECTORY wallpapers
-			DESTINATION usr/local/share/lwp)
-	install(DIRECTORY src/window_templates
-			DESTINATION usr/local/share/lwp)
-	install(FILES LICENSE.txt
-			DESTINATION usr/local/share/lwp)
-	install(FILES ${_DEFAULT_CONFIG_FILE}
-			TYPE SYSCONF
-			RENAME lwp.cfg)
 else()
-    install(DIRECTORY wallpapers
-            DESTINATION Layered_WallPaper)
+	install(DIRECTORY wallpapers
+			DESTINATION share/lwp)
 	install(DIRECTORY src/window_templates
-			DESTINATION Layered_WallPaper)
-    install(FILES LICENSE.txt
-            DESTINATION Layered_WallPaper)
-    install(FILES ${_DEFAULT_CONFIG_FILE}
-			DESTINATION Layered_WallPaper 
-            RENAME lwp.cfg)
-	install(FILES lwp.template.plist
-			DESTINATION Layered_WallPaper)
-	install (FILES setupPlist.command
-			DESTINATION Layered_WallPaper
-			RENAME Toggle_Autorun.command
-			PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-	install (FILES setupPlist.command
-			DESTINATION .
-			RENAME Toggle_Autorun.command
-			PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-
+			DESTINATION share/lwp)
+	install(FILES LICENSE.txt
+			DESTINATION share/lwp)
 endif()
 
 
@@ -107,11 +76,8 @@ if (_UNAME STREQUAL "WIN32")
 elseif(_UNAME STREQUAL "LINUX")
 	set(CPACK_GENERATOR TGZ)
 	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
-elseif(_UNAME STREQUAL "DARWIN")
-	set(CPACK_GENERATOR DragNDrop)
-	set(CPACK_DMG_BACKGROUND_IMAGE ${CMAKE_CURRENT_SOURCE_DIR}/dmgBg.png)
-	set(CPACK_DMG_DS_STORE_SETUP_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/setupDmg.applescript)
 endif()
+
 set(CPACK_NSIS_MUI_ICON  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
 set(CPACK_NSIS_MUI_UNIICON  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
 set(CPACK_NSIS_INSTALLED_ICON_NAME  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)

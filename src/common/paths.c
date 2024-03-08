@@ -63,7 +63,6 @@ void getAppDir(char *buff, int type)
 #elif __WIN32
   GetModuleFileNameA(NULL, buff, PATH_MAX);
   removeLastPathEntry(buff);
-#elif __DARWIN
 #endif
 }
 
