@@ -90,8 +90,6 @@ static void activate(GtkApplication *app, gpointer userdata)
 
   if (!alreadyRunning)
   {
-    alreadyRunning = 1;
-
     char gladefilePath[PATH_MAX];
     getAppDir(gladefilePath, APP_DIR_SHARE);
 #ifdef __WIN32
@@ -141,7 +139,9 @@ static void activate(GtkApplication *app, gpointer userdata)
 
   reloadMonitorListBox();
 
-  gtk_widget_set_visible(mainWnd, 1);
+  if (alreadyRunning) gtk_widget_set_visible(mainWnd, 1);
+
+  alreadyRunning = 1;
 }
 
 int main(int argc, char *argv[])
