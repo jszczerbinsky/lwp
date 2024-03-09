@@ -17,7 +17,7 @@ jobs:
     - name: Install cmake
       uses: lukka/get-cmake@v3.26.0
     - name: Install dependencies
-      run: sudo apt install libsdl2-dev 
+      run: sudo apt update && sudo apt install libsdl2-dev libconfig-dev libgtk-3-dev
     - name: Build
       run: mkdir -p build && cd build && cmake ../ && cmake --build . && cpack
   
@@ -28,45 +28,25 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    - name: Install cmake
-      uses: lukka/get-cmake@v3.26.0
-    - name: Install MinGW
-      uses: egor-tensin/setup-mingw@v2
-    - name: Install MSVC
-      uses: ilammy/msvc-dev-cmd@v1
-    - name: Install wget
-      run: choco install wget
-    - name: Install dependencies`
+    - name: Install MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        msystem: MINGW64
+        install: >-
+          git
+          curl
+          unzip
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-gtk3
+          mingw-w64-x86_64-SDL2
+          mingw-w64-x86_64-libconfig
+    - name: Download SDL2 runtime
+      shell: msys2 {0}
       run: |
-        wget -nv https://github.com/libsdl-org/SDL/releases/download/release-2.26.3/SDL2-devel-2.26.3-mingw.zip
-        7z x -bd SDL2-devel-2.26.3-mingw.zip -omingw
-        wget -nv https://github.com/libsdl-org/SDL/releases/download/release-2.26.3/SDL2-devel-2.26.3-VC.zip
-        7z x -bd SDL2-devel-2.26.3-VC.zip -omsvc
-    - name: Build with MSVC
-      run: |
-        mkdir buildMSVC
-        cd buildMSVC 
-        cmake -G "Visual Studio 17" -DSDL2_DIR=${{ github.workspace }}\msvc\SDL2-2.26.3\cmake -DSDL2_RUNTIME_DIR=${{ github.workspace }}\msvc\SDL2-2.26.3\lib\x64 ..\ 
-        cmake --build .
-        cd ..
-    - name: Build with MinGW
-      run: |
-        mkdir buildMinGW 
-        cd buildMinGW 
-        cmake -G "MinGW Makefiles" -DSDL2_DIR=${{ github.workspace }}\mingw\SDL2-2.26.3\cmake -DSDL2_RUNTIME_DIR=${{ github.workspace }}\mingw\SDL2-2.26.3\x86_64-mingw32\bin -DCMAKE_BUILD_TYPE=Release ..\
-        cmake --build . 
-        
-
-  macOS:
-    name: Build on MacOS
-    runs-on: macos-12
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Install cmake
-      uses: lukka/get-cmake@v3.26.0
-    - name: Install dependencies`
-      run: brew install sdl2
+        curl -L https://github.com/libsdl-org/SDL/releases/download/release-2.30.1/SDL2-2.30.1-win32-x64.zip > sdl2.zip
+        unzip sdl2.zip
     - name: Build
-      run: mkdir build && cd build && cmake ../ && cmake --build . && sudo cpack
+      shell: msys2 {0}
+      run: mkdir -p build && cd build && cmake -DSDL2_RUNTIME_DIR=${GITHUB_WORKSPACE} ../ && cmake --build . && ../distributeDLLs.sh && cpack

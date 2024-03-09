@@ -1,3 +1,4 @@
+
 <div align="center">
 
 # Layered WallPaper
@@ -24,23 +25,25 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
 
 <details>
   <summary>Linux</summary>
-  
-  #### Installation steps
-  
+
+  ### Dependencies
   - Install `SDL2` using Your package manager
   - If You are using `Wayland`, You also must install `XWayland`
+  
+  #### Installation steps
   - Download `.tar.gz` package from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
-  - Extract the content to `/`:
+  - Extract the content to `/usr/local`:
   ```shell
-  sudo tar -o -xvf [archive name].tar.gz --directory /
+  sudo tar -o -xvf [archive name].tar.gz --directory /usr/local
   ```
+  - Note that if You install lwp somewhere else than `/usr/local`, You need to set `LWP_PREFIX` env before running `lwp`.
   - Test Layered WallPaper by running `lwp`
-  - Setting `reload_rootwindow=1` in config file may be necessary on some distributions for Layered WallPaper to work properly (see [configuration](#configuration))
+  - Run `lwp`, then run it again to open the configuration window. Select wallpaper for each monitor.
+  - If You can't see any wallpaper try setting `Draw on root window` in application settings. This may be necessary on some distributions for Layered WallPaper to work properly (see [configuration](#configuration))
   - To make Layered WallPaper run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
   
   #### Build from source instead
-  - Install `SDL2` using Your package manager. On some distributions `SDL2` doesn't contain development files, so it may be also necessary to install development version of `SDL2`
-  - If You are using `Wayland`, You also must install `XWayland`
+  - In some distributions `SDL2` doesn't contain development files, so it may be also necessary to install development version of `SDL2`
   - Install `CMake`
   - Clone the repository and prepare a `build` directory:
 
@@ -56,46 +59,8 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   cmake --build .
   cpack
   ```
-  - Extract `.tar.gz` package
-  ```shell
-  sudo tar -o -xvf [archive name].tar.gz --directory /
-  ```
-  - Test Layered WallPaper by running `lwp`
-  - Setting `reload_rootwindow=1` in config file may be necessary on some distributions for Layered WallPaper to work properly (see [configuration](#configuration))
-  - To make Layered WallPaper run on startup, add `lwp &` command to Your desktop enviroment `.rc` file
+  - After this `.tar.gz` package should appear. Follow the installation steps
   
-</details>
-
-<details>
-  <summary>macOS</summary>
-  
-  #### Installation steps
-  - Download and run the installer from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
-  - Drag and drop Layered_WallPaper into Applications
-  - To make Layered WallPaper run on startup, run Toggle_Autorun.command
-    - To stop running Layered WallPaper on startup, run it again
-  
-  #### Build from source instead
-  - Install `SDL2` (homebrew: `brew install sdl2`)
-  - To build this project, You need to install `cmake` (homebrew: `brew install cmake`)
-  - Clone the repository:
-    ```zsh
-    git clone https://github.com/jszczerbinsky/lwp
-    cd lwp
-    
-    ```
-  - Compile and generate installer
-    ```zsh
-    mkdir build
-    cd build
-    cmake ../
-    cmake --build .
-    cpack -G DragNDrop
-    ```
-  - DMG installer should appear, open it and drag Layered_WallPaper into Applications
-  - To make Layered WallPaper run on startup, run Toggle_Autorun.command
-    - To stop running Layered WallPaper on startup, run it again
-    
 </details>
 
 <details>
@@ -104,95 +69,52 @@ https://user-images.githubusercontent.com/38699473/220888934-09788a6b-873c-469b-
   #### Installation steps
   - Download and run the installer from [releases](https://github.com/jszczerbinsky/lwp/releases/latest)
   - Layered WallPaper should run immediately after the installation
+  - Click the tray icon on the right side of Your taskbar to show the configuration window. Set the wallpapers for each monitor
   
   #### Build from source instead
-  - Layered WallPaper is built using [cmake](https://cmake.org/), so You must install it.
-  - This project supports `MinGW` and `MSVC` compilers. Using different one could lead to unpredicted behavior. If You want to use `MSVC`, it should be installed with Visual Studio.
-  - Download `SDL2` and `SDL2-devel` package for Your compiler from [SDL2 releases](https://github.com/libsdl-org/SDL/releases/latest) and extract them somewhere.
-  - You also must install [NSIS](https://nsis.sourceforge.io/Download). It's required to build the installer, which is needed to correctly set the registry keys, that will make Layered WallPaper run on OS startup etc.
-  - Clone the repository and create `build` directory
-  ```shell
-  git clone https://github.com/jszczerbinsky/lwp
-  cd lwp
-  mkdir -p build
-  cd build
-  ```
-  - Type the following commands, replace square brackets elements with paths to extracted `SDL2` packages, that You've downloaded:
+  To compile Layered WallPaper on Windows you need to install [MSYS2](https://www.msys2.org/). After the installation follow the guide for setting up [GTK development enviroment](https://www.gtk.org/docs/installations/windows#using-gtk-from-msys2-packages). From now on continue using MSYS2 MinGW terminal (make sure you're using `MSYS2 MINGW64`/`MSYS2 MINGW32` instead of `MSYS2`).
 
+##### Install the remaining dependencies
+```shell
+# For 64bit:
+pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-gcc mingw-w64-x86_64-gtk3 mingw-w64-x86_64-libconfig
 
-  For `MSVC`:
-  ```shell
-  cmake -G "Visual Studio 17" -DSDL2_DIR=[PATH TO SDL2-MSVC-DEVEL DIRECTORY]\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY]  ../
-  cmake --build . --config Release
-  cpack
-  ```
-  For `MinGW`:
-  ```shell
-  cmake -G "MinGW Makefiles" -DSDL2_DIR=[PATH TO SDL2-MINGW-DEVEL DIRECTORY]\cmake -DSDL2_RUNTIME_DIR=[PATH TO SDL2 RUNTIME DIRECTORY] -DCMAKE_BUILD_TYPE=Release  ../
-  cmake --build .
-  cpack
-  ```
-  - The installer should appear in `build` directory, that You've created earlier. After completing the installation Layered WallPaper should run immediately.
+# For 32bit:
+pacman -S mingw-w64-i686-cmake mingw-w64-x86_i686-SDL2 mingw-w64-x86_i686-gcc mingw-w64-x86_i686-gtk3 mingw-w64-x86_i686-libconfig
+```
+
+##### Clone the repository
+```shell
+git clone https://github.com/jszczerbinsky/lwp
+cd lwp
+mkdir build
+cd build
+```
+
+##### Compile and install
+- Download [SDL2](https://github.com/libsdl-org/SDL/releases/latest) runtime package and unpack it.
+- Compile the program
+```shell
+# Remember to use unix path format (instead of C:/path/to/dir use /c/path/to/dir)
+cmake -DSDL2_RUNTIME_DIR=/path/to/dir ../
+cmake --build .
+# Prepare the DLLs, that will be shipped with the program.
+# The script is going to ask you which version of gdbus.exe should it use (32bit or 64bit)
+../distributeDLLs.sh
+cpack
+```
+After this the installer should appear in the current directory.
   
 </details>
 
 ## Configuration
 
-#### Create a configuration file
-<details>
-  <summary>Linux</summary>
-  
-  - Copy default config file to `.config/lwp/lwp.cfg`:
-  ```shell
-  mkdir ~/.config/lwp
-  cp /etc/lwp.cfg ~/.config/lwp/lwp.cfg
-  ```
-  
-</details>
-<details>
-  <summary>macOS</summary>
+### Open configuration window
+- On Linux when `lwp` is already running in the background, run `lwp` again to show the window.
+- On Windows You can click the icon on the right side of the task bar.
 
-  - Copy default config file to `~/.config/lwp/lwp.cfg`:
-    ```zsh
-    mkdir -p ~/.config/lwp
-    cp /opt/lwp/lwp.cfg ~/.config/lwp/
-    ```
-</details>
-<details>
-  <summary>Windows</summary>
-  
-  - Press <kbd>⊞ Win</kbd> + <kbd>R</kbd>
-  - Type `%appdata%` and press `Ok`
-  - Create new directory and name it `lwp`
-  - Copy file `C:\Program Files\lwp\defaultWin.cfg` to directory created in the previous step and rename it to `lwp.cfg`
-  - Open `lwp.cfg` in notepad
-  
-</details>
-
-#### Using config file
-
-- Do not put spaces between `=` and values
-- Do not leave trailing spaces
-- Comments start with `#`
-- Do not put strings in quotation marks
-
-#### Available options:
-
-|  Type  |      Name    | Description |
-| ------ | ------------ | ----------- |
-| int    | reload_rootwindow | Set this to 1 if You are using a compositor (linux only) |
-| float  | smooth       | Smooth movement multipler |
-| int    | monitors     | Monitors count |
-| int    | monitor[n]_x | Position of nth monitor in X axis |
-| int    | monitor[n]_y | Position of nth monitor in Y axis |
-| int    | monitor[n]_w | Width of nth monitor |
-| int    | monitor[n]_h | Height of nth monitor |
-| string | monitor[n]_wallpaper   | Absolute path to the wallpaper directory |
-| int    | monitor[n]_wallpaper_x | Position of the wallpaper relative to the monitor |
-| int    | monitor[n]_wallpaper_y | Position of the wallpaper relative to the monitor |
-| int    | monitor[n]_wallpaper_w | Wallpaper resolution |
-| int    | monitor[n]_wallpaper_h | Wallpaper resolution |
-| int    | target_fps     | How many times per second should the wallpaper render (imprecise, hence "target") |
+### Installing wallpapers
+- To install wallpaper, copy the directory to `%LOCALAPPDATA%\lwp\wallpapers\`
 
 ## Creating Wallpapers
 
@@ -224,8 +146,6 @@ C:
 | int    | count        | Wallpaper layers count |
 | float  | movement_x    | Mouse sensitivity in X axis |
 | float  | movement_y    | Mouse sensitivity in Y axis |
-| float  | movement[n]_x | Mouse sensitivity in X axis for nth layer (optional)|
-| float  | movement[n]_y | Mouse sensitivity in Y axis for nth layer (optional)|
 | int    | repeat_x     | Repeat the wallpaper in X axis |
 | int    | repeat_y     | Repeat the wallpaper in Y axis |
 
