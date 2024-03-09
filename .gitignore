@@ -1,9 +1,14 @@
 resource.rc
 .DS_Store
 
+compile_commands.json
+.cache
+
 data/
 build/
 *.res
+
+.vscode
 
 # Prerequisites
 *.d
