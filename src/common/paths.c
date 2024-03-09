@@ -61,8 +61,11 @@ void getAppDir(char *buff, int type)
     sprintf(buff, "%s/%s", prefix, "share/lwp");
   }
 #elif __WIN32
-  GetModuleFileNameA(NULL, buff, PATH_MAX);
-  removeLastPathEntry(buff);
+  if (type == APP_DIR_BIN || type == APP_DIR_SHARE)
+  {
+    GetModuleFileNameA(NULL, buff, PATH_MAX);
+    removeLastPathEntry(buff);
+  }
 #endif
 }
 

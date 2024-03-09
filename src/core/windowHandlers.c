@@ -16,7 +16,15 @@ G_MODULE_EXPORT void ExitDialog_Yes()
 
 G_MODULE_EXPORT void MainWindow_ManageWallpapersBtnClick()
 {
-  gtk_widget_set_visible(wallpaperMgrWnd, 1);
+  GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+  GtkWidget *dialog = gtk_message_dialog_new (GTK_WINDOW(mainWnd),
+      flags,
+      GTK_MESSAGE_ERROR,
+      GTK_BUTTONS_CLOSE,
+      "This feature will be available in the future");
+    gtk_dialog_run (GTK_DIALOG (dialog));
+ gtk_widget_destroy (dialog);
+  //gtk_widget_set_visible(wallpaperMgrWnd, 1);
 }
 
 G_MODULE_EXPORT void MainWindow_MonitorEditBtnClick() { gtk_widget_set_visible(monitorWnd, 1); }
@@ -115,9 +123,13 @@ G_MODULE_EXPORT void SettingsWindowShow()
 
   char targetFpsStr[4];
   sprintf(targetFpsStr, "%d", ac.targetFps);
+
+#ifdef __LINUX
   char drawOnRootWindowStr[2];
   sprintf(drawOnRootWindowStr, "%d", ac.drawOnRootWindow);
-
+#else
+  char *drawOnRootWindowStr = "0";
+#endif
   gtk_combo_box_set_active_id(GTK_COMBO_BOX(renderQualityComboBox), ac.renderQuality);
   gtk_combo_box_set_active_id(GTK_COMBO_BOX(targetFpsComboBox), targetFpsStr);
   gtk_combo_box_set_active_id(GTK_COMBO_BOX(drawOnRootWndComboBox), drawOnRootWindowStr);

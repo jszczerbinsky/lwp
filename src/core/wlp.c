@@ -45,7 +45,6 @@ void runWlp()
   GetModuleFileName(NULL, path, MAX_PATH);
   path[_tcslen(path) - 4] = '\0';
   _tcscat(path, TEXT("wlp.exe"));
-  printf("%s\n", path);
 
   if (CreateProcess(NULL, path, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
     hWlpProcess = pi.hProcess;

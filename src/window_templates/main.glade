@@ -576,12 +576,12 @@ Layered WallPaper</property>
     <property name="default-width">500</property>
     <property name="default-height">250</property>
     <signal name="show" handler="SettingsWindowShow" swapped="no"/>
+    <signal name="delete-event" handler="SettingsWindowClose" swapped="no"/>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
-        <signal name="delete-event" handler="SettingsWindowClose" swapped="no"/>
         <child>
           <object class="GtkBox">
             <property name="visible">True</property>

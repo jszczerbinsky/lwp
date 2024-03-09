@@ -104,8 +104,10 @@ void saveAppConfig(AppConfig *ac)
   config_init(&cfg);
   root = config_root_setting(&cfg);
 
+#ifdef __LINUX
   setting = config_setting_add(root, "draw_on_rootwindow", CONFIG_TYPE_INT);
   config_setting_set_int(setting, ac->drawOnRootWindow);
+#endif
   setting = config_setting_add(root, "target_fps", CONFIG_TYPE_INT);
   config_setting_set_int(setting, ac->targetFps);
   setting = config_setting_add(root, "render_quality", CONFIG_TYPE_STRING);

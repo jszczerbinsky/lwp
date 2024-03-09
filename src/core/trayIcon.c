@@ -1,8 +1,8 @@
 #ifdef __WIN32
 
+#include <windows.h>
 #include <shellapi.h>
 #include <tchar.h>
-#include <windows.h>
 
 #include "main.h"
 
