@@ -76,8 +76,9 @@ static void reloadMonitorListBox()
 
     gtk_list_box_insert(GTK_LIST_BOX(monitorListBox), row, 0);
 
-    char *nameBuff = malloc(sizeof(strlen(monitors[i].name)));
+    char *nameBuff = malloc(strlen(monitors[i].name)+1);
     strcpy(nameBuff, monitors[i].name);
+
     g_object_set_data(G_OBJECT(row), "monitor_name", (gpointer)nameBuff);
 
     gtk_widget_show_all(row);
