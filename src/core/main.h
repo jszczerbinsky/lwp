@@ -3,11 +3,6 @@
 
 #include <gtk/gtk.h>
 
-// G_APPLICATION_DEFAULT_FLAGS doesn't exist in older versions of glib
-#ifndef G_APPLICATION_DEFAULT_FLAGS
-//#define G_APPLICATION_DEFAULT_FLAGS G_APPLICATION_FLAGS_NONE
-#endif
-
 #include "../common.h"
 
 extern GtkApplication *app;
