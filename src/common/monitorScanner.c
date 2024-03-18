@@ -15,24 +15,22 @@ int monitorEnumIndex = 0;
 
 static BOOL monitorenumproc(HMONITOR monitor, HDC hdc, LPRECT rect, LPARAM param)
 {
-  MONITORINFO info;
-  info.cbSize = sizeof(MONITORINFO);
+  MONITORINFOEX info;
+  info.cbSize = sizeof(MONITORINFOEX);
 
-  GetMonitorInfo(monitor, &info);
+  GetMonitorInfo(monitor, (LPMONITORINFO)&info);
 
   MonitorInfo *mi = (MonitorInfo *)param + monitorEnumIndex;
 
-  snprintf(
-      mi->name,
-      MONITOR_NAME_MAX,
-      "Monitor %d%s",
-      monitorEnumIndex + 1,
-      info.dwFlags == MONITORINFOF_PRIMARY ? " (main)" : ""
-  );
-  mi->bounds.x      = info.rcWork.left;
-  mi->bounds.y      = info.rcWork.top;
-  mi->bounds.w      = info.rcWork.right - info.rcWork.left;
-  mi->bounds.h      = info.rcWork.bottom - info.rcWork.top;
+  DEVMODE devmode;
+  devmode.dmSize = sizeof(DEVMODE);
+  EnumDisplaySettings(info.szDevice, ENUM_CURRENT_SETTINGS, &devmode);
+  
+  strncpy(mi->name, devmode.dmDeviceName, MONITOR_NAME_MAX);
+  mi->bounds.x      = info.rcMonitor.left;
+  mi->bounds.y      = info.rcMonitor.top;
+  mi->bounds.w      = devmode.dmPelsWidth;
+  mi->bounds.h      = devmode.dmPelsHeight;
   mi->config.loaded = 0;
 
   monitorEnumIndex++;
