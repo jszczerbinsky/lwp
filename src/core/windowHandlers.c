@@ -81,8 +81,12 @@ G_MODULE_EXPORT void MonitorWindowShow()
 
   // Find selected monitor name
   GtkListBoxRow *listBoxRow  = gtk_list_box_get_selected_row(GTK_LIST_BOX(monitorListBox));
+  const char    *monitorDisplayName = g_object_get_data(G_OBJECT(listBoxRow), "monitor_display_name");
   const char    *monitorName = g_object_get_data(G_OBJECT(listBoxRow), "monitor_name");
-  gtk_label_set_text(GTK_LABEL(monitorNameLabel), monitorName);
+  gtk_label_set_text(GTK_LABEL(monitorNameLabel), monitorDisplayName);
+
+  char *nameBuff = strdup(monitorName);
+  g_object_set_data(G_OBJECT(monitorWnd), "monitor_name", (gpointer)nameBuff);
 
   // Read configuration from config file
   MonitorConfig mc;
@@ -106,7 +110,7 @@ G_MODULE_EXPORT void MonitorWindow_ApplyBtnClick()
   mc.wlpBounds.w = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(widthSpinBtn));
   mc.wlpBounds.h = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(heightSpinBtn));
 
-  saveMonitorConfig(gtk_label_get_text(GTK_LABEL(monitorNameLabel)), &mc);
+  saveMonitorConfig(g_object_get_data(G_OBJECT(monitorWnd), "monitor_name"), &mc);
 
   killWlp();
   runWlp();

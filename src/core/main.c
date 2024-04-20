@@ -57,7 +57,7 @@ static void reloadMonitorListBox()
     char resStr[12];
     sprintf(resStr, "%dx%d", monitors[i].bounds.w, monitors[i].bounds.h);
 
-    GtkWidget *nameLabel = gtk_label_new(monitors[i].name);
+    GtkWidget *nameLabel = gtk_label_new(monitors[i].displayName);
     GtkWidget *resLabel  = gtk_label_new(resStr);
     GtkWidget *icon      = gtk_image_new_from_file(iconPath);
 
@@ -79,6 +79,10 @@ static void reloadMonitorListBox()
     char *nameBuff = malloc(strlen(monitors[i].name)+1);
     strcpy(nameBuff, monitors[i].name);
 
+    char *displayNameBuff = malloc(strlen(monitors[i].displayName)+1);
+    strcpy(displayNameBuff, monitors[i].displayName);
+
+    g_object_set_data(G_OBJECT(row), "monitor_display_name", (gpointer)displayNameBuff);
     g_object_set_data(G_OBJECT(row), "monitor_name", (gpointer)nameBuff);
 
     gtk_widget_show_all(row);

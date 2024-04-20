@@ -16,12 +16,13 @@ static void atExit()
       SDL_DestroyTexture(m->wlp.layers[l].tex);
     free(m->wlp.layers);
 
+    if (m->renderer) SDL_DestroyRenderer(m->renderer);
+    if (m->window) SDL_DestroyWindow(m->window);
+
     m++;
   }
+  
   free(app.monitors);
-
-  if (app.renderer) SDL_DestroyRenderer(app.renderer);
-  if (app.window) SDL_DestroyWindow(app.window);
 
   SDL_Quit();
 }
@@ -62,7 +63,7 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
         );
 
         m->tex = SDL_CreateTexture(
-            app->renderer,
+            m->renderer,
             SDL_PIXELFORMAT_ARGB8888,
             SDL_TEXTUREACCESS_TARGET,
             mi->bounds.w,
@@ -73,7 +74,7 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
 
         wallpaper->layers = malloc(sizeof(Layer) * wallpaper->info.config.layersCount);
         wallpaper->tex    = SDL_CreateTexture(
-            app->renderer,
+            m->renderer,
             SDL_PIXELFORMAT_ARGB8888,
             SDL_TEXTUREACCESS_TARGET,
             mi->config.wlpBounds.w,
@@ -96,7 +97,7 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
             wallpaper->originalH = surf->h;
           }
 
-          wallpaper->layers[l].tex = SDL_CreateTextureFromSurface(app->renderer, surf);
+          wallpaper->layers[l].tex = SDL_CreateTextureFromSurface(m->renderer, surf);
           if (wallpaper->tex == NULL)
             lwpLog(LOG_ERROR, "Failed creating a texture for the layer %d: %s", l, SDL_GetError());
 
@@ -114,7 +115,7 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
 int initMonitors(App *app)
 {
   MonitorInfo *monitors = scanMonitors(&app->monitorsCount);
-  app->monitors         = malloc(sizeof(Monitor) * app->monitorsCount);
+  app->monitors         = calloc(app->monitorsCount, sizeof(Monitor));
 
   int            wallpapersCount;
   WallpaperInfo *wallpapers = scanWallpapers(&wallpapersCount);
@@ -148,6 +149,8 @@ int initMonitors(App *app)
           mi->config.wlpBounds.h
       );
 
+      initWindow(app, app->monitors + i);
+
       initWallpaper(app, app->monitors + i, wallpapers, wallpapersCount);
     }
   }
@@ -180,9 +183,6 @@ int main(int argc, char *argv[])
   lwpLog(LOG_INFO, "Initializing SDL");
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, app.config.renderQuality);
-
-  lwpLog(LOG_INFO, "Initializing window");
-  initWindow(&app);
 
   lwpLog(LOG_INFO, "Initializing monitors");
   initMonitors(&app);

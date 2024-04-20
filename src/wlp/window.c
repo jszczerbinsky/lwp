@@ -32,17 +32,17 @@ static BOOL CALLBACK getIconWorkerw(HWND hWnd, LPARAM lParam)
 
 #endif
 
-void initWindow(App *app)
+void initWindow(App *app, Monitor *monitor)
 {
 #ifdef __WIN32
 
-  app->window =
+  monitor->window =
       SDL_CreateWindow("Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
-  if (app->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
+  if (monitor->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
 
   SDL_SysWMinfo sysWmInfo;
   SDL_VERSION(&sysWmInfo.version)
-  SDL_GetWindowWMInfo(app->window, &sysWmInfo);
+  SDL_GetWindowWMInfo(monitor->window, &sysWmInfo);
   HWND hWindow = sysWmInfo.info.win.window;
 
   HWND progman = FindWindow("Progman", NULL);
@@ -60,10 +60,10 @@ void initWindow(App *app)
   SetWindowPos(
       hWindow,
       NULL,
-      0,
-      0,
-      GetSystemMetrics(SM_CXVIRTUALSCREEN),
-      GetSystemMetrics(SM_CYVIRTUALSCREEN),
+      monitor->info.bounds.x,
+      monitor->info.bounds.y,
+      monitor->info.bounds.w,
+      monitor->info.bounds.h,
       SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW
   );
 
@@ -74,7 +74,7 @@ void initWindow(App *app)
     Display *display = XOpenDisplay(NULL);
     XCloseDisplay(display);
 
-    app->window = SDL_CreateWindow(
+    monitor->window = SDL_CreateWindow(
         "Layered WallPaper",
         0,
         0,
@@ -85,7 +85,7 @@ void initWindow(App *app)
 
     SDL_SysWMinfo wmInfo;
     SDL_GetVersion(&wmInfo.version);
-    SDL_GetWindowWMInfo(app->window, &wmInfo);
+    SDL_GetWindowWMInfo(monitor->window, &wmInfo);
 
     Window xWnd = wmInfo.info.x11.window;
     display     = wmInfo.info.x11.display;
@@ -113,15 +113,15 @@ void initWindow(App *app)
   {
     Display *display    = XOpenDisplay(NULL);
     Window   rootWindow = RootWindow(display, DefaultScreen(display));
-    app->window         = SDL_CreateWindowFrom((void *)rootWindow);
+    monitor->window         = SDL_CreateWindowFrom((void *)rootWindow);
     XCloseDisplay(display);
   }
 
 #endif
 
-  if (app->window == NULL) lwpLog(LOG_ERROR, "Failed to initialize window: %s", SDL_GetError());
+  if (monitor->window == NULL) lwpLog(LOG_ERROR, "Failed to initialize window for monitor %s: %s", monitor->info.name, SDL_GetError());
 
-  app->renderer =
-      SDL_CreateRenderer(app->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  if (app->renderer == NULL) lwpLog(LOG_ERROR, "Failed to initialize renderer: %s", SDL_GetError());
+  monitor->renderer =
+      SDL_CreateRenderer(monitor->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+  if (monitor->renderer == NULL) lwpLog(LOG_ERROR, "Failed to initialize renderer for monitor %s: %s", monitor->info.name, SDL_GetError());
 }

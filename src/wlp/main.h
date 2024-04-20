@@ -46,6 +46,9 @@ typedef struct
   MonitorInfo  info;
   SDL_Texture *tex;
   Wallpaper    wlp;
+  SDL_Window   *window;
+  SDL_Renderer *renderer;
+  int aborted;
 } Monitor;
 
 typedef struct
@@ -53,13 +56,17 @@ typedef struct
   AppConfig     config;
   int           monitorsCount;
   Monitor      *monitors;
-  SDL_Window   *window;
-  SDL_Renderer *renderer;
 } App;
+
+typedef struct
+{
+  float x;
+  float y;
+} Point;
 
 void lwpLog(int type, const char *str, ...);
 
-void initWindow(App *app);
+void initWindow(App *app, Monitor *monitor);
 void runWallpaperLoop(App *app);
 
 #endif  // MAIN_H
