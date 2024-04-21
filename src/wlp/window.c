@@ -60,10 +60,10 @@ void initWindow(App *app, Monitor *monitor)
   SetWindowPos(
       hWindow,
       NULL,
-      monitor->info.bounds.x,
-      monitor->info.bounds.y,
-      monitor->info.bounds.w,
-      monitor->info.bounds.h,
+      monitor->info.virtualBounds.x,
+      monitor->info.virtualBounds.y,
+      monitor->info.virtualBounds.w,
+      monitor->info.virtualBounds.h,
       SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW
   );
 

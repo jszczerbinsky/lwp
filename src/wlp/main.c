@@ -66,8 +66,8 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
             m->renderer,
             SDL_PIXELFORMAT_ARGB8888,
             SDL_TEXTUREACCESS_TARGET,
-            mi->bounds.w,
-            mi->bounds.h
+            mi->clientBounds.w,
+            mi->clientBounds.h
         );
         if (m->tex == NULL)
           lwpLog(LOG_ERROR, "Failed creating a texture for the monitor: %s", SDL_GetError());
@@ -138,7 +138,7 @@ int initMonitors(App *app)
       lwpLog(LOG_INFO, "Initializing monitor %d...", i);
       lwpLog(LOG_INFO, "Wallpaper: %s", mi->config.wlpName);
       lwpLog(
-          LOG_INFO, "Bounds: %d %d %dx%d", mi->bounds.x, mi->bounds.y, mi->bounds.w, mi->bounds.h
+          LOG_INFO, "Bounds: %d %d %dx%d", mi->clientBounds.x, mi->clientBounds.y, mi->clientBounds.w, mi->clientBounds.h
       );
       lwpLog(
           LOG_INFO,
@@ -161,6 +161,10 @@ int initMonitors(App *app)
 
 int main(int argc, char *argv[])
 {
+#ifdef __WIN32
+  SetProcessDPIAware();
+#endif
+
   memset(&app, 0, sizeof(App));
 
   char pidStr[10];

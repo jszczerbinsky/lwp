@@ -55,7 +55,7 @@ static void reloadMonitorListBox()
   for (int i = 0; i < monitorsCount; i++)
   {
     char resStr[12];
-    sprintf(resStr, "%dx%d", monitors[i].bounds.w, monitors[i].bounds.h);
+    sprintf(resStr, "%dx%d", monitors[i].clientBounds.w, monitors[i].clientBounds.h);
 
     GtkWidget *nameLabel = gtk_label_new(monitors[i].displayName);
     GtkWidget *resLabel  = gtk_label_new(resStr);

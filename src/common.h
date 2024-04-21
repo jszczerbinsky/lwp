@@ -54,8 +54,9 @@ typedef struct
 {
   char          displayName[MONITOR_NAME_MAX];
   char          name[MONITOR_NAME_MAX];
-  Bounds        bounds;
-  Bounds        originalBounds;
+  Bounds        pixelBounds;
+  Bounds        clientBounds;
+  Bounds        virtualBounds;
   MonitorConfig config;
 } MonitorInfo;
 

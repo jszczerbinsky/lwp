@@ -19,11 +19,11 @@ static float clamp(float a, float min, float max)
 
 static void getRelativeTargetPoint(Point *dest, Point *globalTargetPoint, Monitor *m)
 {
-  dest->x = globalTargetPoint->x - m->info.bounds.x;
-  dest->y = globalTargetPoint->y - m->info.bounds.y;
+  dest->x = globalTargetPoint->x - m->info.clientBounds.x;
+  dest->y = globalTargetPoint->y - m->info.clientBounds.y;
 
-  dest->x = clamp(dest->x, 0, m->info.bounds.w);
-  dest->y = clamp(dest->y, 0, m->info.bounds.h);
+  dest->x = clamp(dest->x, 0, m->info.clientBounds.w);
+  dest->y = clamp(dest->y, 0, m->info.clientBounds.h);
 }
 
 static void renderMonitor(App *app, Monitor *monitor, Point *globalTargetPoint) {
@@ -48,9 +48,9 @@ static void renderMonitor(App *app, Monitor *monitor, Point *globalTargetPoint) 
         .h = monitor->wlp.originalH,
     };
 
-    int x = -((targetPoint.x - monitor->info.bounds.w / 2) *
+    int x = -((targetPoint.x - monitor->info.clientBounds.w / 2) *
               monitor->wlp.info.config.layerConfigs[i].sensitivityX);
-    int y = -((targetPoint.y - monitor->info.bounds.h / 2) *
+    int y = -((targetPoint.y - monitor->info.clientBounds.h / 2) *
               monitor->wlp.info.config.layerConfigs[i].sensitivityY);
 
     for (int k = -monitor->wlp.info.config.repeatY;
@@ -91,6 +91,7 @@ static void renderMonitor(App *app, Monitor *monitor, Point *globalTargetPoint) 
       .w = monitor->info.config.wlpBounds.w,
       .h = monitor->info.config.wlpBounds.h,
   };
+  
 
   if (SDL_RenderCopy(monitor->renderer, monitor->wlp.tex, &src, &dest) != 0) {
     lwpLog(LOG_ERROR, "Error rendering copy: %s", SDL_GetError());
@@ -99,21 +100,7 @@ static void renderMonitor(App *app, Monitor *monitor, Point *globalTargetPoint) 
 
   SDL_SetRenderTarget(monitor->renderer, NULL);
 
-  SDL_Rect finalSrc = {
-      .x = 0,
-      .y = 0,
-      .w = monitor->info.bounds.w,
-      .h = monitor->info.bounds.h,
-  };
-
-  SDL_Rect finalDest = {
-      .x = 0,
-      .y = 0,
-      .w = monitor->info.bounds.w,
-      .h = monitor->info.bounds.h,
-  };
-
-  if (SDL_RenderCopy(monitor->renderer, monitor->tex, &finalSrc, &finalDest) != 0) {
+  if (SDL_RenderCopy(monitor->renderer, monitor->tex, NULL, NULL) != 0) {
     lwpLog(LOG_ERROR, "Error rendering copy: %s", SDL_GetError());
     monitor->aborted = 1;
   }

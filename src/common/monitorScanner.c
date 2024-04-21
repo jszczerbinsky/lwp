@@ -54,27 +54,47 @@ static void getMonitorName(int index, char *name, char *displayName)
   strncpy(name, ptr, MONITOR_NAME_MAX);
 }
 
-static void getMonitorOriginalBounds(HMONITOR monitor, Bounds *bounds)
+static void getMonitorBounds(HMONITOR monitor, Bounds *original, Bounds *client, Bounds *virtual)
 {
   MONITORINFOEX info;
   info.cbSize = sizeof(MONITORINFOEX);
-
   GetMonitorInfo(monitor, (LPMONITORINFO)&info);
+
+  if(original)
+  {
+    original->x = info.rcMonitor.left;
+    original->y = info.rcMonitor.top;
+    original->w = info.rcMonitor.right - info.rcMonitor.left;
+    original->h = info.rcMonitor.bottom - info.rcMonitor.top;
+  }
 
   DEVMODE devmode;
   devmode.dmSize = sizeof(DEVMODE);
   EnumDisplaySettings(info.szDevice, ENUM_CURRENT_SETTINGS, &devmode);
 
-  bounds->x = devmode.dmPosition.x;
-  bounds->y = devmode.dmPosition.y;
-  bounds->w = devmode.dmPelsWidth;
-  bounds->h = devmode.dmPelsHeight;
+  if(client)
+  {
+    client->x = devmode.dmPosition.x;
+    client->y = devmode.dmPosition.y;
+    client->w = devmode.dmPelsWidth;
+    client->h = devmode.dmPelsHeight;
+  }
+
+ float scaleFactor = getScalingFactor(monitor);
+
+  if(virtual)
+  {
+    virtual->x = devmode.dmPosition.x * scaleFactor - primaryX;
+    virtual->y = devmode.dmPosition.y * scaleFactor - primaryY;
+    virtual->w = devmode.dmPelsWidth * scaleFactor;
+    virtual->h = devmode.dmPelsHeight * scaleFactor;
+  }
 }
 
 static BOOL monitorenumproc_FindPrimaryCoords(HMONITOR monitor, HDC hdc, LPRECT rect, LPARAM param)
 {
   Bounds bounds;
-  getMonitorOriginalBounds(monitor, &bounds);
+  getMonitorBounds(monitor, NULL, &bounds, NULL);
 
   if(bounds.x < primaryX) primaryX = bounds.x;
   if(bounds.y < primaryY) primaryY = bounds.y;
@@ -86,18 +106,8 @@ static BOOL monitorenumproc_GetInfo(HMONITOR monitor, HDC hdc, LPRECT rect, LPAR
 {
   MonitorInfo *mi = (MonitorInfo *)param + monitorEnumIndex;
 
-  getMonitorOriginalBounds(monitor, &mi->originalBounds);
+  getMonitorBounds(monitor, &mi->pixelBounds, &mi->clientBounds, &mi->virtualBounds);
   getMonitorName(monitorEnumIndex, mi->name, mi->displayName);
-
- float scaleFactor = getScalingFactor(monitor);
-MONITORINFOEX info;
-  info.cbSize = sizeof(MONITORINFOEX);
-
-  GetMonitorInfo(monitor, (LPMONITORINFO)&info);
-  mi->bounds.x = mi->originalBounds.x * scaleFactor - primaryX;
-  mi->bounds.y = mi->originalBounds.y * scaleFactor - primaryY;
-  mi->bounds.w = mi->originalBounds.w * scaleFactor;
-  mi->bounds.h = mi->originalBounds.h * scaleFactor;
 
   mi->config.loaded = 0;
 
