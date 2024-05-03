@@ -575,8 +575,8 @@ Layered WallPaper</property>
     <property name="resizable">False</property>
     <property name="default-width">500</property>
     <property name="default-height">250</property>
-    <signal name="show" handler="SettingsWindowShow" swapped="no"/>
     <signal name="delete-event" handler="SettingsWindowClose" swapped="no"/>
+    <signal name="show" handler="SettingsWindowShow" swapped="no"/>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
@@ -625,7 +625,7 @@ Layered WallPaper</property>
           </packing>
         </child>
         <child>
-          <!-- n-columns=2 n-rows=3 -->
+          <!-- n-columns=2 n-rows=2 -->
           <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -671,32 +671,6 @@ Layered WallPaper</property>
               <packing>
                 <property name="left-attach">1</property>
                 <property name="top-attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="halign">start</property>
-                <property name="label" translatable="yes">Draw on root window (Linux only)</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBoxText" id="SettingsWindow_DrawOnRootWndComboBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <items>
-                  <item id="0" translatable="yes">No</item>
-                  <item id="1" translatable="yes">Yes</item>
-                </items>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">2</property>
               </packing>
             </child>
             <child>

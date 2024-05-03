@@ -62,7 +62,6 @@ typedef struct
 
 typedef struct
 {
-  int  drawOnRootWindow;
   int  targetFps;
   char renderQuality[8];
 } AppConfig;

@@ -89,9 +89,6 @@ int loadMonitorConfig(const char *name, MonitorConfig *mc)
 
 static void useDefaultAppCfg(AppConfig *ac)
 {
-#ifdef __LINUX
-  ac->drawOnRootWindow = 0;
-#endif
   ac->targetFps = 60;
   strcpy(ac->renderQuality, "best");
 }
@@ -104,10 +101,6 @@ void saveAppConfig(AppConfig *ac)
   config_init(&cfg);
   root = config_root_setting(&cfg);
 
-#ifdef __LINUX
-  setting = config_setting_add(root, "draw_on_rootwindow", CONFIG_TYPE_INT);
-  config_setting_set_int(setting, ac->drawOnRootWindow);
-#endif
   setting = config_setting_add(root, "target_fps", CONFIG_TYPE_INT);
   config_setting_set_int(setting, ac->targetFps);
   setting = config_setting_add(root, "render_quality", CONFIG_TYPE_STRING);
@@ -141,10 +134,6 @@ int loadAppConfig(AppConfig *ac)
   }
   root = config_root_setting(&cfg);
 
-#ifdef __LINUX
-  setting              = config_setting_get_member(root, "draw_on_rootwindow");
-  ac->drawOnRootWindow = config_setting_get_int(setting);
-#endif
   setting       = config_setting_get_member(root, "target_fps");
   ac->targetFps = config_setting_get_int(setting);
   setting       = config_setting_get_member(root, "render_quality");
