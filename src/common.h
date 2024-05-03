@@ -7,7 +7,7 @@
 #include <windows.h>
 #endif
 
-#define MONITOR_NAME_MAX   100
+#define MONITOR_NAME_MAX   128
 #define WALLPAPER_NAME_MAX 100
 
 #define DEFAULT_LINUX_PREFIX "/usr/local"
@@ -52,14 +52,16 @@ typedef struct
 
 typedef struct
 {
+  char          displayName[MONITOR_NAME_MAX];
   char          name[MONITOR_NAME_MAX];
-  Bounds        bounds;
+  Bounds        pixelBounds;
+  Bounds        clientBounds;
+  Bounds        virtualBounds;
   MonitorConfig config;
 } MonitorInfo;
 
 typedef struct
 {
-  int  drawOnRootWindow;
   int  targetFps;
   char renderQuality[8];
 } AppConfig;

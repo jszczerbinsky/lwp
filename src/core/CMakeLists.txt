@@ -46,6 +46,11 @@ pkg_check_modules (libconfig REQUIRED libconfig)
 list(APPEND _INCLUDE_DIRS ${libconfig_INCLUDE_DIRS})
 list(APPEND _LIBS ${libconfig_LINK_LIBRARIES})
 
+if (_UNAME STREQUAL "WIN32")
+  # Shcore dependency
+  list(APPEND _LIBS "-lShcore")
+endif()
+
 # Main executable
 if(_UNAME STREQUAL "WIN32")
   add_executable(lwp WIN32 ${_SOURCE_FILES})

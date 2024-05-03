@@ -47,6 +47,11 @@ if (_UNAME STREQUAL "LINUX")
   list(APPEND _LIBS ${X11_LIBRARIES})
 endif()
 
+if (_UNAME STREQUAL "WIN32")
+  # Shcore dependency
+  list(APPEND _LIBS "-lShcore")
+endif()
+
 option(LWP_INSTALL_LAUNCHD "Launch lwp on login (MacOSX only)" OFF)
 
 # Main executable

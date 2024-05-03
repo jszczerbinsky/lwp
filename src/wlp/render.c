@@ -8,152 +8,169 @@ static int lerp(int a, int b, float t)
   return (int)((float)a + (float)t * ((float)b - (float)a));
 }
 
-void runWallpaperLoop(App *app)
+static float clamp(float a, float min, float max)
 {
-  int quit = 0;
+  if (a < min) return min;
+  if (a > max) return max;
+  return a;
+}
 
+static void getRelativeTargetPoint(
+    Point *dest, Point *globalTargetPoint, Monitor *m
+)
+{
+  dest->x = globalTargetPoint->x - m->info.clientBounds.x;
+  dest->y = globalTargetPoint->y - m->info.clientBounds.y;
+
+  dest->x = clamp(dest->x, 0, m->info.clientBounds.w);
+  dest->y = clamp(dest->y, 0, m->info.clientBounds.h);
+}
+
+static void renderMonitor(App *app, Monitor *monitor, Point *globalTargetPoint)
+{
+  if (!monitor->info.config.loaded || !monitor->wlp.info.config.loaded) return;
+
+  Point targetPoint;
+  getRelativeTargetPoint(&targetPoint, globalTargetPoint, monitor);
+
+  if (SDL_SetRenderTarget(monitor->renderer, monitor->wlp.tex) != 0)
+  {
+    lwpLog(LOG_ERROR, "Error setting the renderer target: %s", SDL_GetError());
+    monitor->aborted = 1;
+    return;
+  }
+  SDL_RenderClear(monitor->renderer);
+
+  for (int i = 0; i < monitor->wlp.info.config.layersCount; i++)
+  {
+    SDL_Rect src = {
+        .x = 0,
+        .y = 0,
+        .w = monitor->wlp.originalW,
+        .h = monitor->wlp.originalH,
+    };
+
+    int x =
+        -((targetPoint.x - monitor->info.clientBounds.w / 2) *
+          monitor->wlp.info.config.layerConfigs[i].sensitivityX);
+    int y =
+        -((targetPoint.y - monitor->info.clientBounds.h / 2) *
+          monitor->wlp.info.config.layerConfigs[i].sensitivityY);
+
+    for (int k = -monitor->wlp.info.config.repeatY;
+         k <= monitor->wlp.info.config.repeatY;
+         k++)
+    {
+      for (int j = -monitor->wlp.info.config.repeatX;
+           j <= monitor->wlp.info.config.repeatX;
+           j++)
+      {
+        SDL_Rect dest = {
+            .x = x + j * monitor->info.config.wlpBounds.w,
+            .y = y + k * monitor->info.config.wlpBounds.h,
+            .w = monitor->info.config.wlpBounds.w,
+            .h = monitor->info.config.wlpBounds.h,
+        };
+
+        if (SDL_RenderCopy(
+                monitor->renderer, monitor->wlp.layers[i].tex, &src, &dest
+            ) != 0)
+        {
+          lwpLog(LOG_ERROR, "Error rendering copy: %s", SDL_GetError());
+          monitor->aborted = 1;
+        }
+      }
+    }
+  }
+
+  if (SDL_SetRenderTarget(monitor->renderer, monitor->tex) != 0)
+  {
+    lwpLog(LOG_ERROR, "Error setting the renderer target: %s", SDL_GetError());
+    monitor->aborted = 1;
+  }
+
+  SDL_Rect src = {
+      .x = 0,
+      .y = 0,
+      .w = monitor->info.config.wlpBounds.w,
+      .h = monitor->info.config.wlpBounds.h,
+  };
+
+  SDL_Rect dest = {
+      .x = monitor->info.config.wlpBounds.x,
+      .y = monitor->info.config.wlpBounds.y,
+      .w = monitor->info.config.wlpBounds.w,
+      .h = monitor->info.config.wlpBounds.h,
+  };
+
+  if (SDL_RenderCopy(monitor->renderer, monitor->wlp.tex, &src, &dest) != 0)
+  {
+    lwpLog(LOG_ERROR, "Error rendering copy: %s", SDL_GetError());
+    monitor->aborted = 1;
+  }
+
+  SDL_SetRenderTarget(monitor->renderer, NULL);
+
+  if (SDL_RenderCopy(monitor->renderer, monitor->tex, NULL, NULL) != 0)
+  {
+    lwpLog(LOG_ERROR, "Error rendering copy: %s", SDL_GetError());
+    monitor->aborted = 1;
+  }
+
+  SDL_RenderPresent(monitor->renderer);
+  SDL_Delay(1000 / app->config.targetFps);
+}
+
+static void getInput(int *quit)
+{
   SDL_Event event;
 
-  int mx = 0;
-  int my = 0;
+  while (SDL_PollEvent(&event))
+    if (event.type == SDL_QUIT) (*quit) = 1;
+}
 
+static void getTargetPoint(Point *p)
+{
+#ifdef __WIN32
+  POINT mPos;
+  GetCursorPos(&mPos);
+  p->x = mPos.x - GetSystemMetrics(SM_XVIRTUALSCREEN);
+  p->y = mPos.y - GetSystemMetrics(SM_YVIRTUALSCREEN);
+#else
+  int x, y;
+  SDL_GetGlobalMouseState(&x, &y);
+  p->x = x;
+  p->y = y;
+#endif
+}
+
+static void lerpTargetPoint(Point *p, Point *target, float dT)
+{
+  p->x = lerp(p->x, target->x, dT * 4);  // 4: smooth
+  p->y = lerp(p->y, target->y, dT * 4);
+}
+
+void runWallpaperLoop(App *app)
+{
+  Point targetPoint;
+  Point point;
+
+  int quit = 0;
   while (!quit)
   {
-    static int currentX = 0;
-    static int currentY = 0;
-
     static int lastTicks = 0;
 
     int   ticks = SDL_GetTicks();
     float dT    = (ticks - lastTicks) / 1000.0f;
     lastTicks   = ticks;
 
-#ifdef __WIN32
-    POINT mPos;
-    GetCursorPos(&mPos);
-    mx = mPos.x - GetSystemMetrics(SM_XVIRTUALSCREEN);
-    my = mPos.y - GetSystemMetrics(SM_YVIRTUALSCREEN);
-#else
-    SDL_GetGlobalMouseState(&mx, &my);
-#endif
+    getInput(&quit);
 
-    while (SDL_PollEvent(&event))
-      if (event.type == SDL_QUIT) quit = 1;
-
-    currentX = lerp(currentX, mx, dT * 4);  // 4: smooth
-    currentY = lerp(currentY, my, dT * 4);
+    getTargetPoint(&targetPoint);
+    lerpTargetPoint(&point, &targetPoint, dT);
 
     for (int m = 0; m < app->monitorsCount; m++)
-    {
-      if (!app->monitors[m].info.config.loaded || !app->monitors[m].wlp.info.config.loaded)
-        continue;
-
-      int relativeCurrentX = currentX - app->monitors[m].info.bounds.x;
-      int relativeCurrentY = currentY - app->monitors[m].info.bounds.y;
-
-      if (relativeCurrentX < 0) relativeCurrentX = 0;
-      if (relativeCurrentY < 0) relativeCurrentY = 0;
-      if (relativeCurrentX > app->monitors[m].info.bounds.w)
-        relativeCurrentX = app->monitors[m].info.bounds.w;
-      if (relativeCurrentY > app->monitors[m].info.bounds.h)
-        relativeCurrentY = app->monitors[m].info.bounds.h;
-
-      if (SDL_SetRenderTarget(app->renderer, app->monitors[m].wlp.tex) != 0)
-      {
-        lwpLog(LOG_ERROR, "Error setting the renderer target: %s", SDL_GetError());
-        quit = 1;
-      }
-      SDL_RenderClear(app->renderer);
-
-      for (int i = 0; i < app->monitors[m].wlp.info.config.layersCount; i++)
-      {
-        SDL_Rect src = {
-            .x = 0,
-            .y = 0,
-            .w = app->monitors[m].wlp.originalW,
-            .h = app->monitors[m].wlp.originalH,
-        };
-
-        int x =
-            -((relativeCurrentX - app->monitors[m].info.bounds.w / 2) *
-              app->monitors[m].wlp.info.config.layerConfigs[i].sensitivityX);
-        int y =
-            -((relativeCurrentY - app->monitors[m].info.bounds.h / 2) *
-              app->monitors[m].wlp.info.config.layerConfigs[i].sensitivityY);
-
-        for (int k = -app->monitors[m].wlp.info.config.repeatY;
-             k <= app->monitors[m].wlp.info.config.repeatY;
-             k++)
-        {
-          for (int j = -app->monitors[m].wlp.info.config.repeatX;
-               j <= app->monitors[m].wlp.info.config.repeatX;
-               j++)
-          {
-            SDL_Rect dest = {
-                .x = x + j * app->monitors[m].info.config.wlpBounds.w,
-                .y = y + k * app->monitors[m].info.config.wlpBounds.h,
-                .w = app->monitors[m].info.config.wlpBounds.w,
-                .h = app->monitors[m].info.config.wlpBounds.h,
-            };
-
-            if (SDL_RenderCopy(app->renderer, app->monitors[m].wlp.layers[i].tex, &src, &dest) != 0)
-            {
-              lwpLog(LOG_ERROR, "Error rendering copy: %s", SDL_GetError());
-              quit = 1;
-            }
-          }
-        }
-      }
-
-      if (SDL_SetRenderTarget(app->renderer, app->monitors[m].tex) != 0)
-      {
-        lwpLog(LOG_ERROR, "Error setting the renderer target: %s", SDL_GetError());
-        quit = 1;
-      }
-
-      SDL_Rect src = {
-          .x = 0,
-          .y = 0,
-          .w = app->monitors[m].info.config.wlpBounds.w,
-          .h = app->monitors[m].info.config.wlpBounds.h,
-      };
-
-      SDL_Rect dest = {
-          .x = app->monitors[m].info.config.wlpBounds.x,
-          .y = app->monitors[m].info.config.wlpBounds.y,
-          .w = app->monitors[m].info.config.wlpBounds.w,
-          .h = app->monitors[m].info.config.wlpBounds.h,
-      };
-
-      if (SDL_RenderCopy(app->renderer, app->monitors[m].wlp.tex, &src, &dest) != 0)
-      {
-        lwpLog(LOG_ERROR, "Error rendering copy: %s", SDL_GetError());
-        quit = 1;
-      }
-
-      SDL_SetRenderTarget(app->renderer, NULL);
-
-      SDL_Rect finalSrc = {
-          .x = 0,
-          .y = 0,
-          .w = app->monitors[m].info.bounds.w,
-          .h = app->monitors[m].info.bounds.h,
-      };
-
-      SDL_Rect finalDest = {
-          .x = app->monitors[m].info.bounds.x,
-          .y = app->monitors[m].info.bounds.y,
-          .w = app->monitors[m].info.bounds.w,
-          .h = app->monitors[m].info.bounds.h,
-      };
-
-      if (SDL_RenderCopy(app->renderer, app->monitors[m].tex, &finalSrc, &finalDest) != 0)
-      {
-        lwpLog(LOG_ERROR, "Error rendering copy: %s", SDL_GetError());
-        quit = 1;
-      }
-    }
-    SDL_RenderPresent(app->renderer);
-    SDL_Delay(1000 / app->config.targetFps);
+      if (!app->monitors[m].aborted)
+        renderMonitor(app, app->monitors + m, &point);
   }
 }
