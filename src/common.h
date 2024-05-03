@@ -64,6 +64,7 @@ typedef struct
 {
   int  targetFps;
   char renderQuality[8];
+  int  unfocusedComeback;
 } AppConfig;
 
 //

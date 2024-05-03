@@ -173,10 +173,16 @@ G_MODULE_EXPORT void SettingsWindowShow()
   char targetFpsStr[4];
   sprintf(targetFpsStr, "%d", ac.targetFps);
 
+  char unfocusedComebackStr[2];
+  sprintf(unfocusedComebackStr, "%d", ac.unfocusedComeback);
+
   gtk_combo_box_set_active_id(
       GTK_COMBO_BOX(renderQualityComboBox), ac.renderQuality
   );
   gtk_combo_box_set_active_id(GTK_COMBO_BOX(targetFpsComboBox), targetFpsStr);
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(unfocusedComebackComboBox), unfocusedComebackStr
+  );
 }
 
 G_MODULE_EXPORT void SettingsWindowClose()
@@ -193,6 +199,10 @@ G_MODULE_EXPORT void SettingsWindow_ApplyBtnClick()
   );
   ac.targetFps =
       atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(targetFpsComboBox)));
+
+  ac.unfocusedComeback =
+      atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(unfocusedComebackComboBox))
+      );
 
   saveAppConfig(&ac);
 

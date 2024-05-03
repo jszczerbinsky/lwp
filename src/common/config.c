@@ -91,6 +91,7 @@ static void useDefaultAppCfg(AppConfig *ac)
 {
   ac->targetFps = 60;
   strcpy(ac->renderQuality, "best");
+  ac->unfocusedComeback = 1;
 }
 
 void saveAppConfig(AppConfig *ac)
@@ -105,6 +106,8 @@ void saveAppConfig(AppConfig *ac)
   config_setting_set_int(setting, ac->targetFps);
   setting = config_setting_add(root, "render_quality", CONFIG_TYPE_STRING);
   config_setting_set_string(setting, ac->renderQuality);
+  setting = config_setting_add(root, "unfocused_comeback", CONFIG_TYPE_INT);
+  config_setting_set_int(setting, ac->unfocusedComeback);
 
   char path[PATH_MAX];
   getAppCfgPath(path);
@@ -134,12 +137,23 @@ int loadAppConfig(AppConfig *ac)
   }
   root = config_root_setting(&cfg);
 
-  setting       = config_setting_get_member(root, "target_fps");
-  ac->targetFps = config_setting_get_int(setting);
-  setting       = config_setting_get_member(root, "render_quality");
-  strcpy(ac->renderQuality, config_setting_get_string(setting));
+  setting = config_setting_get_member(root, "target_fps");
+  if (setting == NULL)
+    ac->targetFps = 60;
+  else
+    ac->targetFps = config_setting_get_int(setting);
 
-  config_destroy(&cfg);
+  setting = config_setting_get_member(root, "render_quality");
+  if (setting == NULL)
+    strcpy(ac->renderQuality, "best");
+  else
+    strcpy(ac->renderQuality, config_setting_get_string(setting));
+
+  setting = config_setting_get_member(root, "unfocused_comeback");
+  if (setting == NULL)
+    ac->unfocusedComeback = 1;
+  else
+    ac->unfocusedComeback = config_setting_get_int(setting);
 
   return 1;
 }

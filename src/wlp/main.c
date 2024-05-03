@@ -21,7 +21,7 @@ static void atExit()
 
     m++;
   }
-  
+
   free(app.monitors);
 
   SDL_Quit();
@@ -33,7 +33,9 @@ void exitSignalHandler(int s)
   exit(0);
 }
 
-void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpapersCount)
+void initWallpaper(
+    App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpapersCount
+)
 {
   MonitorInfo *mi = &m->info;
 
@@ -54,7 +56,9 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
         Wallpaper *wallpaper = &m->wlp;
 
         lwpLog(LOG_INFO, "Initializing wallpaper %s...", wallpaper->info.name);
-        lwpLog(LOG_INFO, "Layers count: %d", wallpaper->info.config.layersCount);
+        lwpLog(
+            LOG_INFO, "Layers count: %d", wallpaper->info.config.layersCount
+        );
         lwpLog(
             LOG_INFO,
             "Repeat X Y: %d %d",
@@ -70,10 +74,15 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
             mi->clientBounds.h
         );
         if (m->tex == NULL)
-          lwpLog(LOG_ERROR, "Failed creating a texture for the monitor: %s", SDL_GetError());
+          lwpLog(
+              LOG_ERROR,
+              "Failed creating a texture for the monitor: %s",
+              SDL_GetError()
+          );
 
-        wallpaper->layers = malloc(sizeof(Layer) * wallpaper->info.config.layersCount);
-        wallpaper->tex    = SDL_CreateTexture(
+        wallpaper->layers =
+            malloc(sizeof(Layer) * wallpaper->info.config.layersCount);
+        wallpaper->tex = SDL_CreateTexture(
             m->renderer,
             SDL_PIXELFORMAT_ARGB8888,
             SDL_TEXTUREACCESS_TARGET,
@@ -81,7 +90,11 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
             mi->config.wlpBounds.h
         );
         if (wallpaper->tex == NULL)
-          lwpLog(LOG_ERROR, "Failed creating a texture for the monitor: %s", SDL_GetError());
+          lwpLog(
+              LOG_ERROR,
+              "Failed creating a texture for the monitor: %s",
+              SDL_GetError()
+          );
 
         for (int l = 0; l < wallpaper->info.config.layersCount; l++)
         {
@@ -97,9 +110,15 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
             wallpaper->originalH = surf->h;
           }
 
-          wallpaper->layers[l].tex = SDL_CreateTextureFromSurface(m->renderer, surf);
+          wallpaper->layers[l].tex =
+              SDL_CreateTextureFromSurface(m->renderer, surf);
           if (wallpaper->tex == NULL)
-            lwpLog(LOG_ERROR, "Failed creating a texture for the layer %d: %s", l, SDL_GetError());
+            lwpLog(
+                LOG_ERROR,
+                "Failed creating a texture for the layer %d: %s",
+                l,
+                SDL_GetError()
+            );
 
           SDL_FreeSurface(surf);
         }
@@ -109,7 +128,8 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
       break;
     }
   }
-  if (!foundWlp) lwpLog(LOG_WARNING, "Couldn't find the wallpaper. Ignoring...");
+  if (!foundWlp)
+    lwpLog(LOG_WARNING, "Couldn't find the wallpaper. Ignoring...");
 }
 
 int initMonitors(App *app)
@@ -129,16 +149,28 @@ int initMonitors(App *app)
 
     MonitorInfo *mi = &app->monitors[i].info;
 
+    app->monitors[i].currentPoint.x = 0;
+    app->monitors[i].currentPoint.y = 0;
+
     if (!loadMonitorConfig(mi->name, &mi->config))
     {
-      lwpLog(LOG_WARNING, "Couldn't find config file for monitor %s. Ignoring...", mi->name);
+      lwpLog(
+          LOG_WARNING,
+          "Couldn't find config file for monitor %s. Ignoring...",
+          mi->name
+      );
     }
     else
     {
       lwpLog(LOG_INFO, "Initializing monitor %d...", i);
       lwpLog(LOG_INFO, "Wallpaper: %s", mi->config.wlpName);
       lwpLog(
-          LOG_INFO, "Bounds: %d %d %dx%d", mi->clientBounds.x, mi->clientBounds.y, mi->clientBounds.w, mi->clientBounds.h
+          LOG_INFO,
+          "Bounds: %d %d %dx%d",
+          mi->clientBounds.x,
+          mi->clientBounds.y,
+          mi->clientBounds.w,
+          mi->clientBounds.h
       );
       lwpLog(
           LOG_INFO,

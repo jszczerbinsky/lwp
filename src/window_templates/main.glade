@@ -625,7 +625,7 @@ Layered WallPaper</property>
           </packing>
         </child>
         <child>
-          <!-- n-columns=2 n-rows=2 -->
+          <!-- n-columns=2 n-rows=3 -->
           <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -688,6 +688,32 @@ Layered WallPaper</property>
               <packing>
                 <property name="left-attach">1</property>
                 <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Unfocused monitor behaviour</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="SettingsWindow_UnfocusedCombackComboBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <items>
+                  <item id="1" translatable="yes">Come back</item>
+                  <item id="0" translatable="yes">Clamp</item>
+                </items>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">2</property>
               </packing>
             </child>
           </object>

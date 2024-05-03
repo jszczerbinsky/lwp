@@ -5,22 +5,23 @@
 GtkApplication *app     = NULL;
 GtkBuilder     *builder = NULL;
 
-GtkWidget *mainWnd               = NULL;
-GtkWidget *exitDialog            = NULL;
-GtkWidget *wallpaperMgrWnd       = NULL;
-GtkWidget *monitorWnd            = NULL;
-GtkWidget *monitorListBox        = NULL;
-GtkWidget *wallpaperListBox      = NULL;
-GtkWidget *wallpaperComboBox     = NULL;
-GtkWidget *xPosSpinBtn           = NULL;
-GtkWidget *yPosSpinBtn           = NULL;
-GtkWidget *widthSpinBtn          = NULL;
-GtkWidget *heightSpinBtn         = NULL;
-GtkWidget *monitorNameLabel      = NULL;
-GtkWidget *versionLabel          = NULL;
-GtkWidget *appSettingsWnd        = NULL;
-GtkWidget *targetFpsComboBox     = NULL;
-GtkWidget *renderQualityComboBox = NULL;
+GtkWidget *mainWnd                   = NULL;
+GtkWidget *exitDialog                = NULL;
+GtkWidget *wallpaperMgrWnd           = NULL;
+GtkWidget *monitorWnd                = NULL;
+GtkWidget *monitorListBox            = NULL;
+GtkWidget *wallpaperListBox          = NULL;
+GtkWidget *wallpaperComboBox         = NULL;
+GtkWidget *xPosSpinBtn               = NULL;
+GtkWidget *yPosSpinBtn               = NULL;
+GtkWidget *widthSpinBtn              = NULL;
+GtkWidget *heightSpinBtn             = NULL;
+GtkWidget *monitorNameLabel          = NULL;
+GtkWidget *versionLabel              = NULL;
+GtkWidget *appSettingsWnd            = NULL;
+GtkWidget *targetFpsComboBox         = NULL;
+GtkWidget *renderQualityComboBox     = NULL;
+GtkWidget *unfocusedComebackComboBox = NULL;
 
 static void reloadMonitorListBox()
 {
@@ -155,6 +156,9 @@ static void activate(GtkApplication *app, gpointer userdata)
     );
     renderQualityComboBox = (GtkWidget *)gtk_builder_get_object(
         builder, "SettingsWindow_TexFilteringComboBox"
+    );
+    unfocusedComebackComboBox = (GtkWidget *)gtk_builder_get_object(
+        builder, "SettingsWindow_UnfocusedCombackComboBox"
     );
 
     gtk_window_set_application(GTK_WINDOW(mainWnd), GTK_APPLICATION(app));

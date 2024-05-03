@@ -29,6 +29,12 @@
 
 typedef struct
 {
+  float x;
+  float y;
+} Point;
+
+typedef struct
+{
   SDL_Texture *tex;
 } Layer;
 
@@ -43,26 +49,21 @@ typedef struct
 
 typedef struct
 {
-  MonitorInfo  info;
-  SDL_Texture *tex;
-  Wallpaper    wlp;
+  MonitorInfo   info;
+  SDL_Texture  *tex;
+  Wallpaper     wlp;
   SDL_Window   *window;
   SDL_Renderer *renderer;
-  int aborted;
+  Point         currentPoint;
+  int           aborted;
 } Monitor;
 
 typedef struct
 {
-  AppConfig     config;
-  int           monitorsCount;
-  Monitor      *monitors;
+  AppConfig config;
+  int       monitorsCount;
+  Monitor  *monitors;
 } App;
-
-typedef struct
-{
-  float x;
-  float y;
-} Point;
 
 void lwpLog(int type, const char *str, ...);
 

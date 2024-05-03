@@ -22,7 +22,7 @@ extern GtkWidget *monitorNameLabel;
 extern GtkWidget *appSettingsWnd;
 extern GtkWidget *targetFpsComboBox;
 extern GtkWidget *renderQualityComboBox;
-extern GtkWidget *drawOnRootWndComboBox;
+extern GtkWidget *unfocusedComebackComboBox;
 
 void runWlp();
 void killWlp();

@@ -15,23 +15,58 @@ static float clamp(float a, float min, float max)
   return a;
 }
 
+static void lerpTargetPoint(Point *p, Point *target, float dT)
+{
+  p->x = lerp(p->x, target->x, dT * 4);  // 4: smooth
+  p->y = lerp(p->y, target->y, dT * 4);
+}
+
 static void getRelativeTargetPoint(
-    Point *dest, Point *globalTargetPoint, Monitor *m
+    Point *dest, const Point *globalTargetPoint, const Monitor *m
 )
 {
   dest->x = globalTargetPoint->x - m->info.clientBounds.x;
   dest->y = globalTargetPoint->y - m->info.clientBounds.y;
-
-  dest->x = clamp(dest->x, 0, m->info.clientBounds.w);
-  dest->y = clamp(dest->y, 0, m->info.clientBounds.h);
 }
 
-static void renderMonitor(App *app, Monitor *monitor, Point *globalTargetPoint)
+static void clampTargetPoint(Point *p, Monitor *m)
+{
+  p->x = clamp(p->x, 0, m->info.clientBounds.w);
+  p->y = clamp(p->y, 0, m->info.clientBounds.h);
+}
+
+static void comeBackTargetPoint(Point *p, Monitor *m)
+{
+  if (p->x < 0 || p->x > m->info.clientBounds.w || p->y < 0 ||
+      p->y > m->info.clientBounds.h)
+  {
+    p->x = m->info.clientBounds.w / 2;
+    p->y = m->info.clientBounds.h / 2;
+  }
+}
+
+static float distanceSquared(const Point *p, const Point *q)
+{
+  return (p->x - q->x) * (p->x - q->x) + (p->y - q->y) * (p->y - q->y);
+}
+
+static void renderMonitor(
+    App *app, Monitor *monitor, const Point *globalTargetPoint, float dT
+)
 {
   if (!monitor->info.config.loaded || !monitor->wlp.info.config.loaded) return;
 
   Point targetPoint;
   getRelativeTargetPoint(&targetPoint, globalTargetPoint, monitor);
+
+  if (app->config.unfocusedComeback)
+    comeBackTargetPoint(&targetPoint, monitor);
+  else
+    clampTargetPoint(&targetPoint, monitor);
+
+  lerpTargetPoint(&monitor->currentPoint, &targetPoint, dT);
+
+  if (distanceSquared(&monitor->currentPoint, &targetPoint) < 1) return;
 
   if (SDL_SetRenderTarget(monitor->renderer, monitor->wlp.tex) != 0)
   {
@@ -51,10 +86,10 @@ static void renderMonitor(App *app, Monitor *monitor, Point *globalTargetPoint)
     };
 
     int x =
-        -((targetPoint.x - monitor->info.clientBounds.w / 2) *
+        -((monitor->currentPoint.x - monitor->info.clientBounds.w / 2) *
           monitor->wlp.info.config.layerConfigs[i].sensitivityX);
     int y =
-        -((targetPoint.y - monitor->info.clientBounds.h / 2) *
+        -((monitor->currentPoint.y - monitor->info.clientBounds.h / 2) *
           monitor->wlp.info.config.layerConfigs[i].sensitivityY);
 
     for (int k = -monitor->wlp.info.config.repeatY;
@@ -144,16 +179,9 @@ static void getTargetPoint(Point *p)
 #endif
 }
 
-static void lerpTargetPoint(Point *p, Point *target, float dT)
-{
-  p->x = lerp(p->x, target->x, dT * 4);  // 4: smooth
-  p->y = lerp(p->y, target->y, dT * 4);
-}
-
 void runWallpaperLoop(App *app)
 {
   Point targetPoint;
-  Point point;
 
   int quit = 0;
   while (!quit)
@@ -167,10 +195,9 @@ void runWallpaperLoop(App *app)
     getInput(&quit);
 
     getTargetPoint(&targetPoint);
-    lerpTargetPoint(&point, &targetPoint, dT);
 
     for (int m = 0; m < app->monitorsCount; m++)
       if (!app->monitors[m].aborted)
-        renderMonitor(app, app->monitors + m, &point);
+        renderMonitor(app, app->monitors + m, &targetPoint, dT);
   }
 }
