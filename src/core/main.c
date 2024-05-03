@@ -189,9 +189,16 @@ int main(int argc, char *argv[])
   initTrayIcon();
 #endif
 
+#if GLIB_CHECK_VERSION(2, 74, 0)
   app = gtk_application_new(
       "com.github.jszczerbinsky.lwp", G_APPLICATION_DEFAULT_FLAGS
   );
+#else
+  app = gtk_application_new(
+      "com.github.jszczerbinsky.lwp", G_APPLICATION_FLAGS_NONE
+  );
+#endif
+
   g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
   status = g_application_run(G_APPLICATION(app), argc, argv);
   g_object_unref(app);
