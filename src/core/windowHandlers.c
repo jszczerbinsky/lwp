@@ -176,12 +176,18 @@ G_MODULE_EXPORT void SettingsWindowShow()
   char unfocusedComebackStr[2];
   sprintf(unfocusedComebackStr, "%d", ac.unfocusedComeback);
 
+  char targetPointStr[2];
+  sprintf(targetPointStr, "%d", ac.wndTargetPoint);
+
   gtk_combo_box_set_active_id(
       GTK_COMBO_BOX(renderQualityComboBox), ac.renderQuality
   );
   gtk_combo_box_set_active_id(GTK_COMBO_BOX(targetFpsComboBox), targetFpsStr);
   gtk_combo_box_set_active_id(
       GTK_COMBO_BOX(unfocusedComebackComboBox), unfocusedComebackStr
+  );
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(targetPointComboBox), targetPointStr
   );
 }
 
@@ -203,6 +209,9 @@ G_MODULE_EXPORT void SettingsWindow_ApplyBtnClick()
   ac.unfocusedComeback =
       atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(unfocusedComebackComboBox))
       );
+
+  ac.wndTargetPoint =
+      atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(targetPointComboBox)));
 
   saveAppConfig(&ac);
 

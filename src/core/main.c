@@ -22,6 +22,7 @@ GtkWidget *appSettingsWnd            = NULL;
 GtkWidget *targetFpsComboBox         = NULL;
 GtkWidget *renderQualityComboBox     = NULL;
 GtkWidget *unfocusedComebackComboBox = NULL;
+GtkWidget *targetPointComboBox       = NULL;
 
 static void reloadMonitorListBox()
 {
@@ -159,6 +160,9 @@ static void activate(GtkApplication *app, gpointer userdata)
     );
     unfocusedComebackComboBox = (GtkWidget *)gtk_builder_get_object(
         builder, "SettingsWindow_UnfocusedCombackComboBox"
+    );
+    targetPointComboBox = (GtkWidget *)gtk_builder_get_object(
+        builder, "SettingsWindow_TargetPointComboBox"
     );
 
     gtk_window_set_application(GTK_WINDOW(mainWnd), GTK_APPLICATION(app));
