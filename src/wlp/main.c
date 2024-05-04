@@ -6,6 +6,10 @@ static App app;
 
 static void atExit()
 {
+#ifdef __LINUX
+  XCloseDisplay(app.display);
+#endif
+
   for (int i = 0; i < app.monitorsCount; i++)
   {
     Monitor *m = app.monitors + i;
@@ -226,6 +230,10 @@ int main(int argc, char *argv[])
   atexit(atExit);
 
   lwpLog(LOG_INFO, "Starting wallpaper loop");
+
+#ifdef __LINUX
+  app.display = XOpenDisplay(NULL);
+#endif
   runWallpaperLoop(&app);
 
   return 0;

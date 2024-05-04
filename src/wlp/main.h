@@ -27,16 +27,19 @@
 #define LOG_INFO    1
 #define LOG_WARNING 2
 
-typedef struct {
+typedef struct
+{
   float x;
   float y;
 } Point;
 
-typedef struct {
+typedef struct
+{
   SDL_Texture* tex;
 } Layer;
 
-typedef struct {
+typedef struct
+{
   WallpaperInfo info;
   int           originalW;
   int           originalH;
@@ -44,7 +47,8 @@ typedef struct {
   Layer*        layers;
 } Wallpaper;
 
-typedef struct {
+typedef struct
+{
   MonitorInfo   info;
   SDL_Texture*  tex;
   Wallpaper     wlp;
@@ -54,10 +58,16 @@ typedef struct {
   int           aborted;
 } Monitor;
 
-typedef struct {
+typedef struct
+{
   AppConfig config;
   int       monitorsCount;
   Monitor*  monitors;
+
+#ifdef __LINUX
+  Display* display;
+#endif
+
 } App;
 
 void lwpLog(int type, const char* str, ...);
@@ -67,4 +77,4 @@ void runWallpaperLoop(App* app);
 
 void getTargetPoint(App* app, Point* p);
 
-#endif // MAIN_H
+#endif  // MAIN_H
