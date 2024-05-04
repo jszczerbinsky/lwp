@@ -12,46 +12,40 @@
 
 #define DEFAULT_LINUX_PREFIX "/usr/local"
 
-typedef struct
-{
+typedef struct {
   int x;
   int y;
   int w;
   int h;
 } Bounds;
 
-typedef struct
-{
+typedef struct {
   float sensitivityX;
   float sensitivityY;
 } LayerConfig;
 
-typedef struct
-{
+typedef struct {
   int          loaded;
   int          repeatX;
   int          repeatY;
   int          layersCount;
-  LayerConfig *layerConfigs;
+  LayerConfig* layerConfigs;
 } WallpaperConfig;
 
-typedef struct
-{
+typedef struct {
   char            name[WALLPAPER_NAME_MAX];
   char            dirPath[PATH_MAX];
   int             isDefault;
   WallpaperConfig config;
 } WallpaperInfo;
 
-typedef struct
-{
+typedef struct {
   int    loaded;
   char   wlpName[WALLPAPER_NAME_MAX];
   Bounds wlpBounds;
 } MonitorConfig;
 
-typedef struct
-{
+typedef struct {
   char          displayName[MONITOR_NAME_MAX];
   char          name[MONITOR_NAME_MAX];
   Bounds        pixelBounds;
@@ -60,11 +54,11 @@ typedef struct
   MonitorConfig config;
 } MonitorInfo;
 
-typedef struct
-{
+typedef struct {
   int  targetFps;
   char renderQuality[8];
   int  unfocusedComeback;
+  int  wndTargetPoint;
 } AppConfig;
 
 //
@@ -75,12 +69,12 @@ typedef struct
 #define APP_DIR_SHARE         1
 #define APP_DIR_USER_SETTINGS 2
 
-void getAppDir(char *buff, int type);
+void getAppDir(char* buff, int type);
 
-void getMonitorCfgPath(char *buff, const char *name);
-void getWlpCfgPath(char *buff, const char *dirPath);
-void getAppCfgPath(char *buff);
-void getLogPath(char *buff);
+void getMonitorCfgPath(char* buff, const char* name);
+void getWlpCfgPath(char* buff, const char* dirPath);
+void getAppCfgPath(char* buff);
+void getLogPath(char* buff);
 
 void createUserDirs();
 
@@ -88,24 +82,24 @@ void createUserDirs();
 // monitorScanner.c
 //
 
-MonitorInfo *scanMonitors(int *count);
+MonitorInfo* scanMonitors(int* count);
 
 //
 // wallpaperScanner.c
 //
 
-WallpaperInfo *scanWallpapers(int *count);
+WallpaperInfo* scanWallpapers(int* count);
 
 //
 // config.c
 //
 
-void saveMonitorConfig(const char *name, MonitorConfig *mc);
-int  loadMonitorConfig(const char *name, MonitorConfig *mc);
+void saveMonitorConfig(const char* name, MonitorConfig* mc);
+int  loadMonitorConfig(const char* name, MonitorConfig* mc);
 
-int  loadAppConfig(AppConfig *ac);
-void saveAppConfig(AppConfig *ac);
+int  loadAppConfig(AppConfig* ac);
+void saveAppConfig(AppConfig* ac);
 
-int loadWallpaperConfig(const char *dirName, WallpaperConfig *wc);
+int loadWallpaperConfig(const char* dirName, WallpaperConfig* wc);
 
 #endif

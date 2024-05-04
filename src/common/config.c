@@ -7,8 +7,7 @@
 #define CONFIG_DEFAULT 0
 #define CONFIG_USER    1
 
-static void generateEmptyMonitorConfig(MonitorConfig *mc)
-{
+static void generateEmptyMonitorConfig(MonitorConfig* mc) {
   sprintf(mc->wlpName, "");
   mc->wlpBounds.x = 0;
   mc->wlpBounds.y = 0;
@@ -16,8 +15,7 @@ static void generateEmptyMonitorConfig(MonitorConfig *mc)
   mc->wlpBounds.h = 1080;
 }
 
-void saveMonitorConfig(const char *name, MonitorConfig *mc)
-{
+void saveMonitorConfig(const char* name, MonitorConfig* mc) {
   config_t          cfg;
   config_setting_t *root, *setting;
 
@@ -39,8 +37,7 @@ void saveMonitorConfig(const char *name, MonitorConfig *mc)
   char path[PATH_MAX];
   getMonitorCfgPath(path, name);
 
-  if (!config_write_file(&cfg, path))
-  {
+  if (!config_write_file(&cfg, path)) {
     fprintf(stderr, "Error while writing file.\n");
     config_destroy(&cfg);
   }
@@ -48,8 +45,7 @@ void saveMonitorConfig(const char *name, MonitorConfig *mc)
   config_destroy(&cfg);
 }
 
-int loadMonitorConfig(const char *name, MonitorConfig *mc)
-{
+int loadMonitorConfig(const char* name, MonitorConfig* mc) {
   mc->loaded = 0;
 
   config_t          cfg;
@@ -58,15 +54,15 @@ int loadMonitorConfig(const char *name, MonitorConfig *mc)
   char path[PATH_MAX];
   getMonitorCfgPath(path, name);
 
-  if (!g_file_test(path, G_FILE_TEST_IS_REGULAR | G_FILE_TEST_EXISTS))
-  {
+  if (!g_file_test(path, G_FILE_TEST_IS_REGULAR | G_FILE_TEST_EXISTS)) {
     generateEmptyMonitorConfig(mc);
     saveMonitorConfig(name, mc);
     return 1;
   }
 
   config_init(&cfg);
-  if (config_read_file(&cfg, path) == CONFIG_FALSE) return 0;
+  if (config_read_file(&cfg, path) == CONFIG_FALSE)
+    return 0;
   root = config_root_setting(&cfg);
 
   setting = config_setting_get_member(root, "wlpName");
@@ -87,15 +83,14 @@ int loadMonitorConfig(const char *name, MonitorConfig *mc)
   return 1;
 }
 
-static void useDefaultAppCfg(AppConfig *ac)
-{
+static void useDefaultAppCfg(AppConfig* ac) {
   ac->targetFps = 60;
   strcpy(ac->renderQuality, "best");
+  ac->wndTargetPoint    = 0;
   ac->unfocusedComeback = 1;
 }
 
-void saveAppConfig(AppConfig *ac)
-{
+void saveAppConfig(AppConfig* ac) {
   config_t          cfg;
   config_setting_t *root, *setting;
 
@@ -108,12 +103,13 @@ void saveAppConfig(AppConfig *ac)
   config_setting_set_string(setting, ac->renderQuality);
   setting = config_setting_add(root, "unfocused_comeback", CONFIG_TYPE_INT);
   config_setting_set_int(setting, ac->unfocusedComeback);
+  setting = config_setting_add(root, "wnd_target_point", CONFIG_TYPE_INT);
+  config_setting_set_int(setting, ac->wndTargetPoint);
 
   char path[PATH_MAX];
   getAppCfgPath(path);
 
-  if (!config_write_file(&cfg, path))
-  {
+  if (!config_write_file(&cfg, path)) {
     fprintf(stderr, "Error while writing file.\n");
     config_destroy(&cfg);
   }
@@ -121,8 +117,7 @@ void saveAppConfig(AppConfig *ac)
   config_destroy(&cfg);
 }
 
-int loadAppConfig(AppConfig *ac)
-{
+int loadAppConfig(AppConfig* ac) {
   config_t          cfg;
   config_setting_t *root, *setting;
 
@@ -130,8 +125,7 @@ int loadAppConfig(AppConfig *ac)
   getAppCfgPath(path);
 
   config_init(&cfg);
-  if (config_read_file(&cfg, path) == CONFIG_FALSE)
-  {
+  if (config_read_file(&cfg, path) == CONFIG_FALSE) {
     useDefaultAppCfg(ac);
     return 1;
   }
@@ -155,11 +149,16 @@ int loadAppConfig(AppConfig *ac)
   else
     ac->unfocusedComeback = config_setting_get_int(setting);
 
+  setting = config_setting_get_member(root, "wnd_target_point");
+  if (setting == NULL)
+    ac->wndTargetPoint = 0;
+  else
+    ac->wndTargetPoint = config_setting_get_int(setting);
+
   return 1;
 }
 
-int loadWallpaperConfig(const char *dirPath, WallpaperConfig *wc)
-{
+int loadWallpaperConfig(const char* dirPath, WallpaperConfig* wc) {
   wc->loaded = 0;
 
   config_t          cfg;
@@ -170,10 +169,10 @@ int loadWallpaperConfig(const char *dirPath, WallpaperConfig *wc)
   char path[PATH_MAX];
   getWlpCfgPath(path, dirPath);
 
-  if (config_read_file(&cfg, path) == CONFIG_FALSE)
-  {
+  if (config_read_file(&cfg, path) == CONFIG_FALSE) {
     getWlpCfgPath(path, dirPath);
-    if (config_read_file(&cfg, path) == CONFIG_FALSE) return 0;
+    if (config_read_file(&cfg, path) == CONFIG_FALSE)
+      return 0;
   }
   root = config_root_setting(&cfg);
 
@@ -191,9 +190,8 @@ int loadWallpaperConfig(const char *dirPath, WallpaperConfig *wc)
   setting    = config_setting_get_member(root, "movement_y");
   float movY = config_setting_get_float(setting);
 
-  for (int i = 0; i < wc->layersCount; i++)
-  {
-    LayerConfig *lc = wc->layerConfigs + i;
+  for (int i = 0; i < wc->layersCount; i++) {
+    LayerConfig* lc = wc->layerConfigs + i;
 
     lc->sensitivityX = movX * i;
     lc->sensitivityY = movY * i;

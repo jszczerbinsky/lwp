@@ -27,47 +27,44 @@
 #define LOG_INFO    1
 #define LOG_WARNING 2
 
-typedef struct
-{
+typedef struct {
   float x;
   float y;
 } Point;
 
-typedef struct
-{
-  SDL_Texture *tex;
+typedef struct {
+  SDL_Texture* tex;
 } Layer;
 
-typedef struct
-{
+typedef struct {
   WallpaperInfo info;
   int           originalW;
   int           originalH;
-  SDL_Texture  *tex;
-  Layer        *layers;
+  SDL_Texture*  tex;
+  Layer*        layers;
 } Wallpaper;
 
-typedef struct
-{
+typedef struct {
   MonitorInfo   info;
-  SDL_Texture  *tex;
+  SDL_Texture*  tex;
   Wallpaper     wlp;
-  SDL_Window   *window;
-  SDL_Renderer *renderer;
+  SDL_Window*   window;
+  SDL_Renderer* renderer;
   Point         currentPoint;
   int           aborted;
 } Monitor;
 
-typedef struct
-{
+typedef struct {
   AppConfig config;
   int       monitorsCount;
-  Monitor  *monitors;
+  Monitor*  monitors;
 } App;
 
-void lwpLog(int type, const char *str, ...);
+void lwpLog(int type, const char* str, ...);
 
-void initWindow(App *app, Monitor *monitor);
-void runWallpaperLoop(App *app);
+void initWindow(App* app, Monitor* monitor);
+void runWallpaperLoop(App* app);
 
-#endif  // MAIN_H
+void getTargetPoint(App* app, Point* p);
+
+#endif // MAIN_H
