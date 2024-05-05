@@ -1,7 +1,7 @@
 #include "main.h"
 
 // Exit Dialog handlers
-
+/*
 G_MODULE_EXPORT void ExitDialogClose()
 {
   gtk_widget_set_visible(exitDialog, 0);
@@ -13,10 +13,10 @@ G_MODULE_EXPORT void ExitDialog_Yes()
 {
   killWlp();
   g_application_quit(G_APPLICATION(app));
-}
+}*/
 
 // Main Window handlers
-
+/*
 G_MODULE_EXPORT void MainWindow_ManageWallpapersBtnClick()
 {
   GtkDialogFlags flags  = GTK_DIALOG_DESTROY_WITH_PARENT;
@@ -47,7 +47,6 @@ G_MODULE_EXPORT void MainWindow_AppSettingsBtnClick()
   gtk_widget_set_visible(appSettingsWnd, 1);
 }
 
-G_MODULE_EXPORT void MainWindowClose() { gtk_widget_set_visible(mainWnd, 0); }
 
 // Wallpapaer Manager Window handlers
 
@@ -203,4 +202,40 @@ G_MODULE_EXPORT void SettingsWindow_ApplyBtnClick()
 G_MODULE_EXPORT void SettingsWindow_ExitBtnClick()
 {
   gtk_widget_set_visible(appSettingsWnd, 0);
+}
+*/
+G_MODULE_EXPORT void MainWindowShow()
+{
+  gtk_list_box_select_row(
+      GTK_LIST_BOX(controls[CONTROL_SIDEBAR].widget),
+      gtk_list_box_get_row_at_index(
+          GTK_LIST_BOX(controls[CONTROL_SIDEBAR].widget), 0
+      )
+  );
+
+  gtk_list_box_select_row(
+      GTK_LIST_BOX(controls[CONTROL_MON_LIST].widget),
+      gtk_list_box_get_row_at_index(
+          GTK_LIST_BOX(controls[CONTROL_MON_LIST].widget), 0
+      )
+  );
+}
+
+G_MODULE_EXPORT void MainWindowClose()
+{
+  gtk_widget_set_visible(controls[CONTROL_MAIN_WND].widget, 0);
+}
+
+G_MODULE_EXPORT void SidebarSelect(
+    GtkListBox *listbox, GtkListBoxRow *row, gpointer userData
+)
+{
+  int page = gtk_list_box_row_get_index(row);
+
+  char childName[6];
+  sprintf(childName, "page%d", page);
+
+  gtk_stack_set_visible_child_name(
+      GTK_STACK(controls[CONTROL_MAIN_STACK].widget), childName
+  );
 }
