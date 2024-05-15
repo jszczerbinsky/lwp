@@ -3,7 +3,7 @@ set(_SOURCE_FILES
 		../common/config.c
 		../common/wallpaperScanner.c
 		../common/monitorScanner.c
-    main.c
+    	main.c
 		windowHandlers.c
 		wlp.c
 		trayIcon.c

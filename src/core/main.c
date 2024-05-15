@@ -157,6 +157,7 @@ int main(int argc, char *argv[])
   createUserDirs();
 
 #ifdef __WIN32
+  SetEnvironmentVariable("GTK_THEME", "Adwaita:dark");
   initTrayIcon();
 #endif
 

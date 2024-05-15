@@ -1,7 +1,8 @@
 #ifdef __WIN32
-
+// clang-format off
 #include <windows.h>
 #include <shellapi.h>
+// clang-format on
 #include <tchar.h>
 
 #include "main.h"
@@ -12,11 +13,9 @@ static NOTIFYICONDATA nid;
 
 void removeTrayIcon() { Shell_NotifyIcon(NIM_DELETE, &nid); }
 
-int updateTrayIcon()
-{
+int updateTrayIcon() {
   MSG msg;
-  while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-  {
+  while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
@@ -24,21 +23,18 @@ int updateTrayIcon()
   return 1;
 }
 
-static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-  switch (uMsg)
-  {
-    case WM_TRAY_ICON:
-      if (lParam == WM_RBUTTONDOWN || lParam == WM_LBUTTONDOWN)
-      {
-        gtk_widget_set_visible(mainWnd, 1);
-      }
-      break;
+static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+                                LPARAM lParam) {
+  switch (uMsg) {
+  case WM_TRAY_ICON:
+    if (lParam == WM_RBUTTONDOWN || lParam == WM_LBUTTONDOWN) {
+      gtk_widget_set_visible(controls[CONTROL_MAIN_WND].widget, 1);
+    }
+    break;
   }
 }
 
-void initTrayIcon()
-{
+void initTrayIcon() {
   // Create an invisible window to process tray icon events
 
   HINSTANCE   hInstance    = GetModuleHandle(NULL);
@@ -49,20 +45,9 @@ void initTrayIcon()
   wc.hInstance     = hInstance;
   wc.lpszClassName = CLASS_NAME;
   RegisterClass(&wc);
-  HWND hWnd = CreateWindowEx(
-      0,
-      CLASS_NAME,
-      TEXT(""),
-      WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT,
-      CW_USEDEFAULT,
-      CW_USEDEFAULT,
-      CW_USEDEFAULT,
-      NULL,
-      NULL,
-      hInstance,
-      NULL
-  );
+  HWND hWnd = CreateWindowEx(0, CLASS_NAME, TEXT(""), WS_OVERLAPPEDWINDOW,
+                             CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                             CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 
   // Create tray icon
 
