@@ -41,22 +41,6 @@ static void reloadMonitorListBox()
 
   g_list_free(rows);
 
-  /*char iconPath[PATH_MAX];
-  getAppDir(iconPath, APP_DIR_SHARE);
-#ifdef __WIN32
-  const char *format = "%s\\%s\\%s\\%s";
-#else
-  const char *format = "%s/%s/%s/%s";
-#endif
-  sprintf(
-      iconPath,
-      format,
-      iconPath,
-      "window_templates",
-      "assets",
-      "screen-monitor-svgrepo-com.svg"
-  );*/
-
   int          monitorsCount;
   MonitorInfo *monitors;
 
@@ -103,7 +87,16 @@ static void reloadMonitorListBox()
     g_object_set_data(
         G_OBJECT(row), "monitor_display_name", (gpointer)displayNameBuff
     );
+
+    int *width  = (int *)malloc(sizeof(int));
+    int *height = (int *)malloc(sizeof(int));
+
+    *width  = monitors[i].pixelBounds.w;
+    *height = monitors[i].pixelBounds.h;
+
     g_object_set_data(G_OBJECT(row), "monitor_name", (gpointer)nameBuff);
+    g_object_set_data(G_OBJECT(row), "monitor_width", (gpointer)width);
+    g_object_set_data(G_OBJECT(row), "monitor_height", (gpointer)height);
 
     gtk_widget_show_all(row);
   }

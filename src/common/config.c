@@ -24,6 +24,9 @@ void saveMonitorConfig(const char *name, MonitorConfig *mc)
   config_init(&cfg);
   root = config_root_setting(&cfg);
 
+  setting = config_setting_add(root, "active", CONFIG_TYPE_INT);
+  config_setting_set_int(setting, mc->active);
+
   setting = config_setting_add(root, "wlpName", CONFIG_TYPE_STRING);
   config_setting_set_string(setting, mc->wlpName);
 
@@ -68,6 +71,12 @@ int loadMonitorConfig(const char *name, MonitorConfig *mc)
   config_init(&cfg);
   if (config_read_file(&cfg, path) == CONFIG_FALSE) return 0;
   root = config_root_setting(&cfg);
+
+  setting = config_setting_get_member(root, "active");
+  if (!setting)
+    mc->active = 1;
+  else
+    mc->active = config_setting_get_int(setting);
 
   setting = config_setting_get_member(root, "wlpName");
   strcpy(mc->wlpName, config_setting_get_string(setting));
@@ -138,6 +147,9 @@ int loadAppConfig(AppConfig *ac)
   ac->targetFps = config_setting_get_int(setting);
   setting       = config_setting_get_member(root, "render_quality");
   strcpy(ac->renderQuality, config_setting_get_string(setting));
+
+  setting = config_setting_get_member(root, "unfocused_behaviour");
+  if (!setting) ac->unfocusedBehaviour = 1;
 
   config_destroy(&cfg);
 

@@ -46,6 +46,7 @@ typedef struct
 typedef struct
 {
   int    loaded;
+  int    active;
   char   wlpName[WALLPAPER_NAME_MAX];
   Bounds wlpBounds;
 } MonitorConfig;
@@ -64,6 +65,8 @@ typedef struct
 {
   int  targetFps;
   char renderQuality[8];
+  int  unfocusedBehaviour;
+  int  targetPoint;
 } AppConfig;
 
 //

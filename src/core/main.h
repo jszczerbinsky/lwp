@@ -34,6 +34,8 @@ typedef struct
 
 extern Control controls[];
 
+#define WID(x) (controls[(x)].widget)
+
 void runWlp();
 void killWlp();
 
