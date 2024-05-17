@@ -1,10 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include "platform_guard.h"
+
 #ifdef __LINUX
 #include <linux/limits.h>
 #else
-#include <windows.h>
+#include <Windows.h>
+#include <shellscalingapi.h>
 #endif
 
 #define MONITOR_NAME_MAX   128

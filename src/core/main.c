@@ -1,7 +1,5 @@
 #include "main.h"
 
-#include "../platform_guard.h"
-
 GtkApplication *app     = NULL;
 GtkBuilder     *builder = NULL;
 

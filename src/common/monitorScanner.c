@@ -3,10 +3,7 @@
 
 #include "../common.h"
 
-#ifdef __WIN32
-#include <Windows.h>
-#include <shellscalingapi.h>
-#else
+#ifdef __LINUX
 #include <X11/Xlib.h>
 #include <X11/extensions/Xrandr.h>
 #include <string.h>

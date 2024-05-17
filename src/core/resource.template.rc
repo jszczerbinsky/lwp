@@ -3,7 +3,7 @@
 
 #define PROGRAM_VER "@PROGRAM_VERSION@"
 
-id ICON "..\..\icon.ico"
+id ICON "../../icon.ico"
 
 VS_VERSION_INFO VERSIONINFO
 FILEOS                  VOS_NT

@@ -1,7 +1,5 @@
 #include "main.h"
 
-#include "../platform_guard.h"
-
 static App app;
 
 static void atExit()

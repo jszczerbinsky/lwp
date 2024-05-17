@@ -1,11 +1,8 @@
 #ifdef __WIN32
-// clang-format off
-#include <windows.h>
-#include <shellapi.h>
-// clang-format on
-#include <tchar.h>
 
 #include "main.h"
+
+#include <tchar.h>
 
 #define WM_TRAY_ICON (WM_USER + 1)
 

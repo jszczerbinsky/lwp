@@ -1,6 +1,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include "../platform_guard.h"
+
 #include <gtk/gtk.h>
 
 #include "../common.h"

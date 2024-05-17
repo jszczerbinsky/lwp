@@ -1,6 +1,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include "../platform_guard.h"
+
 #ifdef _MSC_VER
 #define PATH_MAX MAX_PATH
 #include <SDL.h>

@@ -48,9 +48,9 @@ void initWindow(App *app, Monitor *monitor)
 
   HWND progman = FindWindow("Progman", NULL);
   iconWorkerw  = progman;
-  SendMessageTimeout(progman, 0x052C, NULL, NULL, SMTO_NORMAL, 1000, NULL);
+  SendMessageTimeout(progman, 0x052C, 0, 0, SMTO_NORMAL, 1000, NULL);
   if (!FindWindowEx(progman, NULL, "SHELLDLL_DefView", NULL))
-    EnumWindows(getIconWorkerw, NULL);
+    EnumWindows(getIconWorkerw, 0);
 
   HWND wallpaperWorkerw = GetWindow(iconWorkerw, GW_HWNDNEXT);
   SetParent(hWindow, wallpaperWorkerw);
