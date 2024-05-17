@@ -181,11 +181,27 @@ G_MODULE_EXPORT void SettingsWindowShow()
   char targetFpsStr[4];
   sprintf(targetFpsStr, "%d", ac.targetFps);
 
+  char unfocusedComebackStr[2];
+  sprintf(unfocusedComebackStr, "%d", ac.unfocusedComeback);
+
+  char targetPointStr[2];
+  sprintf(targetPointStr, "%d", ac.wndTargetPoint);
+
   gtk_combo_box_set_active_id(
       GTK_COMBO_BOX(renderQualityComboBox), ac.renderQuality
   );
+<<<<<<< HEAD
   gtk_combo_box_set_active_id(GTK_COMBO_BOX(targetFpsComboBox),
 targetFpsStr);
+=======
+  gtk_combo_box_set_active_id(GTK_COMBO_BOX(targetFpsComboBox), targetFpsStr);
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(unfocusedComebackComboBox), unfocusedComebackStr
+  );
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(targetPointComboBox), targetPointStr
+  );
+>>>>>>> enhanced-target-point
 }
 
 G_MODULE_EXPORT void SettingsWindowClose()
@@ -202,6 +218,13 @@ G_MODULE_EXPORT void SettingsWindow_ApplyBtnClick()
   );
   ac.targetFps =
       atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(targetFpsComboBox)));
+
+  ac.unfocusedComeback =
+      atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(unfocusedComebackComboBox))
+      );
+
+  ac.wndTargetPoint =
+      atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(targetPointComboBox)));
 
   saveAppConfig(&ac);
 
@@ -267,20 +290,22 @@ static void reloadAppSettings()
   sprintf(targetFpsStr, "%d", ac.targetFps);
 
   char unfocusedBehaviourStr[10];
-  sprintf(
-      unfocusedBehaviourStr, "%s", ac.unfocusedBehaviour ? "Come back" : "Clamp"
-  );
+  sprintf(unfocusedBehaviourStr, "%d", ac.unfocusedComeback);
 
   char targetPointStr[15];
-  sprintf(
-      unfocusedBehaviourStr, "%s", ac.targetPoint ? "Focused window" : "Mouse"
-  );
+  sprintf(targetPointStr, "%d", ac.wndTargetPoint);
 
   gtk_combo_box_set_active_id(
       GTK_COMBO_BOX(WID(CONTROL_APP_TEX_FILTERING)), ac.renderQuality
   );
   gtk_combo_box_set_active_id(
       GTK_COMBO_BOX(WID(CONTROL_APP_TARGET_FPS)), targetFpsStr
+  );
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(WID(CONTROL_APP_UNFOCUSED_BEHAVIOUR)), unfocusedBehaviourStr
+  );
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(WID(CONTROL_APP_TARGET_POINT)), targetPointStr
   );
 }
 
@@ -347,6 +372,12 @@ static void saveApp()
   );
   ac.targetFps = atoi(
       gtk_combo_box_get_active_id(GTK_COMBO_BOX(WID(CONTROL_APP_TARGET_FPS)))
+  );
+  ac.unfocusedComeback = atoi(gtk_combo_box_get_active_id(
+      GTK_COMBO_BOX(WID(CONTROL_APP_UNFOCUSED_BEHAVIOUR))
+  ));
+  ac.wndTargetPoint    = atoi(
+      gtk_combo_box_get_active_id(GTK_COMBO_BOX(WID(CONTROL_APP_TARGET_POINT)))
   );
 
   saveAppConfig(&ac);

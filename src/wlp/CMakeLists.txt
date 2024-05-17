@@ -9,6 +9,7 @@ set(_SOURCE_FILES
 		../common/wallpaperScanner.c
     main.c
 		debug.c
+    targetPoint.c
     render.c
     window.c
 	)

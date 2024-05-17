@@ -29,7 +29,13 @@
 
 typedef struct
 {
-  SDL_Texture *tex;
+  float x;
+  float y;
+} Point;
+
+typedef struct
+{
+  SDL_Texture* tex;
 } Layer;
 
 typedef struct
@@ -37,36 +43,38 @@ typedef struct
   WallpaperInfo info;
   int           originalW;
   int           originalH;
-  SDL_Texture  *tex;
-  Layer        *layers;
+  SDL_Texture*  tex;
+  Layer*        layers;
 } Wallpaper;
 
 typedef struct
 {
-  MonitorInfo  info;
-  SDL_Texture *tex;
-  Wallpaper    wlp;
-  SDL_Window   *window;
-  SDL_Renderer *renderer;
-  int aborted;
+  MonitorInfo   info;
+  SDL_Texture*  tex;
+  Wallpaper     wlp;
+  SDL_Window*   window;
+  SDL_Renderer* renderer;
+  Point         currentPoint;
+  int           aborted;
 } Monitor;
 
 typedef struct
 {
-  AppConfig     config;
-  int           monitorsCount;
-  Monitor      *monitors;
+  AppConfig config;
+  int       monitorsCount;
+  Monitor*  monitors;
+
+#ifdef __LINUX
+  Display* display;
+#endif
+
 } App;
 
-typedef struct
-{
-  float x;
-  float y;
-} Point;
+void lwpLog(int type, const char* str, ...);
 
-void lwpLog(int type, const char *str, ...);
+void initWindow(App* app, Monitor* monitor);
+void runWallpaperLoop(App* app);
 
-void initWindow(App *app, Monitor *monitor);
-void runWallpaperLoop(App *app);
+void getTargetPoint(App* app, Point* p);
 
 #endif  // MAIN_H
