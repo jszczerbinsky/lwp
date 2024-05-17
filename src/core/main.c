@@ -1,5 +1,7 @@
 #include "main.h"
 
+HANDLE hJob = NULL;
+
 GtkApplication *app     = NULL;
 GtkBuilder     *builder = NULL;
 
@@ -150,6 +152,8 @@ int main(int argc, char *argv[])
   createUserDirs();
 
 #ifdef __WIN32
+  hJob = CreateJobObject(NULL, NULL);
+  AssignProcessToJobObject(hJob, GetCurrentProcess());
   SetEnvironmentVariable("GTK_THEME", "Adwaita:dark");
   initTrayIcon();
 #endif

@@ -7,6 +7,8 @@
 
 #include "../common.h"
 
+extern HANDLE hJob;
+
 extern GtkApplication *app;
 
 #define CONTROL_MAIN_WND                0
