@@ -3,7 +3,7 @@
 
 #define PROGRAM_VER "@PROGRAM_VERSION@"
 
-id ICON "..\..\icon.ico"
+id ICON "../../icon.ico"
 
 VS_VERSION_INFO VERSIONINFO
 FILEOS                  VOS_NT
@@ -19,7 +19,7 @@ BEGIN
 			VALUE "FileVersion",      PROGRAM_VER
 			VALUE "InternalName",     "Layered WallPaper"
 			VALUE "LegalCopyright",   "(c) 2022 Jakub Szczerbiński"
-			VALUE "OriginalFilename", "lwpwlp.exe"
+			VALUE "OriginalFilename", "lwp.exe"
 			VALUE "ProductName",      "Layered WallPaper"
 			VALUE "ProductVersion",	  PROGRAM_VER
     END

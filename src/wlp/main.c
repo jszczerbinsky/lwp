@@ -1,11 +1,13 @@
 #include "main.h"
 
-#include "../platform_guard.h"
-
 static App app;
 
 static void atExit()
 {
+#ifdef __LINUX
+  XCloseDisplay(app.display);
+#endif
+
   for (int i = 0; i < app.monitorsCount; i++)
   {
     Monitor *m = app.monitors + i;
@@ -21,7 +23,7 @@ static void atExit()
 
     m++;
   }
-  
+
   free(app.monitors);
 
   SDL_Quit();
@@ -29,11 +31,13 @@ static void atExit()
 
 void exitSignalHandler(int s)
 {
-  lwpLog(LOG_INFO, "Terminating...");
+  printlog(LOG_INFO, "Terminating...");
   exit(0);
 }
 
-void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpapersCount)
+void initWallpaper(
+    App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpapersCount
+)
 {
   MonitorInfo *mi = &m->info;
 
@@ -47,15 +51,19 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
 
       if (!loadWallpaperConfig(m->wlp.info.dirPath, &m->wlp.info.config))
       {
-        lwpLog(LOG_WARNING, "Could not load the wallpaper config");
+        printlog(LOG_WARNING, "Could not load the wallpaper config");
       }
       else
       {
         Wallpaper *wallpaper = &m->wlp;
 
-        lwpLog(LOG_INFO, "Initializing wallpaper %s...", wallpaper->info.name);
-        lwpLog(LOG_INFO, "Layers count: %d", wallpaper->info.config.layersCount);
-        lwpLog(
+        printlog(
+            LOG_INFO, "Initializing wallpaper %s...", wallpaper->info.name
+        );
+        printlog(
+            LOG_INFO, "Layers count: %d", wallpaper->info.config.layersCount
+        );
+        printlog(
             LOG_INFO,
             "Repeat X Y: %d %d",
             wallpaper->info.config.repeatX,
@@ -70,10 +78,15 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
             mi->clientBounds.h
         );
         if (m->tex == NULL)
-          lwpLog(LOG_ERROR, "Failed creating a texture for the monitor: %s", SDL_GetError());
+          printlog(
+              LOG_ERROR,
+              "Failed creating a texture for the monitor: %s",
+              SDL_GetError()
+          );
 
-        wallpaper->layers = malloc(sizeof(Layer) * wallpaper->info.config.layersCount);
-        wallpaper->tex    = SDL_CreateTexture(
+        wallpaper->layers =
+            malloc(sizeof(Layer) * wallpaper->info.config.layersCount);
+        wallpaper->tex = SDL_CreateTexture(
             m->renderer,
             SDL_PIXELFORMAT_ARGB8888,
             SDL_TEXTUREACCESS_TARGET,
@@ -81,7 +94,11 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
             mi->config.wlpBounds.h
         );
         if (wallpaper->tex == NULL)
-          lwpLog(LOG_ERROR, "Failed creating a texture for the monitor: %s", SDL_GetError());
+          printlog(
+              LOG_ERROR,
+              "Failed creating a texture for the monitor: %s",
+              SDL_GetError()
+          );
 
         for (int l = 0; l < wallpaper->info.config.layersCount; l++)
         {
@@ -89,7 +106,7 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
           snprintf(path, PATH_MAX, "%s/%d.bmp", wallpaper->info.dirPath, l + 1);
 
           SDL_Surface *surf = SDL_LoadBMP(path);
-          if (!surf) lwpLog(LOG_ERROR, "File %s not found", path);
+          if (!surf) printlog(LOG_ERROR, "File %s not found", path);
 
           if (l == 0)
           {
@@ -97,9 +114,15 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
             wallpaper->originalH = surf->h;
           }
 
-          wallpaper->layers[l].tex = SDL_CreateTextureFromSurface(m->renderer, surf);
+          wallpaper->layers[l].tex =
+              SDL_CreateTextureFromSurface(m->renderer, surf);
           if (wallpaper->tex == NULL)
-            lwpLog(LOG_ERROR, "Failed creating a texture for the layer %d: %s", l, SDL_GetError());
+            printlog(
+                LOG_ERROR,
+                "Failed creating a texture for the layer %d: %s",
+                l,
+                SDL_GetError()
+            );
 
           SDL_FreeSurface(surf);
         }
@@ -109,7 +132,8 @@ void initWallpaper(App *app, Monitor *m, WallpaperInfo *wallpapers, int wallpape
       break;
     }
   }
-  if (!foundWlp) lwpLog(LOG_WARNING, "Couldn't find the wallpaper. Ignoring...");
+  if (!foundWlp)
+    printlog(LOG_WARNING, "Couldn't find the wallpaper. Ignoring...");
 }
 
 int initMonitors(App *app)
@@ -120,7 +144,7 @@ int initMonitors(App *app)
   int            wallpapersCount;
   WallpaperInfo *wallpapers = scanWallpapers(&wallpapersCount);
 
-  lwpLog(LOG_INFO, "Scanner found %d monitor(s)", app->monitorsCount);
+  printlog(LOG_INFO, "Scanner found %d monitor(s)", app->monitorsCount);
 
   for (int i = 0; i < app->monitorsCount; i++)
   {
@@ -129,18 +153,30 @@ int initMonitors(App *app)
 
     MonitorInfo *mi = &app->monitors[i].info;
 
+    app->monitors[i].currentPoint.x = 0;
+    app->monitors[i].currentPoint.y = 0;
+
     if (!loadMonitorConfig(mi->name, &mi->config))
     {
-      lwpLog(LOG_WARNING, "Couldn't find config file for monitor %s. Ignoring...", mi->name);
+      printlog(
+          LOG_WARNING,
+          "Couldn't find config file for monitor %s. Ignoring...",
+          mi->name
+      );
     }
     else
     {
-      lwpLog(LOG_INFO, "Initializing monitor %d...", i);
-      lwpLog(LOG_INFO, "Wallpaper: %s", mi->config.wlpName);
-      lwpLog(
-          LOG_INFO, "Bounds: %d %d %dx%d", mi->clientBounds.x, mi->clientBounds.y, mi->clientBounds.w, mi->clientBounds.h
+      printlog(LOG_INFO, "Initializing monitor %d...", i);
+      printlog(LOG_INFO, "Wallpaper: %s", mi->config.wlpName);
+      printlog(
+          LOG_INFO,
+          "Bounds: %d %d %dx%d",
+          mi->clientBounds.x,
+          mi->clientBounds.y,
+          mi->clientBounds.w,
+          mi->clientBounds.h
       );
-      lwpLog(
+      printlog(
           LOG_INFO,
           "Wallpaper destination bounds: %d %d %dx%d",
           mi->config.wlpBounds.x,
@@ -149,9 +185,14 @@ int initMonitors(App *app)
           mi->config.wlpBounds.h
       );
 
-      initWindow(app, app->monitors + i);
+      if (app->monitors[i].info.config.active)
+      {
+        initWindow(app, app->monitors + i);
 
-      initWallpaper(app, app->monitors + i, wallpapers, wallpapersCount);
+        initWallpaper(app, app->monitors + i, wallpapers, wallpapersCount);
+      }
+      else
+        app->monitors[i].aborted = 1;
     }
   }
 
@@ -161,6 +202,8 @@ int initMonitors(App *app)
 
 int main(int argc, char *argv[])
 {
+  clearlog();
+
 #ifdef __WIN32
   SetProcessDPIAware();
 #endif
@@ -179,21 +222,25 @@ int main(int argc, char *argv[])
   signal(SIGINT, exitSignalHandler);
 #endif
 
-  lwpLog(LOG_INFO, "Starting Layered WallPaper");
+  printlog(LOG_INFO, "Starting Layered WallPaper");
 
-  lwpLog(LOG_INFO, "Loading app config");
+  printlog(LOG_INFO, "Loading app config");
   loadAppConfig(&app.config);
 
-  lwpLog(LOG_INFO, "Initializing SDL");
+  printlog(LOG_INFO, "Initializing SDL");
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, app.config.renderQuality);
 
-  lwpLog(LOG_INFO, "Initializing monitors");
+  printlog(LOG_INFO, "Initializing monitors");
   initMonitors(&app);
 
   atexit(atExit);
 
-  lwpLog(LOG_INFO, "Starting wallpaper loop");
+  printlog(LOG_INFO, "Starting wallpaper loop");
+
+#ifdef __LINUX
+  app.display = XOpenDisplay(NULL);
+#endif
   runWallpaperLoop(&app);
 
   return 0;

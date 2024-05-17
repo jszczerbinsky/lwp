@@ -1,22 +1,28 @@
 #include "main.h"
 
-// Exit Dialog handlers
+#define VIEW_MON      0
+#define VIEW_SETTINGS 1
 
+static int currentView = VIEW_MON;
+
+// Exit Dialog handlers
+/*
 G_MODULE_EXPORT void ExitDialogClose()
 {
   gtk_widget_set_visible(exitDialog, 0);
 }
 
-G_MODULE_EXPORT void ExitDialog_No() { gtk_widget_set_visible(exitDialog, 0); }
+G_MODULE_EXPORT void ExitDialog_No() { gtk_widget_set_visible(exitDialog,
+0); }
 
 G_MODULE_EXPORT void ExitDialog_Yes()
 {
   killWlp();
   g_application_quit(G_APPLICATION(app));
-}
+}*/
 
 // Main Window handlers
-
+/*
 G_MODULE_EXPORT void MainWindow_ManageWallpapersBtnClick()
 {
   GtkDialogFlags flags  = GTK_DIALOG_DESTROY_WITH_PARENT;
@@ -47,7 +53,6 @@ G_MODULE_EXPORT void MainWindow_AppSettingsBtnClick()
   gtk_widget_set_visible(appSettingsWnd, 1);
 }
 
-G_MODULE_EXPORT void MainWindowClose() { gtk_widget_set_visible(mainWnd, 0); }
 
 // Wallpapaer Manager Window handlers
 
@@ -112,7 +117,8 @@ G_MODULE_EXPORT void MonitorWindowShow()
   gtk_label_set_text(GTK_LABEL(monitorNameLabel), monitorDisplayName);
 
   char *nameBuff = strdup(monitorName);
-  g_object_set_data(G_OBJECT(monitorWnd), "monitor_name", (gpointer)nameBuff);
+  g_object_set_data(G_OBJECT(monitorWnd), "monitor_name",
+(gpointer)nameBuff);
 
   // Read configuration from config file
   MonitorConfig mc;
@@ -131,7 +137,8 @@ G_MODULE_EXPORT void MonitorWindowShow()
         GTK_SPIN_BUTTON(heightSpinBtn), (gdouble)mc.wlpBounds.h
     );
 
-    gtk_combo_box_set_active_id(GTK_COMBO_BOX(wallpaperComboBox), mc.wlpName);
+    gtk_combo_box_set_active_id(GTK_COMBO_BOX(wallpaperComboBox),
+mc.wlpName);
   }
 }
 
@@ -139,7 +146,8 @@ G_MODULE_EXPORT void MonitorWindow_ApplyBtnClick()
 {
   MonitorConfig mc;
   strcpy(
-      mc.wlpName, gtk_combo_box_get_active_id(GTK_COMBO_BOX(wallpaperComboBox))
+      mc.wlpName,
+gtk_combo_box_get_active_id(GTK_COMBO_BOX(wallpaperComboBox))
   );
   mc.wlpBounds.x =
       gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(xPosSpinBtn));
@@ -173,10 +181,27 @@ G_MODULE_EXPORT void SettingsWindowShow()
   char targetFpsStr[4];
   sprintf(targetFpsStr, "%d", ac.targetFps);
 
+  char unfocusedComebackStr[2];
+  sprintf(unfocusedComebackStr, "%d", ac.unfocusedComeback);
+
+  char targetPointStr[2];
+  sprintf(targetPointStr, "%d", ac.wndTargetPoint);
+
   gtk_combo_box_set_active_id(
       GTK_COMBO_BOX(renderQualityComboBox), ac.renderQuality
   );
+<<<<<<< HEAD
+  gtk_combo_box_set_active_id(GTK_COMBO_BOX(targetFpsComboBox),
+targetFpsStr);
+=======
   gtk_combo_box_set_active_id(GTK_COMBO_BOX(targetFpsComboBox), targetFpsStr);
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(unfocusedComebackComboBox), unfocusedComebackStr
+  );
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(targetPointComboBox), targetPointStr
+  );
+>>>>>>> enhanced-target-point
 }
 
 G_MODULE_EXPORT void SettingsWindowClose()
@@ -194,6 +219,13 @@ G_MODULE_EXPORT void SettingsWindow_ApplyBtnClick()
   ac.targetFps =
       atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(targetFpsComboBox)));
 
+  ac.unfocusedComeback =
+      atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(unfocusedComebackComboBox))
+      );
+
+  ac.wndTargetPoint =
+      atoi(gtk_combo_box_get_active_id(GTK_COMBO_BOX(targetPointComboBox)));
+
   saveAppConfig(&ac);
 
   killWlp();
@@ -203,4 +235,278 @@ G_MODULE_EXPORT void SettingsWindow_ApplyBtnClick()
 G_MODULE_EXPORT void SettingsWindow_ExitBtnClick()
 {
   gtk_widget_set_visible(appSettingsWnd, 0);
+}
+*/
+
+static void reloadWlpList()
+{
+  gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(WID(CONTROL_MON_WLP)));
+
+  int            wlpCount;
+  WallpaperInfo *wlpList = scanWallpapers(&wlpCount);
+
+  for (int i = 0; i < wlpCount; i++)
+  {
+    gtk_combo_box_text_insert(
+        GTK_COMBO_BOX_TEXT(WID(CONTROL_MON_WLP)),
+        0,
+        wlpList[i].name,
+        wlpList[i].name
+    );
+  }
+
+  gtk_combo_box_set_active(GTK_COMBO_BOX(WID(CONTROL_MON_WLP)), 0);
+}
+
+static const char *getSelectedMonName()
+{
+  GtkListBoxRow *row =
+      gtk_list_box_get_selected_row(GTK_LIST_BOX(WID(CONTROL_MON_LIST)));
+
+  return g_object_get_data(G_OBJECT(row), "monitor_name");
+}
+
+static int getSelectedMonWidth()
+{
+  GtkListBoxRow *row =
+      gtk_list_box_get_selected_row(GTK_LIST_BOX(WID(CONTROL_MON_LIST)));
+
+  return *(int *)g_object_get_data(G_OBJECT(row), "monitor_width");
+}
+static int getSelectedMonHeight()
+{
+  GtkListBoxRow *row =
+      gtk_list_box_get_selected_row(GTK_LIST_BOX(WID(CONTROL_MON_LIST)));
+
+  return *(int *)g_object_get_data(G_OBJECT(row), "monitor_height");
+}
+
+static void reloadAppSettings()
+{
+  AppConfig ac;
+  loadAppConfig(&ac);
+
+  char targetFpsStr[4];
+  sprintf(targetFpsStr, "%d", ac.targetFps);
+
+  char unfocusedBehaviourStr[10];
+  sprintf(unfocusedBehaviourStr, "%d", ac.unfocusedComeback);
+
+  char targetPointStr[15];
+  sprintf(targetPointStr, "%d", ac.wndTargetPoint);
+
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(WID(CONTROL_APP_TEX_FILTERING)), ac.renderQuality
+  );
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(WID(CONTROL_APP_TARGET_FPS)), targetFpsStr
+  );
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(WID(CONTROL_APP_UNFOCUSED_BEHAVIOUR)), unfocusedBehaviourStr
+  );
+  gtk_combo_box_set_active_id(
+      GTK_COMBO_BOX(WID(CONTROL_APP_TARGET_POINT)), targetPointStr
+  );
+}
+
+static void reloadMonSettings()
+{
+  const char *monitor_name = getSelectedMonName();
+
+  MonitorConfig mc;
+  if (loadMonitorConfig(monitor_name, &mc))
+  {
+    gtk_spin_button_set_value(
+        GTK_SPIN_BUTTON(WID(CONTROL_MON_OFFSET_X)), (gdouble)mc.wlpBounds.x
+    );
+    gtk_spin_button_set_value(
+        GTK_SPIN_BUTTON(WID(CONTROL_MON_OFFSET_Y)), (gdouble)mc.wlpBounds.y
+    );
+    gtk_spin_button_set_value(
+        GTK_SPIN_BUTTON(WID(CONTROL_MON_WIDTH)), (gdouble)mc.wlpBounds.w
+    );
+    gtk_spin_button_set_value(
+        GTK_SPIN_BUTTON(WID(CONTROL_MON_HEIGHT)), (gdouble)mc.wlpBounds.h
+    );
+
+    gtk_combo_box_set_active_id(
+        GTK_COMBO_BOX(WID(CONTROL_MON_WLP)), mc.wlpName
+    );
+
+    gtk_switch_set_active(GTK_SWITCH(WID(CONTROL_MON_SWITCH)), mc.active);
+  }
+}
+
+static void saveMonitor()
+{
+  MonitorConfig mc;
+  strcpy(
+      mc.wlpName,
+      gtk_combo_box_get_active_id(GTK_COMBO_BOX(WID(CONTROL_MON_WLP)))
+  );
+  mc.wlpBounds.x =
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(WID(CONTROL_MON_OFFSET_X)
+      ));
+  mc.wlpBounds.y =
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(WID(CONTROL_MON_OFFSET_Y)
+      ));
+  mc.wlpBounds.w =
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(WID(CONTROL_MON_WIDTH)));
+  mc.wlpBounds.h =
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(WID(CONTROL_MON_HEIGHT))
+      );
+  mc.active = gtk_switch_get_active(GTK_SWITCH(WID(CONTROL_MON_SWITCH)));
+
+  saveMonitorConfig(getSelectedMonName(), &mc);
+
+  killWlp();
+  runWlp();
+}
+
+static void saveApp()
+{
+  AppConfig ac;
+  strcpy(
+      ac.renderQuality,
+      gtk_combo_box_get_active_id(GTK_COMBO_BOX(WID(CONTROL_APP_TEX_FILTERING)))
+  );
+  ac.targetFps = atoi(
+      gtk_combo_box_get_active_id(GTK_COMBO_BOX(WID(CONTROL_APP_TARGET_FPS)))
+  );
+  ac.unfocusedComeback = atoi(gtk_combo_box_get_active_id(
+      GTK_COMBO_BOX(WID(CONTROL_APP_UNFOCUSED_BEHAVIOUR))
+  ));
+  ac.wndTargetPoint    = atoi(
+      gtk_combo_box_get_active_id(GTK_COMBO_BOX(WID(CONTROL_APP_TARGET_POINT)))
+  );
+
+  saveAppConfig(&ac);
+
+  killWlp();
+  runWlp();
+}
+
+G_MODULE_EXPORT void LogWindowClose()
+{
+  gtk_widget_set_visible(WID(CONTROL_LOG_WINDOW), 0);
+}
+
+G_MODULE_EXPORT void LogClick()
+{
+  gtk_widget_set_visible(WID(CONTROL_LOG_WINDOW), 1);
+
+  char *content = readLogFile();
+
+  GtkTextBuffer *buff =
+      gtk_text_view_get_buffer(GTK_TEXT_VIEW(WID(CONTROL_LOG_TEXT)));
+
+  gtk_text_buffer_set_text(buff, content, -1);
+
+  free(content);
+}
+
+G_MODULE_EXPORT void TurnOffClick()
+{
+  killWlp();
+  g_application_quit(G_APPLICATION(app));
+}
+
+int aspect_ratio_ignore = 0;
+
+G_MODULE_EXPORT void MonChangeWidth()
+{
+  if (!aspect_ratio_ignore &&
+      gtk_switch_get_active(GTK_SWITCH(WID(CONTROL_MON_ASPECT_RATIO))))
+  {
+    int originalW = getSelectedMonWidth();
+    int originalH = getSelectedMonHeight();
+
+    int width =
+        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(WID(CONTROL_MON_WIDTH))
+        );
+
+    float ratio = (float)width / originalW;
+
+    aspect_ratio_ignore = 1;
+    gtk_spin_button_set_value(
+        GTK_SPIN_BUTTON(WID(CONTROL_MON_HEIGHT)), (gdouble)(originalH * ratio)
+    );
+    aspect_ratio_ignore = 0;
+  }
+}
+
+G_MODULE_EXPORT void MonChangeHeight()
+{
+  if (!aspect_ratio_ignore &&
+      gtk_switch_get_active(GTK_SWITCH(WID(CONTROL_MON_ASPECT_RATIO))))
+  {
+    int originalW = getSelectedMonWidth();
+    int originalH = getSelectedMonHeight();
+
+    int height =
+        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(WID(CONTROL_MON_HEIGHT)
+        ));
+
+    float ratio = (float)height / originalH;
+
+    aspect_ratio_ignore = 1;
+    gtk_spin_button_set_value(
+        GTK_SPIN_BUTTON(WID(CONTROL_MON_WIDTH)), (gdouble)(originalW * ratio)
+    );
+    aspect_ratio_ignore = 0;
+  }
+}
+
+G_MODULE_EXPORT void SaveClick()
+{
+  if (currentView == VIEW_MON)
+    saveMonitor();
+  else
+    saveApp();
+}
+
+G_MODULE_EXPORT
+void MonListSelect(GtkListBox *list, GtkListBoxRow *row, gpointer userdata)
+{
+  reloadWlpList();
+  reloadMonSettings();
+}
+
+G_MODULE_EXPORT void MainWindowShow()
+{
+  reloadAppSettings();
+  reloadWlpList();
+
+  gtk_list_box_select_row(
+      GTK_LIST_BOX(WID(CONTROL_SIDEBAR)),
+      gtk_list_box_get_row_at_index(GTK_LIST_BOX(WID(CONTROL_SIDEBAR)), 0)
+  );
+
+  gtk_list_box_select_row(
+      GTK_LIST_BOX(controls[CONTROL_MON_LIST].widget),
+      gtk_list_box_get_row_at_index(
+          GTK_LIST_BOX(controls[CONTROL_MON_LIST].widget), 0
+      )
+  );
+
+  reloadMonSettings();
+}
+
+G_MODULE_EXPORT void MainWindowClose()
+{
+  gtk_widget_set_visible(controls[CONTROL_MAIN_WND].widget, 0);
+}
+
+G_MODULE_EXPORT void SidebarSelect(
+    GtkListBox *listbox, GtkListBoxRow *row, gpointer userData
+)
+{
+  currentView = gtk_list_box_row_get_index(row);
+
+  char childName[6];
+  sprintf(childName, "page%d", currentView);
+
+  gtk_stack_set_visible_child_name(
+      GTK_STACK(controls[CONTROL_MAIN_STACK].widget), childName
+  );
 }
