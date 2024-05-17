@@ -1,6 +1,8 @@
 #include "main.h"
 
+#ifdef __WIN32
 HANDLE hJob = NULL;
+#endif
 
 GtkApplication *app     = NULL;
 GtkBuilder     *builder = NULL;

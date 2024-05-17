@@ -7,9 +7,11 @@
 
 #include "../common.h"
 
+#ifdef __WIN32
 extern HANDLE hJob;
+#endif
 
-extern GtkApplication *app;
+extern GtkApplication* app;
 
 #define CONTROL_MAIN_WND                0
 #define CONTROL_MON_LIST                1
@@ -32,10 +34,9 @@ extern GtkApplication *app;
 
 #define CONTROLS_MAX 18
 
-typedef struct
-{
-  const char *name;
-  GtkWidget  *widget;
+typedef struct {
+  const char* name;
+  GtkWidget*  widget;
 } Control;
 
 extern Control controls[];
