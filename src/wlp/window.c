@@ -39,7 +39,7 @@ void initWindow(App *app, Monitor *monitor)
   monitor->window = SDL_CreateWindow(
       "Parallax wallpaper", 0, 0, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN
   );
-  if (monitor->window == NULL) lwpLog(LOG_ERROR, "%s", SDL_GetError());
+  if (monitor->window == NULL) printlog(LOG_ERROR, "%s", SDL_GetError());
 
   SDL_SysWMinfo sysWmInfo;
   SDL_VERSION(&sysWmInfo.version)
@@ -119,7 +119,7 @@ void initWindow(App *app, Monitor *monitor)
 #endif
 
   if (monitor->window == NULL)
-    lwpLog(
+    printlog(
         LOG_ERROR,
         "Failed to initialize window for monitor %s: %s",
         monitor->info.name,
@@ -130,7 +130,7 @@ void initWindow(App *app, Monitor *monitor)
       monitor->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
   );
   if (monitor->renderer == NULL)
-    lwpLog(
+    printlog(
         LOG_ERROR,
         "Failed to initialize renderer for monitor %s: %s",
         monitor->info.name,

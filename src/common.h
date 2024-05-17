@@ -120,7 +120,8 @@ int loadWallpaperConfig(const char* dirName, WallpaperConfig* wc);
 //
 // debug.c
 //
-void  lwpLog(int type, const char* str, ...);
+void  clearlog();
+void  printlog(int type, const char* str, ...);
 char* readLogFile();
 
 #endif
