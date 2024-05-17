@@ -23,8 +23,10 @@ extern GtkApplication *app;
 #define CONTROL_MAIN_STACK              13
 #define CONTROL_SIDEBAR                 14
 #define CONTROL_MON_ASPECT_RATIO        15
+#define CONTROL_LOG_WINDOW              16
+#define CONTROL_LOG_TEXT                17
 
-#define CONTROLS_MAX 16
+#define CONTROLS_MAX 18
 
 typedef struct
 {

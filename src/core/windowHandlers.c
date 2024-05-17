@@ -386,6 +386,25 @@ static void saveApp()
   runWlp();
 }
 
+G_MODULE_EXPORT void LogWindowClose()
+{
+  gtk_widget_set_visible(WID(CONTROL_LOG_WINDOW), 0);
+}
+
+G_MODULE_EXPORT void LogClick()
+{
+  gtk_widget_set_visible(WID(CONTROL_LOG_WINDOW), 1);
+
+  char *content = readLogFile();
+
+  GtkTextBuffer *buff =
+      gtk_text_view_get_buffer(GTK_TEXT_VIEW(WID(CONTROL_LOG_TEXT)));
+
+  gtk_text_buffer_set_text(buff, content, -1);
+
+  free(content);
+}
+
 G_MODULE_EXPORT void TurnOffClick()
 {
   killWlp();

@@ -101,6 +101,7 @@
                     <property name="receives-default">True</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
+                    <signal name="clicked" handler="LogClick" swapped="no"/>
                     <child>
                       <object class="GtkImage">
                         <property name="visible">True</property>
@@ -926,6 +927,36 @@
             <property name="pack-type">end</property>
             <property name="position">3</property>
           </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkTextBuffer" id="textbuffer1"/>
+  <object class="GtkWindow" id="LogWindow">
+    <property name="can-focus">False</property>
+    <signal name="delete-event" handler="LogWindowClose" swapped="no"/>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="shadow-type">in</property>
+        <property name="min-content-width">800</property>
+        <property name="min-content-height">600</property>
+        <child>
+          <object class="GtkTextView" id="Log_Text">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="editable">False</property>
+            <property name="left-margin">10</property>
+            <property name="right-margin">10</property>
+            <property name="top-margin">10</property>
+            <property name="bottom-margin">10</property>
+            <property name="buffer">textbuffer1</property>
+          </object>
         </child>
       </object>
     </child>

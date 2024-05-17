@@ -22,6 +22,8 @@ Control controls[] = {
     {.name = "MainStack"},
     {.name = "Sidebar"},
     {.name = "Mon_AspectRatio"},
+    {.name = "LogWindow"},
+    {.name = "Log_Text"},
 };
 
 static void reloadMonitorListBox()

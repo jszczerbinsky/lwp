@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "main.h"
+#include "../common.h"
 
 void lwpLog(int type, const char *str, ...)
 {
@@ -38,3 +38,21 @@ void lwpLog(int type, const char *str, ...)
   fclose(file);
 }
 
+char *readLogFile()
+{
+  char path[PATH_MAX];
+  getLogPath(path);
+
+  FILE *file = fopen(path, "r");
+
+  fseek(file, 0, SEEK_END);
+  int len = ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  char *buff = malloc((len + 1) * sizeof(char));
+  fread(buff, sizeof(char), len, file);
+
+  fclose(file);
+
+  return buff;
+}

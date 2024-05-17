@@ -7,8 +7,8 @@ set(_SOURCE_FILES
 		../common/config.c
 		../common/monitorScanner.c
 		../common/wallpaperScanner.c
+		../common/debug.c
     main.c
-		debug.c
     targetPoint.c
     render.c
     window.c

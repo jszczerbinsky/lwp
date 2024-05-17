@@ -12,6 +12,10 @@
 
 #define DEFAULT_LINUX_PREFIX "/usr/local"
 
+#define LOG_ERROR   0
+#define LOG_INFO    1
+#define LOG_WARNING 2
+
 typedef struct
 {
   int x;
@@ -109,5 +113,11 @@ int  loadAppConfig(AppConfig* ac);
 void saveAppConfig(AppConfig* ac);
 
 int loadWallpaperConfig(const char* dirName, WallpaperConfig* wc);
+
+//
+// debug.c
+//
+void  lwpLog(int type, const char* str, ...);
+char* readLogFile();
 
 #endif

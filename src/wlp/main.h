@@ -23,10 +23,6 @@
 
 #include "../common.h"
 
-#define LOG_ERROR   0
-#define LOG_INFO    1
-#define LOG_WARNING 2
-
 typedef struct
 {
   float x;
@@ -69,8 +65,6 @@ typedef struct
 #endif
 
 } App;
-
-void lwpLog(int type, const char* str, ...);
 
 void initWindow(App* app, Monitor* monitor);
 void runWallpaperLoop(App* app);
