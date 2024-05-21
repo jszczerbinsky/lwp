@@ -128,13 +128,15 @@ static void activate(GtkApplication *app, gpointer userdata)
       controls[i].widget =
           (GtkWidget *)gtk_builder_get_object(builder, controls[i].name);
 
-    gtk_window_set_application(
-        GTK_WINDOW(controls[CONTROL_MAIN_WND].widget), GTK_APPLICATION(app)
+    gtk_window_set_title(
+        GTK_WINDOW(WID(CONTROL_MAIN_WND)), "Layered WallPaper"
     );
 
-    gtk_label_set_text(
-        GTK_LABEL(controls[CONTROL_VER_LABEL].widget), PROGRAM_VERSION
+    gtk_window_set_application(
+        GTK_WINDOW(WID(CONTROL_MAIN_WND)), GTK_APPLICATION(app)
     );
+
+    gtk_label_set_text(GTK_LABEL(WID(CONTROL_VER_LABEL)), PROGRAM_VERSION);
 
     runWlp();
   }
