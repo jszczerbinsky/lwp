@@ -1,16 +1,23 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include "platform_guard.h"
+
 #ifdef __LINUX
 #include <linux/limits.h>
 #else
-#include <windows.h>
+#include <Windows.h>
+#include <shellscalingapi.h>
 #endif
 
-#define MONITOR_NAME_MAX   100
+#define MONITOR_NAME_MAX   128
 #define WALLPAPER_NAME_MAX 100
 
 #define DEFAULT_LINUX_PREFIX "/usr/local"
+
+#define LOG_ERROR   0
+#define LOG_INFO    1
+#define LOG_WARNING 2
 
 typedef struct
 {
@@ -32,7 +39,7 @@ typedef struct
   int          repeatX;
   int          repeatY;
   int          layersCount;
-  LayerConfig *layerConfigs;
+  LayerConfig* layerConfigs;
 } WallpaperConfig;
 
 typedef struct
@@ -46,22 +53,27 @@ typedef struct
 typedef struct
 {
   int    loaded;
+  int    active;
   char   wlpName[WALLPAPER_NAME_MAX];
   Bounds wlpBounds;
 } MonitorConfig;
 
 typedef struct
 {
+  char          displayName[MONITOR_NAME_MAX];
   char          name[MONITOR_NAME_MAX];
-  Bounds        bounds;
+  Bounds        pixelBounds;
+  Bounds        clientBounds;
+  Bounds        virtualBounds;
   MonitorConfig config;
 } MonitorInfo;
 
 typedef struct
 {
-  int  drawOnRootWindow;
   int  targetFps;
   char renderQuality[8];
+  int  unfocusedComeback;
+  int  wndTargetPoint;
 } AppConfig;
 
 //
@@ -72,12 +84,12 @@ typedef struct
 #define APP_DIR_SHARE         1
 #define APP_DIR_USER_SETTINGS 2
 
-void getAppDir(char *buff, int type);
+void getAppDir(char* buff, int type);
 
-void getMonitorCfgPath(char *buff, const char *name);
-void getWlpCfgPath(char *buff, const char *dirPath);
-void getAppCfgPath(char *buff);
-void getLogPath(char *buff);
+void getMonitorCfgPath(char* buff, const char* name);
+void getWlpCfgPath(char* buff, const char* dirPath);
+void getAppCfgPath(char* buff);
+void getLogPath(char* buff);
 
 void createUserDirs();
 
@@ -85,24 +97,31 @@ void createUserDirs();
 // monitorScanner.c
 //
 
-MonitorInfo *scanMonitors(int *count);
+MonitorInfo* scanMonitors(int* count);
 
 //
 // wallpaperScanner.c
 //
 
-WallpaperInfo *scanWallpapers(int *count);
+WallpaperInfo* scanWallpapers(int* count);
 
 //
 // config.c
 //
 
-void saveMonitorConfig(const char *name, MonitorConfig *mc);
-int  loadMonitorConfig(const char *name, MonitorConfig *mc);
+void saveMonitorConfig(const char* name, MonitorConfig* mc);
+int  loadMonitorConfig(const char* name, MonitorConfig* mc);
 
-int  loadAppConfig(AppConfig *ac);
-void saveAppConfig(AppConfig *ac);
+int  loadAppConfig(AppConfig* ac);
+void saveAppConfig(AppConfig* ac);
 
-int loadWallpaperConfig(const char *dirName, WallpaperConfig *wc);
+int loadWallpaperConfig(const char* dirName, WallpaperConfig* wc);
+
+//
+// debug.c
+//
+void  clearlog();
+void  printlog(int type, const char* str, ...);
+char* readLogFile();
 
 #endif

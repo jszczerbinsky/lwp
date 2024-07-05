@@ -3,36 +3,116 @@
 
 #include "../common.h"
 
-#ifdef __WIN32
-#include <windows.h>
-#else
+#ifdef __LINUX
 #include <X11/Xlib.h>
 #include <X11/extensions/Xrandr.h>
+#include <string.h>
 #endif
 
 #ifdef __WIN32
+
 int monitorEnumIndex = 0;
 
-static BOOL monitorenumproc(HMONITOR monitor, HDC hdc, LPRECT rect, LPARAM param)
+int primaryX = 0;
+int primaryY = 0;
+
+static float getScalingFactor(HMONITOR monitor)
 {
-  MONITORINFO info;
-  info.cbSize = sizeof(MONITORINFO);
+  DEVICE_SCALE_FACTOR rawScaleFactor;
+  HRESULT             hr = GetScaleFactorForMonitor(monitor, &rawScaleFactor);
 
-  GetMonitorInfo(monitor, &info);
+  return rawScaleFactor / 100;
+}
 
+static void getMonitorName(int index, char *name, char *displayName)
+{
+  DISPLAY_DEVICE dd;
+  dd.cb = sizeof(DISPLAY_DEVICE);
+  EnumDisplayDevices(NULL, index, &dd, EDD_GET_DEVICE_INTERFACE_NAME);
+  DISPLAY_DEVICE dd2;
+  dd2.cb = sizeof(DISPLAY_DEVICE);
+  EnumDisplayDevices(dd.DeviceName, 0, &dd2, EDD_GET_DEVICE_INTERFACE_NAME);
+
+  char *ptr = dd2.DeviceID;
+  while (*ptr != '#') ptr++;
+  ptr++;
+
+  char *ptrEnd = ptr;
+  int   hashes = 0;
+  while (hashes < 2)
+  {
+    ptrEnd++;
+    if (*ptrEnd == '#') hashes++;
+  }
+  *ptrEnd = '\0';
+
+  strncpy(displayName, dd2.DeviceString, MONITOR_NAME_MAX);
+  strncpy(name, ptr, MONITOR_NAME_MAX);
+}
+
+static void getMonitorBounds(
+    HMONITOR monitor, Bounds *original, Bounds *client, Bounds *virtual
+)
+{
+  MONITORINFOEX info;
+  info.cbSize = sizeof(MONITORINFOEX);
+  GetMonitorInfo(monitor, (LPMONITORINFO)&info);
+
+  if (original)
+  {
+    original->x = info.rcMonitor.left;
+    original->y = info.rcMonitor.top;
+    original->w = info.rcMonitor.right - info.rcMonitor.left;
+    original->h = info.rcMonitor.bottom - info.rcMonitor.top;
+  }
+
+  DEVMODE devmode;
+  devmode.dmSize = sizeof(DEVMODE);
+  EnumDisplaySettings(info.szDevice, ENUM_CURRENT_SETTINGS, &devmode);
+
+  if (client)
+  {
+    client->x = devmode.dmPosition.x;
+    client->y = devmode.dmPosition.y;
+    client->w = devmode.dmPelsWidth;
+    client->h = devmode.dmPelsHeight;
+  }
+
+  float scaleFactor = getScalingFactor(monitor);
+
+  if (virtual)
+  {
+    virtual->x = devmode.dmPosition.x * scaleFactor - primaryX;
+    virtual->y = devmode.dmPosition.y * scaleFactor - primaryY;
+    virtual->w = devmode.dmPelsWidth * scaleFactor;
+    virtual->h = devmode.dmPelsHeight * scaleFactor;
+  }
+}
+
+static BOOL monitorenumproc_FindPrimaryCoords(
+    HMONITOR monitor, HDC hdc, LPRECT rect, LPARAM param
+)
+{
+  Bounds bounds;
+  getMonitorBounds(monitor, NULL, &bounds, NULL);
+
+  if (bounds.x < primaryX) primaryX = bounds.x;
+  if (bounds.y < primaryY) primaryY = bounds.y;
+
+  return TRUE;
+}
+
+static BOOL monitorenumproc_GetInfo(
+    HMONITOR monitor, HDC hdc, LPRECT rect, LPARAM param
+)
+{
   MonitorInfo *mi = (MonitorInfo *)param + monitorEnumIndex;
 
-  snprintf(
-      mi->name,
-      MONITOR_NAME_MAX,
-      "Monitor %d%s",
-      monitorEnumIndex + 1,
-      info.dwFlags == MONITORINFOF_PRIMARY ? " (main)" : ""
+  getMonitorBounds(
+      monitor, &mi->pixelBounds, &mi->clientBounds, &mi->virtualBounds
   );
-  mi->bounds.x      = info.rcWork.left;
-  mi->bounds.y      = info.rcWork.top;
-  mi->bounds.w      = info.rcWork.right - info.rcWork.left;
-  mi->bounds.h      = info.rcWork.bottom - info.rcWork.top;
+  getMonitorName(monitorEnumIndex, mi->name, mi->displayName);
+
   mi->config.loaded = 0;
 
   monitorEnumIndex++;
@@ -45,11 +125,15 @@ MonitorInfo *scanMonitors(int *count)
   MonitorInfo *m = NULL;
 
 #ifdef __WIN32
+  EnumDisplayMonitors(
+      NULL, NULL, &monitorenumproc_FindPrimaryCoords, (LPARAM)NULL
+  );
+
   monitorEnumIndex = 0;
   *count           = GetSystemMetrics(SM_CMONITORS);
   m                = malloc(sizeof(MonitorInfo) * (*count));
 
-  EnumDisplayMonitors(NULL, NULL, &monitorenumproc, (LPARAM)m);
+  EnumDisplayMonitors(NULL, NULL, &monitorenumproc_GetInfo, (LPARAM)m);
 
 #else
   int monitorCount;
@@ -63,11 +147,19 @@ MonitorInfo *scanMonitors(int *count)
   int i = 0;
   while (i < monitorCount)
   {
-    snprintf(m[i].name, MONITOR_NAME_MAX, "%s", XGetAtomName(display, info->name));
-    m[i].bounds.x      = info->x;
-    m[i].bounds.y      = info->y;
-    m[i].bounds.w      = info->width;
-    m[i].bounds.h      = info->height;
+    snprintf(
+        m[i].name, MONITOR_NAME_MAX, "%s", XGetAtomName(display, info->name)
+    );
+    strcpy(m[i].displayName, m[i].name);
+
+    m[i].virtualBounds.x = info->x;
+    m[i].virtualBounds.y = info->y;
+    m[i].virtualBounds.w = info->width;
+    m[i].virtualBounds.h = info->height;
+
+    memcpy(&m[i].clientBounds, &m[i].virtualBounds, sizeof(Bounds));
+    memcpy(&m[i].pixelBounds, &m[i].virtualBounds, sizeof(Bounds));
+
     m[i].config.loaded = 0;
 
     info++;

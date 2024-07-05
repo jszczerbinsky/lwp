@@ -7,7 +7,7 @@
 #define CONFIG_DEFAULT 0
 #define CONFIG_USER    1
 
-static void generateEmptyMonitorConfig(MonitorConfig *mc)
+static void generateEmptyMonitorConfig(MonitorConfig* mc)
 {
   sprintf(mc->wlpName, "");
   mc->wlpBounds.x = 0;
@@ -16,13 +16,16 @@ static void generateEmptyMonitorConfig(MonitorConfig *mc)
   mc->wlpBounds.h = 1080;
 }
 
-void saveMonitorConfig(const char *name, MonitorConfig *mc)
+void saveMonitorConfig(const char* name, MonitorConfig* mc)
 {
   config_t          cfg;
   config_setting_t *root, *setting;
 
   config_init(&cfg);
   root = config_root_setting(&cfg);
+
+  setting = config_setting_add(root, "active", CONFIG_TYPE_INT);
+  config_setting_set_int(setting, mc->active);
 
   setting = config_setting_add(root, "wlpName", CONFIG_TYPE_STRING);
   config_setting_set_string(setting, mc->wlpName);
@@ -48,7 +51,7 @@ void saveMonitorConfig(const char *name, MonitorConfig *mc)
   config_destroy(&cfg);
 }
 
-int loadMonitorConfig(const char *name, MonitorConfig *mc)
+int loadMonitorConfig(const char* name, MonitorConfig* mc)
 {
   mc->loaded = 0;
 
@@ -69,6 +72,12 @@ int loadMonitorConfig(const char *name, MonitorConfig *mc)
   if (config_read_file(&cfg, path) == CONFIG_FALSE) return 0;
   root = config_root_setting(&cfg);
 
+  setting = config_setting_get_member(root, "active");
+  if (!setting)
+    mc->active = 1;
+  else
+    mc->active = config_setting_get_int(setting);
+
   setting = config_setting_get_member(root, "wlpName");
   strcpy(mc->wlpName, config_setting_get_string(setting));
 
@@ -87,16 +96,15 @@ int loadMonitorConfig(const char *name, MonitorConfig *mc)
   return 1;
 }
 
-static void useDefaultAppCfg(AppConfig *ac)
+static void useDefaultAppCfg(AppConfig* ac)
 {
-#ifdef __LINUX
-  ac->drawOnRootWindow = 0;
-#endif
   ac->targetFps = 60;
   strcpy(ac->renderQuality, "best");
+  ac->wndTargetPoint    = 0;
+  ac->unfocusedComeback = 1;
 }
 
-void saveAppConfig(AppConfig *ac)
+void saveAppConfig(AppConfig* ac)
 {
   config_t          cfg;
   config_setting_t *root, *setting;
@@ -104,14 +112,14 @@ void saveAppConfig(AppConfig *ac)
   config_init(&cfg);
   root = config_root_setting(&cfg);
 
-#ifdef __LINUX
-  setting = config_setting_add(root, "draw_on_rootwindow", CONFIG_TYPE_INT);
-  config_setting_set_int(setting, ac->drawOnRootWindow);
-#endif
   setting = config_setting_add(root, "target_fps", CONFIG_TYPE_INT);
   config_setting_set_int(setting, ac->targetFps);
   setting = config_setting_add(root, "render_quality", CONFIG_TYPE_STRING);
   config_setting_set_string(setting, ac->renderQuality);
+  setting = config_setting_add(root, "unfocused_comeback", CONFIG_TYPE_INT);
+  config_setting_set_int(setting, ac->unfocusedComeback);
+  setting = config_setting_add(root, "wnd_target_point", CONFIG_TYPE_INT);
+  config_setting_set_int(setting, ac->wndTargetPoint);
 
   char path[PATH_MAX];
   getAppCfgPath(path);
@@ -125,7 +133,7 @@ void saveAppConfig(AppConfig *ac)
   config_destroy(&cfg);
 }
 
-int loadAppConfig(AppConfig *ac)
+int loadAppConfig(AppConfig* ac)
 {
   config_t          cfg;
   config_setting_t *root, *setting;
@@ -141,21 +149,35 @@ int loadAppConfig(AppConfig *ac)
   }
   root = config_root_setting(&cfg);
 
-#ifdef __LINUX
-  setting              = config_setting_get_member(root, "draw_on_rootwindow");
-  ac->drawOnRootWindow = config_setting_get_int(setting);
-#endif
-  setting       = config_setting_get_member(root, "target_fps");
-  ac->targetFps = config_setting_get_int(setting);
-  setting       = config_setting_get_member(root, "render_quality");
-  strcpy(ac->renderQuality, config_setting_get_string(setting));
+  setting = config_setting_get_member(root, "target_fps");
+  if (setting == NULL)
+    ac->targetFps = 60;
+  else
+    ac->targetFps = config_setting_get_int(setting);
+
+  setting = config_setting_get_member(root, "render_quality");
+  if (setting == NULL)
+    strcpy(ac->renderQuality, "best");
+  else
+    strcpy(ac->renderQuality, config_setting_get_string(setting));
+
+  setting = config_setting_get_member(root, "unfocused_comeback");
+  if (setting == NULL)
+    ac->unfocusedComeback = 1;
+  else
+    ac->unfocusedComeback = config_setting_get_int(setting);
+
+  setting = config_setting_get_member(root, "wnd_target_point");
+  if (setting == NULL)
+    ac->wndTargetPoint = 0;
+  else
+    ac->wndTargetPoint = config_setting_get_int(setting);
 
   config_destroy(&cfg);
-
   return 1;
 }
 
-int loadWallpaperConfig(const char *dirPath, WallpaperConfig *wc)
+int loadWallpaperConfig(const char* dirPath, WallpaperConfig* wc)
 {
   wc->loaded = 0;
 
@@ -190,7 +212,7 @@ int loadWallpaperConfig(const char *dirPath, WallpaperConfig *wc)
 
   for (int i = 0; i < wc->layersCount; i++)
   {
-    LayerConfig *lc = wc->layerConfigs + i;
+    LayerConfig* lc = wc->layerConfigs + i;
 
     lc->sensitivityX = movX * i;
     lc->sensitivityY = movY * i;

@@ -7,8 +7,9 @@ set(_SOURCE_FILES
 		../common/config.c
 		../common/monitorScanner.c
 		../common/wallpaperScanner.c
+		../common/debug.c
     main.c
-		debug.c
+    targetPoint.c
     render.c
     window.c
 	)
@@ -45,6 +46,11 @@ if (_UNAME STREQUAL "LINUX")
   find_package(X11 REQUIRED)
   list(APPEND _INCLUDE_DIRS ${X11_INCLUDE_DIR})
   list(APPEND _LIBS ${X11_LIBRARIES})
+endif()
+
+if (_UNAME STREQUAL "WIN32")
+  # Shcore dependency
+  list(APPEND _LIBS "-lShcore")
 endif()
 
 option(LWP_INSTALL_LAUNCHD "Launch lwp on login (MacOSX only)" OFF)

@@ -1,51 +1,49 @@
 #include "main.h"
 
-#include "../platform_guard.h"
+#ifdef __WIN32
+HANDLE hJob = NULL;
+#endif
 
 GtkApplication *app     = NULL;
 GtkBuilder     *builder = NULL;
 
-GtkWidget *mainWnd               = NULL;
-GtkWidget *exitDialog            = NULL;
-GtkWidget *wallpaperMgrWnd       = NULL;
-GtkWidget *monitorWnd            = NULL;
-GtkWidget *monitorListBox        = NULL;
-GtkWidget *wallpaperListBox      = NULL;
-GtkWidget *wallpaperComboBox     = NULL;
-GtkWidget *xPosSpinBtn           = NULL;
-GtkWidget *yPosSpinBtn           = NULL;
-GtkWidget *widthSpinBtn          = NULL;
-GtkWidget *heightSpinBtn         = NULL;
-GtkWidget *monitorNameLabel      = NULL;
-GtkWidget *versionLabel          = NULL;
-GtkWidget *appSettingsWnd        = NULL;
-GtkWidget *targetFpsComboBox     = NULL;
-GtkWidget *renderQualityComboBox = NULL;
-GtkWidget *drawOnRootWndComboBox = NULL;
+Control controls[] = {
+    {.name = "MainWindow"},
+    {.name = "Mon_List"},
+    {.name = "Mon_Switch"},
+    {.name = "Mon_Wallpaper"},
+    {.name = "Mon_OffsetX"},
+    {.name = "Mon_OffsetY"},
+    {.name = "Mon_Width"},
+    {.name = "Mon_Height"},
+    {.name = "App_TargetFps"},
+    {.name = "App_TexFiltering"},
+    {.name = "App_UnfocusedBehaviour"},
+    {.name = "App_TargetPoint"},
+    {.name = "VersionLabel"},
+    {.name = "MainStack"},
+    {.name = "Sidebar"},
+    {.name = "Mon_AspectRatio"},
+    {.name = "LogWindow"},
+    {.name = "Log_Text"},
+};
 
 static void reloadMonitorListBox()
 {
-  GList *rows = gtk_container_get_children(GTK_CONTAINER(monitorListBox));
+  GList *rows =
+      gtk_container_get_children(GTK_CONTAINER(controls[CONTROL_MON_LIST].widget
+      ));
 
   GList *ptr = rows;
   while (ptr)
   {
-    gtk_container_remove(GTK_CONTAINER(monitorListBox), ptr->data);
+    gtk_container_remove(
+        GTK_CONTAINER(controls[CONTROL_MON_LIST].widget), ptr->data
+    );
     ptr = ptr->next;
   }
 
   g_list_free(rows);
-
-  char iconPath[PATH_MAX];
-  getAppDir(iconPath, APP_DIR_SHARE);
-#ifdef __WIN32
-  const char *format = "%s\\%s\\%s\\%s";
-#else
-  const char *format = "%s/%s/%s/%s";
-#endif
-  sprintf(
-      iconPath, format, iconPath, "window_templates", "assets", "screen-monitor-svgrepo-com.svg"
-  );
 
   int          monitorsCount;
   MonitorInfo *monitors;
@@ -55,16 +53,22 @@ static void reloadMonitorListBox()
   for (int i = 0; i < monitorsCount; i++)
   {
     char resStr[12];
-    sprintf(resStr, "%dx%d", monitors[i].bounds.w, monitors[i].bounds.h);
+    sprintf(
+        resStr, "%dx%d", monitors[i].clientBounds.w, monitors[i].clientBounds.h
+    );
 
-    GtkWidget *nameLabel = gtk_label_new(monitors[i].name);
+    GtkWidget *nameLabel = gtk_label_new(monitors[i].displayName);
     GtkWidget *resLabel  = gtk_label_new(resStr);
-    GtkWidget *icon      = gtk_image_new_from_file(iconPath);
+    GtkWidget *icon =
+        gtk_image_new_from_icon_name("video-display", GTK_ICON_SIZE_DIALOG);
+    gtk_widget_set_margin_start(icon, 10);
 
     GtkWidget *labelBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(labelBox), nameLabel);
     gtk_container_add(GTK_CONTAINER(labelBox), resLabel);
-    gtk_box_set_child_packing(GTK_BOX(labelBox), nameLabel, 1, 1, 0, GTK_PACK_START);
+    gtk_box_set_child_packing(
+        GTK_BOX(labelBox), nameLabel, 1, 1, 0, GTK_PACK_START
+    );
 
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_container_add(GTK_CONTAINER(box), icon);
@@ -74,12 +78,29 @@ static void reloadMonitorListBox()
     GtkWidget *row = gtk_list_box_row_new();
     gtk_container_add(GTK_CONTAINER(row), box);
 
-    gtk_list_box_insert(GTK_LIST_BOX(monitorListBox), row, 0);
+    gtk_list_box_insert(
+        GTK_LIST_BOX(controls[CONTROL_MON_LIST].widget), row, 0
+    );
 
-    char *nameBuff = malloc(strlen(monitors[i].name)+1);
+    char *nameBuff = malloc(strlen(monitors[i].name) + 1);
     strcpy(nameBuff, monitors[i].name);
 
+    char *displayNameBuff = malloc(strlen(monitors[i].displayName) + 1);
+    strcpy(displayNameBuff, monitors[i].displayName);
+
+    g_object_set_data(
+        G_OBJECT(row), "monitor_display_name", (gpointer)displayNameBuff
+    );
+
+    int *width  = (int *)malloc(sizeof(int));
+    int *height = (int *)malloc(sizeof(int));
+
+    *width  = monitors[i].pixelBounds.w;
+    *height = monitors[i].pixelBounds.h;
+
     g_object_set_data(G_OBJECT(row), "monitor_name", (gpointer)nameBuff);
+    g_object_set_data(G_OBJECT(row), "monitor_width", (gpointer)width);
+    g_object_set_data(G_OBJECT(row), "monitor_height", (gpointer)height);
 
     gtk_widget_show_all(row);
   }
@@ -103,44 +124,27 @@ static void activate(GtkApplication *app, gpointer userdata)
     builder = gtk_builder_new_from_file(gladefilePath);
     gtk_builder_connect_signals(builder, NULL);
 
-    mainWnd         = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow");
-    exitDialog      = (GtkWidget *)gtk_builder_get_object(builder, "ExitDialog");
-    wallpaperMgrWnd = (GtkWidget *)gtk_builder_get_object(builder, "WallpaperManagerWindow");
-    monitorWnd      = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow");
-    appSettingsWnd  = (GtkWidget *)gtk_builder_get_object(builder, "SettingsWindow");
-    monitorListBox  = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_MonitorListBox");
-    versionLabel    = (GtkWidget *)gtk_builder_get_object(builder, "MainWindow_VersionLabel");
-    wallpaperListBox =
-        (GtkWidget *)gtk_builder_get_object(builder, "WallpaperManagerWindow_WallpaperListBox");
-    wallpaperComboBox =
-        (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_WallpaperComboBox");
-    xPosSpinBtn   = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_XPosSpinBtn");
-    yPosSpinBtn   = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_YPosSpinBtn");
-    widthSpinBtn  = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_WidthSpinBtn");
-    heightSpinBtn = (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_HeightSpinBtn");
-    monitorNameLabel =
-        (GtkWidget *)gtk_builder_get_object(builder, "MonitorWindow_MonitorNameLabel");
-    targetFpsComboBox =
-        (GtkWidget *)gtk_builder_get_object(builder, "SettingsWindow_TargetFpsComboBox");
-    renderQualityComboBox =
-        (GtkWidget *)gtk_builder_get_object(builder, "SettingsWindow_TexFilteringComboBox");
-    drawOnRootWndComboBox =
-        (GtkWidget *)gtk_builder_get_object(builder, "SettingsWindow_DrawOnRootWndComboBox");
+    for (int i = 0; i < CONTROLS_MAX; i++)
+      controls[i].widget =
+          (GtkWidget *)gtk_builder_get_object(builder, controls[i].name);
 
-    gtk_window_set_application(GTK_WINDOW(mainWnd), GTK_APPLICATION(app));
-    gtk_window_set_application(GTK_WINDOW(exitDialog), GTK_APPLICATION(app));
-    gtk_window_set_application(GTK_WINDOW(wallpaperMgrWnd), GTK_APPLICATION(app));
-    gtk_window_set_application(GTK_WINDOW(monitorWnd), GTK_APPLICATION(app));
-    gtk_window_set_application(GTK_WINDOW(appSettingsWnd), GTK_APPLICATION(app));
+    gtk_window_set_title(
+        GTK_WINDOW(WID(CONTROL_MAIN_WND)), "Layered WallPaper"
+    );
 
-    gtk_label_set_text(GTK_LABEL(versionLabel), PROGRAM_VERSION);
+    gtk_window_set_application(
+        GTK_WINDOW(WID(CONTROL_MAIN_WND)), GTK_APPLICATION(app)
+    );
+
+    gtk_label_set_text(GTK_LABEL(WID(CONTROL_VER_LABEL)), PROGRAM_VERSION);
 
     runWlp();
   }
 
   reloadMonitorListBox();
 
-  if (alreadyRunning) gtk_widget_set_visible(mainWnd, 1);
+  if (alreadyRunning)
+    gtk_widget_set_visible(controls[CONTROL_MAIN_WND].widget, 1);
 
   alreadyRunning = 1;
 }
@@ -152,10 +156,22 @@ int main(int argc, char *argv[])
   createUserDirs();
 
 #ifdef __WIN32
+  hJob = CreateJobObject(NULL, NULL);
+  AssignProcessToJobObject(hJob, GetCurrentProcess());
+  SetEnvironmentVariable("GTK_THEME", "Adwaita:dark");
   initTrayIcon();
 #endif
 
-  app = gtk_application_new("com.github.jszczerbinsky.lwp", G_APPLICATION_DEFAULT_FLAGS);
+#if GLIB_CHECK_VERSION(2, 74, 0)
+  app = gtk_application_new(
+      "com.github.jszczerbinsky.lwp", G_APPLICATION_DEFAULT_FLAGS
+  );
+#else
+  app = gtk_application_new(
+      "com.github.jszczerbinsky.lwp", G_APPLICATION_FLAGS_NONE
+  );
+#endif
+
   g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
   status = g_application_run(G_APPLICATION(app), argc, argv);
   g_object_unref(app);

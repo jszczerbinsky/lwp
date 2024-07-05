@@ -82,11 +82,13 @@ set(CPACK_NSIS_MUI_ICON  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
 set(CPACK_NSIS_MUI_UNIICON  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
 set(CPACK_NSIS_INSTALLED_ICON_NAME  ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
 set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-  WriteRegExpandStr HKLM 'Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' 'lwp'	'\$INSTDIR\\\\lwp.exe'
+  	WriteRegExpandStr HKLM 'Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' 'lwp'	'\$INSTDIR\\\\lwp.exe'
 	Exec '\$INSTDIR\\\\lwp.exe'
+	CreateShortCut \\\"$DESKTOP\\\\Layered WallPaper.lnk\\\" \\\"$INSTDIR\\\\lwp.exe\\\"
    ")
 set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
   DeleteRegValue HKLM 'Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' 'lwp'
+  Delete \\\"$DESKTOP\\\\Layered WallPaper.lnk\\\"
  ")
 set(CPACK_PACKAGE_NAME "Layered WallPaper")
 set(CPACK_PACKAGE_VENDOR "Jakub Szczerbinski")

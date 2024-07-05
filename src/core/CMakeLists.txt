@@ -3,7 +3,8 @@ set(_SOURCE_FILES
 		../common/config.c
 		../common/wallpaperScanner.c
 		../common/monitorScanner.c
-    main.c
+		../common/debug.c
+  	main.c
 		windowHandlers.c
 		wlp.c
 		trayIcon.c
@@ -45,6 +46,11 @@ list(APPEND _LIBS ${GTK3_LINK_LIBRARIES})
 pkg_check_modules (libconfig REQUIRED libconfig)
 list(APPEND _INCLUDE_DIRS ${libconfig_INCLUDE_DIRS})
 list(APPEND _LIBS ${libconfig_LINK_LIBRARIES})
+
+if (_UNAME STREQUAL "WIN32")
+  # Shcore dependency
+  list(APPEND _LIBS "-lShcore")
+endif()
 
 # Main executable
 if(_UNAME STREQUAL "WIN32")

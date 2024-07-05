@@ -47,7 +47,10 @@ void runWlp()
   _tcscat(path, TEXT("wlp.exe"));
 
   if (CreateProcess(NULL, path, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+  {
     hWlpProcess = pi.hProcess;
+    AssignProcessToJobObject(hJob, pi.hProcess);
+  }
   else
     printf("Failed to start a wallpaper subprocess");
 
