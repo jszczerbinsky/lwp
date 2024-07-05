@@ -1,15 +1,17 @@
 #include "main.h"
 
-static App app;
+static App app = {0};
 
 static void atExit()
 {
 #ifdef __LINUX
-  XCloseDisplay(app.display);
+  printlog(LOG_INFO, "Closing X11 display...");
+  if (app.display) XCloseDisplay(app.display);
 #endif
 
   for (int i = 0; i < app.monitorsCount; i++)
   {
+    printlog(LOG_INFO, "Freeing monitor %d...", i);
     Monitor *m = app.monitors + i;
     if (m->tex) SDL_DestroyTexture(m->tex);
     if (m->wlp.tex) SDL_DestroyTexture(m->wlp.tex);
@@ -26,7 +28,10 @@ static void atExit()
 
   free(app.monitors);
 
+  printlog(LOG_INFO, "Quitting SDL2...");
   SDL_Quit();
+
+  printlog(LOG_INFO, "Done");
 }
 
 void exitSignalHandler(int s)
@@ -136,7 +141,7 @@ void initWallpaper(
     printlog(LOG_WARNING, "Couldn't find the wallpaper. Ignoring...");
 }
 
-int initMonitors(App *app)
+void initMonitors(App *app)
 {
   MonitorInfo *monitors = scanMonitors(&app->monitorsCount);
   app->monitors         = calloc(app->monitorsCount, sizeof(Monitor));
@@ -219,7 +224,7 @@ int main(int argc, char *argv[])
 #ifdef __WIN32
   signal(SIGTERM, exitSignalHandler);
 #else
-  signal(SIGINT, exitSignalHandler);
+  signal(SIGKILL, exitSignalHandler);
 #endif
 
   printlog(LOG_INFO, "Starting Layered WallPaper");
