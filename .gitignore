@@ -1,0 +1,10 @@
+build
+*.cmake
+.cache
+.clang-format
+CMakeFiles
+Makefile
+compile_commands.json
+*.taghl
+src/tags
+CMakeCache.txt
