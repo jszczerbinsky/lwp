@@ -136,7 +136,8 @@ static int instance_loop(WlpInstance* inst, float dt) {
 				.h = layer->bounds.h,
 			};
 
-			SDL_RenderTexture(inst->sdl_ren, tex->sdl_tex, &src, &dst);
+			SDL_RenderTextureRotated(inst->sdl_ren, tex->sdl_tex, &src, &dst,
+									 layer->rot, NULL, SDL_FLIP_NONE);
 		}
 		layer = layer->next;
 	}
@@ -158,6 +159,7 @@ void instance_run(WlpInstance* inst) {
 	while (!quit) {
 		long long ticks = SDL_GetTicks();
 		float	  dt = (ticks - last_ticks) / 1000.0f;
+		last_ticks = ticks;
 		if (instance_loop(inst, dt) == LOOP_STOP) {
 			quit = 1;
 		}

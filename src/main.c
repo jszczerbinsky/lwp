@@ -15,10 +15,6 @@ int main(int argc, char** argv) {
 
 	instance_run(inst);
 
-	while (1) {
-		SDL_Delay(1000);
-	}
-
 	instance_free(inst);
 
 	SDL_Quit();

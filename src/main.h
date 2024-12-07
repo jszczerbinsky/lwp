@@ -42,9 +42,19 @@ typedef struct {
 } Size;
 
 typedef struct {
+	int x;
+	int y;
+} Point;
+
+typedef struct {
 	float w;
 	float h;
 } SizeF;
+
+typedef struct {
+	float x;
+	float y;
+} PointF;
 
 #define TEX_NAME_MAX 256
 
