@@ -1,51 +1,17 @@
 #include "main.h"
 #include <SDL2/SDL_timer.h>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_error.h>
 #include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_rect.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <lua.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define LOOP_CONTINUE 0
 #define LOOP_STOP	  1
-
-static void tex_free(Tex* tex) {
-	SDL_DestroyTexture(tex->sdl_tex);
-	free(tex);
-}
-
-static void tex_load(WlpInstance* inst, const char* name, const char* path) {
-	SDL_Surface* sdl_surf = SDL_LoadBMP(path);
-	if (!sdl_surf) {
-		printlog(LOG_INFO,
-				 "Failed loading BMP file %s - internal error: ", path,
-				 SDL_GetError());
-		return;
-	}
-
-	SDL_Texture* sdl_tex =
-		SDL_CreateTextureFromSurface(inst->sdl_ren, sdl_surf);
-	if (!sdl_tex) {
-		printlog(LOG_INFO,
-				 "Failed creating a texture from file %s - internal error: ",
-				 path, SDL_GetError());
-
-		SDL_DestroySurface(sdl_surf);
-		return;
-	}
-
-	Tex* tex = malloc(sizeof(Tex));
-	tex->sdl_tex = sdl_tex;
-	tex->original_size.w = sdl_surf->w;
-	tex->original_size.h = sdl_surf->h;
-	strcpy(tex->name, name);
-
-	tex->next = inst->texs;
-	inst->texs = tex;
-
-	SDL_DestroySurface(sdl_surf);
-}
 
 WlpInstance* instance_create() {
 	SDL_Window* wnd = SDL_CreateWindow("SDL3 Window", 800, 600, 0);
@@ -71,6 +37,7 @@ WlpInstance* instance_create() {
 	inst->sdl_wnd = wnd;
 	inst->sdl_ren = ren;
 	inst->texs = NULL;
+	inst->fonts = NULL;
 	inst->layers = NULL;
 	inst->lua = NULL;
 
@@ -83,6 +50,7 @@ void instance_free(WlpInstance* inst) {
 
 	while (inst->layers) {
 		Layer* next = inst->layers->next;
+		layer_freerenopts(inst->layers);
 		free(inst->layers);
 		inst->layers = next;
 	}
@@ -119,9 +87,11 @@ static int instance_loop(WlpInstance* inst, float dt) {
 	SDL_SetRenderDrawColor(inst->sdl_ren, 255, 255, 255, 255);
 	SDL_RenderClear(inst->sdl_ren);
 	Layer* layer = inst->layers;
+
 	while (layer) {
-		if (layer->current_tex) {
-			const Tex* tex = layer->current_tex;
+		const Tex* tex = layer_getcurrtex(layer);
+
+		if (tex) {
 
 			SDL_FRect src = {
 				.x = 0,
@@ -132,8 +102,8 @@ static int instance_loop(WlpInstance* inst, float dt) {
 			SDL_FRect dst = {
 				.x = layer->bounds.x,
 				.y = layer->bounds.y,
-				.w = layer->bounds.w,
-				.h = layer->bounds.h,
+				.w = layer->bounds.w * layer->scale.w,
+				.h = layer->bounds.h * layer->scale.h,
 			};
 
 			SDL_RenderTextureRotated(inst->sdl_ren, tex->sdl_tex, &src, &dst,
@@ -168,25 +138,40 @@ void instance_run(WlpInstance* inst) {
 }
 
 void instance_load_wlp(WlpInstance* inst, const char* dir_path) {
-	char path[PATH_MAX];
+	char  path[PATH_MAX];
+	Dict* ptr;
+
 	sprintf(path, "%s%s%s", dir_path, DIR_SEP, "textures.cfg");
 	Dict* tex_set = dict_read(path);
-
-	Dict* ptr = tex_set;
+	ptr = tex_set;
 	while (ptr) {
 		printlog(LOG_INFO, "Loading texture '%s' from file: %s", ptr->key,
 				 ptr->val);
 
-		sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "resources", DIR_SEP,
+		sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "assets", DIR_SEP,
 				ptr->val);
 
 		tex_load(inst, ptr->key, path);
 		ptr = ptr->next;
 	}
 
-	sprintf(path, "%s%s%s", dir_path, DIR_SEP, "main.lua");
+	sprintf(path, "%s%s%s", dir_path, DIR_SEP, "fonts.cfg");
+	Dict* font_set = dict_read(path);
+	ptr = font_set;
+	while (ptr) {
+		printlog(LOG_INFO, "Loading font '%s' from file: %s", ptr->key,
+				 ptr->val);
 
+		sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "assets", DIR_SEP,
+				ptr->val);
+
+		font_load(inst, ptr->key, path);
+		ptr = ptr->next;
+	}
+
+	sprintf(path, "%s%s%s", dir_path, DIR_SEP, "main.lua");
 	wlpapi_init(inst, path);
 
+	dict_free(font_set);
 	dict_free(tex_set);
 }

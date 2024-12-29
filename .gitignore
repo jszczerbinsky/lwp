@@ -8,3 +8,4 @@ compile_commands.json
 *.taghl
 src/tags
 CMakeCache.txt
+vgcore*

@@ -7,10 +7,15 @@ project(lwp)
 set(SOURCE_FILES
 	src/main.c
 	src/wlp.c
-	src/wlp_layers.c
 	src/wlpapi.c
 	src/log.c
 	src/dict.c
+	src/assets.c
+	src/layer/layer.c
+	src/layer/layer_anim.c
+	src/layer/layer_col.c
+	src/layer/layer_img.c
+	src/layer/layer_text.c
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
@@ -21,9 +26,10 @@ list(APPEND _INCLUDE_DIRS ${LUA_INCLUDE_DIRS})
 list(APPEND _LIBS ${LUA_LIBRARIES})
 
 # SDL3 dependency
-find_package(SDL3 REQUIRED CONFIG)
-list(APPEND _INCLUDE_DIRS ${SDL3_INCLUDE_DIRS})
-list(APPEND _LIBS ${SDL3_LIBRARIES})
+find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
+list(APPEND _LIBS SDL3::SDL3-shared)
+find_package(SDL3_ttf REQUIRED CONFIG)
+list(APPEND _LIBS SDL3_ttf::SDL3_ttf)
 
 if (_UNAME STREQUAL "LINUX")
   # X11 and Xrandr dependency
