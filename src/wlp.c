@@ -51,6 +51,8 @@ void instance_free(WlpInstance* inst) {
 	while (inst->layers) {
 		Layer* next = inst->layers->next;
 		layer_freerenopts(inst->layers);
+		for (int i = 0; i < inst->layers->behcnt; i++)
+			free(inst->layers->behs + i);
 		free(inst->layers);
 		inst->layers = next;
 	}
@@ -89,25 +91,25 @@ static int instance_loop(WlpInstance* inst, float dt) {
 	Layer* layer = inst->layers;
 
 	while (layer) {
-		const Tex* tex = layer_getcurrtex(layer);
+		layer_updatebehaviour(inst, layer, dt);
+		const Tex* tex = layer_getrentex(layer);
 
 		if (tex) {
 
-			SDL_FRect src = {
+			SDL_FRect sdlsrc = {
 				.x = 0,
 				.y = 0,
 				.w = tex->original_size.w,
 				.h = tex->original_size.h,
 			};
-			SDL_FRect dst = {
-				.x = layer->bounds.x,
-				.y = layer->bounds.y,
-				.w = layer->bounds.w * layer->scale.w,
-				.h = layer->bounds.h * layer->scale.h,
-			};
 
-			SDL_RenderTextureRotated(inst->sdl_ren, tex->sdl_tex, &src, &dst,
-									 layer->rot, NULL, SDL_FLIP_NONE);
+			BoundsF dst;
+			layer_getrenbounds(layer, &dst);
+
+			SDL_FRect sdldst = {.x = dst.x, .y = dst.y, .w = dst.w, .h = dst.h};
+
+			SDL_RenderTextureRotated(inst->sdl_ren, tex->sdl_tex, &sdlsrc,
+									 &sdldst, layer->rot, NULL, SDL_FLIP_NONE);
 		}
 		layer = layer->next;
 	}

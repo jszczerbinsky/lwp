@@ -84,9 +84,19 @@ typedef struct _Tex {
 
 void tex_free(Tex* tex);
 
-#define BOUNDS_FIXED	  0
-#define BOUNDS_BG_FILL	  1
-#define BOUNDS_BG_STRETCH 2
+#define ANCHOR_TOPL 0
+#define ANCHOR_TOPR 1
+#define ANCHOR_CENT 2
+#define ANCHOR_BOTL 3
+#define ANCHOR_BOTR 4
+
+// Simple behaviours - no arg required
+#define BEHAVIOUR_BGFILL	0
+#define BEHAVIOUR_BGFIT		1
+#define BEHAVIOUR_BGSTRETCH 2
+// Other behaviours - arg required
+#define BEHAVIOUR_SHAKE		  3
+#define BEHAVIOUR_FOLLOWMOUSE 4
 
 #define REN_NONE 0
 #define REN_IMG	 1
@@ -121,19 +131,23 @@ typedef union {
 	RenOpts_Col	 col;
 } RenOpts;
 
+typedef struct {
+	int	  behid;
+	float arg;
+} Behaviour;
+
 typedef struct _Layer {
-	int boundstype;
 	int rentype;
+
+	Behaviour* behs;
+	int		   behcnt;
 
 	RenOpts renopts;
 
-	// =========================
-	// settings for BOUNDS_FIXED
-	// =========================
+	int		anchor;
 	BoundsF bounds;
 	SizeF	scale;
 	float	rot;
-	// =========================
 
 	SDL_Renderer* sdl_ren;
 
@@ -166,7 +180,11 @@ void  font_free(Font* font);
 Layer*	   layer_spawnempty(WlpInstance* inst);
 void	   layer_freerenopts(Layer* layer);
 void	   layer_initas(Layer* layer, int rentype);
-const Tex* layer_getcurrtex(Layer* layer);
+void	   layer_getrenbounds(Layer* layer, BoundsF* destbounds);
+const Tex* layer_getrentex(Layer* layer);
+void	   layer_addbehaviour(Layer* layer, int behaviour, float arg);
+
+void layer_updatebehaviour(WlpInstance* inst, Layer* layer, float dt);
 
 void layer_text_settext(Layer* layer, const char* str);
 void layer_text_setfg(Layer* layer, const RGBA* fg);
@@ -182,5 +200,7 @@ void layer_img_settex(Layer* layer, const Tex* tex, int applybounds);
 void printlog(int type, const char* str, ...);
 
 void wlpapi_init(WlpInstance* inst, const char* path);
+
+float lerp(float a, float b, float t);
 
 #endif

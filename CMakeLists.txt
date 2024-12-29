@@ -11,6 +11,8 @@ set(SOURCE_FILES
 	src/log.c
 	src/dict.c
 	src/assets.c
+	src/utils.c
+	src/layer/behaviour.c
 	src/layer/layer.c
 	src/layer/layer_anim.c
 	src/layer/layer_col.c

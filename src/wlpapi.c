@@ -71,6 +71,59 @@ static int api_layer_getrot(lua_State* lua) {
 	return 1;
 }
 
+static int api_layer_addbehaviour(lua_State* lua) {
+	Layer*		layer = (Layer*)luaL_checkudata(lua, 1, "LayerMetaTab");
+	const char* beh_name = luaL_checkstring(lua, 2);
+
+	int behaviour;
+
+	if (strcmp(beh_name, "BgFill") == 0) {
+		behaviour = BEHAVIOUR_BGFILL;
+	} else if (strcmp(beh_name, "BgFit") == 0) {
+		behaviour = BEHAVIOUR_BGFIT;
+	} else if (strcmp(beh_name, "BgStretch") == 0) {
+		behaviour = BEHAVIOUR_BGSTRETCH;
+	} else if (strcmp(beh_name, "Shake") == 0) {
+		behaviour = BEHAVIOUR_SHAKE;
+	} else if (strcmp(beh_name, "FollowMouse") == 0) {
+		behaviour = BEHAVIOUR_FOLLOWMOUSE;
+	} else {
+		luaL_error(lua, "Behaviour '%s' not found", beh_name);
+		return 0;
+	}
+
+	int arg = luaL_optnumber(lua, 3, 0);
+
+	layer_addbehaviour(layer, behaviour, arg);
+
+	return 0;
+}
+
+static int api_layer_setanchor(lua_State* lua) {
+	Layer*		layer = (Layer*)luaL_checkudata(lua, 1, "LayerMetaTab");
+	const char* anch_name = luaL_checkstring(lua, 2);
+
+	if (strcmp(anch_name, "TopLeft") == 0) {
+		layer->anchor = ANCHOR_TOPL;
+	} else if (strcmp(anch_name, "TopLeft") == 0) {
+		layer->anchor = ANCHOR_TOPL;
+	} else if (strcmp(anch_name, "TopRight") == 0) {
+		layer->anchor = ANCHOR_TOPR;
+	} else if (strcmp(anch_name, "BottomLeft") == 0) {
+		layer->anchor = ANCHOR_BOTL;
+	} else if (strcmp(anch_name, "BottomRight") == 0) {
+		layer->anchor = ANCHOR_BOTR;
+	} else if (strcmp(anch_name, "Center") == 0) {
+		layer->anchor = ANCHOR_CENT;
+	} else {
+
+		luaL_error(lua, "Anchor '%s' not found", anch_name);
+		return 0;
+	}
+
+	return 0;
+}
+
 static int api_layer_settext(lua_State* lua) {
 	WlpInstance* inst = get_inst(lua);
 
@@ -251,23 +304,27 @@ static void def_funcs(WlpInstance* inst) {
 	lua_pushvalue(lua, -1);
 	lua_setfield(lua, -2, "__index");
 	lua_pushcfunction(lua, api_layer_setpos);
-	lua_setfield(lua, -2, "setpos");
+	lua_setfield(lua, -2, "SetPosition");
 	lua_pushcfunction(lua, api_layer_getpos);
-	lua_setfield(lua, -2, "getpos");
+	lua_setfield(lua, -2, "GetPosition");
 	lua_pushcfunction(lua, api_layer_setsize);
-	lua_setfield(lua, -2, "setsize");
+	lua_setfield(lua, -2, "SetSize");
 	lua_pushcfunction(lua, api_layer_getsize);
-	lua_setfield(lua, -2, "getsize");
+	lua_setfield(lua, -2, "GetSize");
 	lua_pushcfunction(lua, api_layer_setscale);
-	lua_setfield(lua, -2, "setscale");
+	lua_setfield(lua, -2, "SetScale");
 	lua_pushcfunction(lua, api_layer_getscale);
-	lua_setfield(lua, -2, "getscale");
+	lua_setfield(lua, -2, "GetScale");
 	lua_pushcfunction(lua, api_layer_setrot);
-	lua_setfield(lua, -2, "setrot");
+	lua_setfield(lua, -2, "SetRotation");
 	lua_pushcfunction(lua, api_layer_getrot);
-	lua_setfield(lua, -2, "getrot");
+	lua_setfield(lua, -2, "GetRotation");
 	lua_pushcfunction(lua, api_layer_settext);
-	lua_setfield(lua, -2, "settext");
+	lua_setfield(lua, -2, "SetText");
+	lua_pushcfunction(lua, api_layer_setanchor);
+	lua_setfield(lua, -2, "SetAnchor");
+	lua_pushcfunction(lua, api_layer_addbehaviour);
+	lua_setfield(lua, -2, "AddBehaviour");
 
 	lua_pushcfunction(lua, api_spawnimg);
 	lua_setglobal(lua, "SpawnImg");

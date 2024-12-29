@@ -20,7 +20,7 @@ void layer_freerenopts(Layer* layer) {
 	layer->rentype = REN_NONE;
 }
 
-const Tex* layer_getcurrtex(Layer* layer) {
+const Tex* layer_getrentex(Layer* layer) {
 	switch (layer->rentype) {
 	case REN_IMG:
 		return layer->renopts.img.tex;
@@ -29,6 +29,41 @@ const Tex* layer_getcurrtex(Layer* layer) {
 	default:
 		return NULL;
 	}
+}
+
+void layer_getrenbounds(Layer* layer, BoundsF* destbounds) {
+	destbounds->w = layer->bounds.w * layer->scale.w;
+	destbounds->h = layer->bounds.h * layer->scale.h;
+
+	switch (layer->anchor) {
+	case ANCHOR_TOPL:
+		destbounds->x = layer->bounds.x;
+		destbounds->y = layer->bounds.y;
+		break;
+	case ANCHOR_TOPR:
+		destbounds->x = layer->bounds.x - destbounds->w;
+		destbounds->y = layer->bounds.y;
+		break;
+	case ANCHOR_CENT:
+		destbounds->x = layer->bounds.x - destbounds->w / 2;
+		destbounds->y = layer->bounds.y - destbounds->h / 2;
+		break;
+	case ANCHOR_BOTL:
+		destbounds->x = layer->bounds.x;
+		destbounds->y = layer->bounds.y - destbounds->h;
+		break;
+	case ANCHOR_BOTR:
+		destbounds->x = layer->bounds.x - destbounds->w;
+		destbounds->y = layer->bounds.y - destbounds->h;
+		break;
+	}
+}
+
+void layer_addbehaviour(Layer* layer, int behaviour, float arg) {
+	layer->behcnt++;
+	layer->behs = realloc(layer->behs, layer->behcnt * sizeof(Behaviour));
+	layer->behs[layer->behcnt - 1].behid = behaviour;
+	layer->behs[layer->behcnt - 1].arg = arg;
 }
 
 void layer_initas(Layer* layer, int rentype) {
@@ -67,7 +102,10 @@ Layer* layer_spawnempty(WlpInstance* inst) {
 	layer->rot = 0;
 
 	layer->rentype = REN_NONE;
-	layer->boundstype = BOUNDS_FIXED;
+	layer->anchor = ANCHOR_CENT;
+
+	layer->behcnt = 0;
+	layer->behs = NULL;
 
 	layer->sdl_ren = inst->sdl_ren;
 
