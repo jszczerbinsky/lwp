@@ -74,10 +74,10 @@ void layer_updatebehaviour(WlpInstance* inst, Layer* layer, float dt) {
 			update_bgstretch(inst, layer);
 			break;
 		case BEHAVIOUR_SHAKE:
-			update_shake(inst, layer, layer->behs[i].arg);
+			update_shake(inst, layer, layer->behs[i].farg);
 			break;
 		case BEHAVIOUR_FOLLOWMOUSE:
-			update_followmouse(inst, layer, layer->behs[i].arg, dt);
+			update_followmouse(inst, layer, layer->behs[i].farg, dt);
 			break;
 		}
 	}

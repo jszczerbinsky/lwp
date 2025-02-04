@@ -1,7 +1,7 @@
 #include "../main.h"
 
 void layer_img_settex(Layer* layer, const Tex* tex, int applybounds) {
-	layer->renopts.img.tex = tex;
+	layer->content.img.tex = tex;
 
 	if (tex) {
 		layer->bounds.w = tex->original_size.w;

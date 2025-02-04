@@ -82,8 +82,6 @@ typedef struct _Tex {
 	struct _Tex* next;
 } Tex;
 
-void tex_free(Tex* tex);
-
 #define ANCHOR_TOPL 0
 #define ANCHOR_TOPR 1
 #define ANCHOR_CENT 2
@@ -98,15 +96,15 @@ void tex_free(Tex* tex);
 #define BEHAVIOUR_SHAKE		  3
 #define BEHAVIOUR_FOLLOWMOUSE 4
 
-#define REN_NONE 0
-#define REN_IMG	 1
-#define REN_TEXT 2
-#define REN_ANIM 3
-#define REN_COL	 4
+#define CONTENT_NONE 0
+#define CONTENT_IMG	 1
+#define CONTENT_TEXT 2
+#define CONTENT_ANIM 3
+#define CONTENT_COL	 4
 
 typedef struct {
 	const Tex* tex;
-} RenOpts_Img;
+} LayerContent_Img;
 
 typedef struct {
 	char*		str;
@@ -114,35 +112,35 @@ typedef struct {
 	RGBA		bg;
 	RGBA		fg;
 	const Font* font;
-} RenOpts_Text;
+} LayerContent_Text;
 
 typedef struct {
 	// todo
-} RenOpts_Anim;
+} LayerContent_Anim;
 
 typedef struct {
 	// todo
-} RenOpts_Col;
+} LayerContent_Col;
 
 typedef union {
-	RenOpts_Img	 img;
-	RenOpts_Text text;
-	RenOpts_Anim anim;
-	RenOpts_Col	 col;
-} RenOpts;
+	LayerContent_Img  img;
+	LayerContent_Text text;
+	LayerContent_Anim anim;
+	LayerContent_Col  col;
+} LayerContent;
 
 typedef struct {
 	int	  behid;
-	float arg;
+	float farg;
 } Behaviour;
 
 typedef struct _Layer {
-	int rentype;
 
 	Behaviour* behs;
 	int		   behcnt;
 
-	RenOpts renopts;
+	int			 contenttype;
+	LayerContent content;
 
 	int		anchor;
 	BoundsF bounds;
@@ -178,8 +176,8 @@ Font* font_find(WlpInstance* inst, const char* name);
 void  font_free(Font* font);
 
 Layer*	   layer_spawnempty(WlpInstance* inst);
-void	   layer_freerenopts(Layer* layer);
-void	   layer_initas(Layer* layer, int rentype);
+void	   layer_freecontent(Layer* layer);
+void	   layer_setcontent(Layer* layer, int contenttype);
 void	   layer_getrenbounds(Layer* layer, BoundsF* destbounds);
 const Tex* layer_getrentex(Layer* layer);
 void	   layer_addbehaviour(Layer* layer, int behaviour, float arg);

@@ -2,32 +2,32 @@
 #include <stdlib.h>
 
 void layer_text_setfont(Layer* layer, const Font* font) {
-	layer->renopts.text.font = font;
+	layer->content.text.font = font;
 }
 
 void layer_text_setbg(Layer* layer, const RGBA* bg) {
-	memcpy(&layer->renopts.text.bg, bg, sizeof(RGBA));
+	memcpy(&layer->content.text.bg, bg, sizeof(RGBA));
 }
 
 void layer_text_setfg(Layer* layer, const RGBA* fg) {
-	memcpy(&layer->renopts.text.fg, fg, sizeof(RGBA));
+	memcpy(&layer->content.text.fg, fg, sizeof(RGBA));
 }
 
 void layer_text_settext(Layer* layer, const char* str) {
-	RenOpts_Text* renopts = &layer->renopts.text;
+	LayerContent_Text* content = &layer->content.text;
 
-	if (layer->renopts.text.str) {
-		free(renopts->str);
-		tex_free(renopts->tmptex);
+	if (layer->content.text.str) {
+		free(content->str);
+		tex_free(content->tmptex);
 	}
 
-	SDL_Color sdl_fg = {renopts->fg.r, renopts->fg.g, renopts->fg.b,
-						renopts->fg.a};
-	SDL_Color sdl_bg = {renopts->bg.r, renopts->bg.g, renopts->bg.b,
-						renopts->bg.a};
+	SDL_Color sdl_fg = {content->fg.r, content->fg.g, content->fg.b,
+						content->fg.a};
+	SDL_Color sdl_bg = {content->bg.r, content->bg.g, content->bg.b,
+						content->bg.a};
 
 	SDL_Surface* sdl_surf =
-		TTF_RenderText_Shaded(renopts->font->sdl_font, str, 0, sdl_fg, sdl_bg);
+		TTF_RenderText_Shaded(content->font->sdl_font, str, 0, sdl_fg, sdl_bg);
 
 	if (!sdl_surf) {
 		printlog(LOG_ERROR, "Counldn't render text - internal error: %s",
@@ -53,7 +53,7 @@ void layer_text_settext(Layer* layer, const char* str) {
 	tex->next = NULL;
 	SDL_DestroySurface(sdl_surf);
 
-	renopts->tmptex = tex;
+	content->tmptex = tex;
 
 	layer->bounds.w = tex->original_size.w;
 	layer->bounds.h = tex->original_size.h;

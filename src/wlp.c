@@ -50,7 +50,7 @@ void instance_free(WlpInstance* inst) {
 
 	while (inst->layers) {
 		Layer* next = inst->layers->next;
-		layer_freerenopts(inst->layers);
+		layer_freecontent(inst->layers);
 		for (int i = 0; i < inst->layers->behcnt; i++)
 			free(inst->layers->behs + i);
 		free(inst->layers);
@@ -139,41 +139,45 @@ void instance_run(WlpInstance* inst) {
 	}
 }
 
+void instance_load(WlpInstance* inst, const char*);
 void instance_load_wlp(WlpInstance* inst, const char* dir_path) {
-	char  path[PATH_MAX];
-	Dict* ptr;
+	instance_load(inst, dir_path);
+	/*
+		char  path[PATH_MAX];
+		Dict* ptr;
 
-	sprintf(path, "%s%s%s", dir_path, DIR_SEP, "textures.cfg");
-	Dict* tex_set = dict_read(path);
-	ptr = tex_set;
-	while (ptr) {
-		printlog(LOG_INFO, "Loading texture '%s' from file: %s", ptr->key,
-				 ptr->val);
+		sprintf(path, "%s%s%s", dir_path, DIR_SEP, "textures.cfg");
+		Dict* tex_set = dict_read(path);
+		ptr = tex_set;
+		while (ptr) {
+			printlog(LOG_INFO, "Loading texture '%s' from file: %s", ptr->key,
+					 ptr->val);
 
-		sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "assets", DIR_SEP,
-				ptr->val);
+			sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "assets", DIR_SEP,
+					ptr->val);
 
-		tex_load(inst, ptr->key, path);
-		ptr = ptr->next;
-	}
+			tex_load(inst, ptr->key, path);
+			ptr = ptr->next;
+		}
 
-	sprintf(path, "%s%s%s", dir_path, DIR_SEP, "fonts.cfg");
-	Dict* font_set = dict_read(path);
-	ptr = font_set;
-	while (ptr) {
-		printlog(LOG_INFO, "Loading font '%s' from file: %s", ptr->key,
-				 ptr->val);
+		sprintf(path, "%s%s%s", dir_path, DIR_SEP, "fonts.cfg");
+		Dict* font_set = dict_read(path);
+		ptr = font_set;
+		while (ptr) {
+			printlog(LOG_INFO, "Loading font '%s' from file: %s", ptr->key,
+					 ptr->val);
 
-		sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "assets", DIR_SEP,
-				ptr->val);
+			sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "assets", DIR_SEP,
+					ptr->val);
 
-		font_load(inst, ptr->key, path);
-		ptr = ptr->next;
-	}
+			font_load(inst, ptr->key, path);
+			ptr = ptr->next;
+		}
 
-	sprintf(path, "%s%s%s", dir_path, DIR_SEP, "main.lua");
-	wlpapi_init(inst, path);
+		sprintf(path, "%s%s%s", dir_path, DIR_SEP, "main.lua");
+		wlpapi_init(inst, path);
 
-	dict_free(font_set);
-	dict_free(tex_set);
+		dict_free(font_set);
+		dict_free(tex_set);
+		*/
 }

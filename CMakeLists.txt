@@ -8,6 +8,7 @@ set(SOURCE_FILES
 	src/main.c
 	src/wlp.c
 	src/wlpapi.c
+	src/wlpconfig.c
 	src/log.c
 	src/dict.c
 	src/assets.c
@@ -21,6 +22,11 @@ set(SOURCE_FILES
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
+
+#libxml2 dependency
+find_package(libxml2 REQUIRED)
+list(APPEND _INCLUDE_DIRS ${LIBXML2_INCLUDE_DIRS})
+list(APPEND _LIBS ${LIBXML2_LIBRARIES})
 
 #lua dependency
 find_package(Lua51 REQUIRED)

@@ -148,7 +148,7 @@ static int api_layer_settex(lua_State* lua) {
 		return 0;
 	}
 
-	if (layer->rentype != REN_IMG) {
+	if (layer->contenttype != CONTENT_IMG) {
 		luaL_error(lua, "This function can be applied only to image layers");
 		return 0;
 	}
@@ -169,7 +169,7 @@ static int api_spawnimg(lua_State* lua) {
 	}
 
 	Layer* layer = layer_spawnempty(inst);
-	layer_initas(layer, REN_IMG);
+	layer_setcontent(layer, CONTENT_IMG);
 
 	if (tex) {
 		layer_img_settex(layer, tex, 1);
@@ -195,7 +195,7 @@ static int api_spawntext(lua_State* lua) {
 	}
 
 	Layer* layer = layer_spawnempty(inst);
-	layer_initas(layer, REN_TEXT);
+	layer_setcontent(layer, CONTENT_TEXT);
 	layer_text_setfont(layer, font);
 
 	if (str) {

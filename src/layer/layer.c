@@ -1,31 +1,31 @@
 #include "../main.h"
 #include <stdlib.h>
 
-void layer_freerenopts(Layer* layer) {
-	switch (layer->rentype) {
-	case REN_NONE:
+void layer_freecontent(Layer* layer) {
+	switch (layer->contenttype) {
+	case CONTENT_NONE:
 		break;
-	case REN_IMG:
+	case CONTENT_IMG:
 		break;
-	case REN_TEXT:
-		if (layer->renopts.text.tmptex) {
-			tex_free(layer->renopts.text.tmptex);
+	case CONTENT_TEXT:
+		if (layer->content.text.tmptex) {
+			tex_free(layer->content.text.tmptex);
 		}
 		break;
-	case REN_ANIM:
+	case CONTENT_ANIM:
 		break;
-	case REN_COL:
+	case CONTENT_COL:
 		break;
 	}
-	layer->rentype = REN_NONE;
+	layer->contenttype = CONTENT_NONE;
 }
 
 const Tex* layer_getrentex(Layer* layer) {
-	switch (layer->rentype) {
-	case REN_IMG:
-		return layer->renopts.img.tex;
-	case REN_TEXT:
-		return layer->renopts.text.tmptex;
+	switch (layer->contenttype) {
+	case CONTENT_IMG:
+		return layer->content.img.tex;
+	case CONTENT_TEXT:
+		return layer->content.text.tmptex;
 	default:
 		return NULL;
 	}
@@ -59,35 +59,35 @@ void layer_getrenbounds(Layer* layer, BoundsF* destbounds) {
 	}
 }
 
-void layer_addbehaviour(Layer* layer, int behaviour, float arg) {
+void layer_addbehaviour(Layer* layer, int behaviour, float farg) {
 	layer->behcnt++;
 	layer->behs = realloc(layer->behs, layer->behcnt * sizeof(Behaviour));
 	layer->behs[layer->behcnt - 1].behid = behaviour;
-	layer->behs[layer->behcnt - 1].arg = arg;
+	layer->behs[layer->behcnt - 1].farg = farg;
 }
 
-void layer_initas(Layer* layer, int rentype) {
+void layer_setcontent(Layer* layer, int contenttype) {
 	const RGBA black = {0, 0, 0, 255};
 	const RGBA transparent = {0, 0, 0, 0};
 
-	layer->rentype = rentype;
+	layer->contenttype = contenttype;
 
-	switch (rentype) {
-	case REN_NONE:
+	switch (contenttype) {
+	case CONTENT_NONE:
 		break;
-	case REN_IMG:
-		layer->renopts.img.tex = NULL;
+	case CONTENT_IMG:
+		layer->content.img.tex = NULL;
 		break;
-	case REN_TEXT:
-		layer->renopts.text.str = NULL;
-		layer->renopts.text.tmptex = NULL;
-		layer->renopts.text.font = NULL;
+	case CONTENT_TEXT:
+		layer->content.text.str = NULL;
+		layer->content.text.tmptex = NULL;
+		layer->content.text.font = NULL;
 		layer_text_setfg(layer, &black);
 		layer_text_setbg(layer, &transparent);
 		break;
-	case REN_ANIM:
+	case CONTENT_ANIM:
 		break;
-	case REN_COL:
+	case CONTENT_COL:
 		break;
 	}
 }
@@ -101,7 +101,7 @@ Layer* layer_spawnempty(WlpInstance* inst) {
 	layer->scale.h = 1;
 	layer->rot = 0;
 
-	layer->rentype = REN_NONE;
+	layer->contenttype = CONTENT_NONE;
 	layer->anchor = ANCHOR_CENT;
 
 	layer->behcnt = 0;
