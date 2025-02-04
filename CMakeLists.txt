@@ -10,7 +10,6 @@ set(SOURCE_FILES
 	src/wlpapi.c
 	src/wlpconfig.c
 	src/log.c
-	src/dict.c
 	src/assets.c
 	src/utils.c
 	src/layer/anchor.c

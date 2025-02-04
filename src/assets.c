@@ -7,20 +7,19 @@ void tex_free(Tex* tex) {
 }
 
 void tex_load(WlpInstance* inst, const char* name, const char* path) {
+
+	const char* errstr = "Failed loading a texture from file %s";
+
 	SDL_Surface* sdl_surf = SDL_LoadBMP(path);
 	if (!sdl_surf) {
-		printlog(LOG_ERROR, "Failed loading BMP file %s - internal error: %s",
-				 path, SDL_GetError());
+		printlog(LOG_ERROR, &inst->logctx, SDL_GetError(), errstr, path);
 		return;
 	}
 
 	SDL_Texture* sdl_tex =
 		SDL_CreateTextureFromSurface(inst->sdl_ren, sdl_surf);
 	if (!sdl_tex) {
-		printlog(LOG_ERROR,
-				 "Failed creating a texture from file %s - internal error: %s",
-				 path, SDL_GetError());
-
+		printlog(LOG_ERROR, &inst->logctx, SDL_GetError(), errstr, path);
 		SDL_DestroySurface(sdl_surf);
 		return;
 	}
@@ -62,10 +61,10 @@ void font_free(Font* font) {
 
 void font_load(WlpInstance* inst, const char* name, float ptsize,
 			   const char* path) {
-	TTF_Font* sdl_font = TTF_OpenFont(path, ptsize);
+	const char* errstr = "Failed loading a font from file %s";
+	TTF_Font*	sdl_font = TTF_OpenFont(path, ptsize);
 	if (!sdl_font) {
-		printlog(LOG_ERROR, "Failed loading TTF file %s - internal error: %s",
-				 path, SDL_GetError());
+		printlog(LOG_ERROR, &inst->logctx, SDL_GetError(), errstr, path);
 		return;
 	}
 

@@ -340,7 +340,8 @@ void wlpapi_init(WlpInstance* inst, const char* path) {
 	// TODO: distingush between missing file/errors in file
 	if (luaL_dofile(lua, path) == 0) {
 		inst->lua = lua;
-		printlog(LOG_INFO, "Loaded wallpaper script form file %s", path);
+		printlog(LOG_INFO, &inst->logctx, NULL,
+				 "Loaded wallpaper script form file %s", path);
 
 		lua_pushlightuserdata(lua, (void*)&LIGHTUSERDATA_INST_PTR);
 		lua_pushlightuserdata(lua, inst);
@@ -348,8 +349,8 @@ void wlpapi_init(WlpInstance* inst, const char* path) {
 
 		def_funcs(inst);
 	} else {
-		printlog(LOG_INFO, "Wallpaper script %s failed, internal error - %s",
-				 path, lua_tostring(lua, -1));
+		printlog(LOG_INFO, &inst->logctx, lua_tostring(lua, -1),
+				 "Wallpaper script %s failed", path);
 		lua_close(lua);
 	}
 }

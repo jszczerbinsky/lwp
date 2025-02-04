@@ -1,14 +1,14 @@
+#include "libxml/xmlerror.h"
+#include "libxml/xmlschemas.h"
 #include "libxml/xmlstring.h"
 #include "main.h"
 #include <libxml/xmlreader.h>
+#include <stdarg.h>
 #include <stdlib.h>
 
-static void config_error_handler(void* data, const char* msg, ...) {
-	printlog(LOG_ERROR, msg);
-}
-
-static void config_warning_handler(void* data, const char* msg, ...) {
-	printlog(LOG_ERROR, msg);
+static void config_error_handler(void* data, const xmlError* err) {
+	printlog(LOG_ERROR, (const LogContext*)data, err->message,
+			 "Validation of the config file failed on line %d", err->line);
 }
 
 static void parse_texture(WlpInstance* inst, const char* dir_path,
@@ -21,7 +21,8 @@ static void parse_texture(WlpInstance* inst, const char* dir_path,
 		sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "assets", DIR_SEP,
 				filename);
 		tex_load(inst, (char*)name, path);
-		printlog(LOG_INFO, "Loading texture %s from %s", name, path);
+		printlog(LOG_INFO, &inst->logctx, NULL, "Loading texture %s from %s",
+				 name, path);
 	}
 
 	if (filename) {
@@ -47,7 +48,8 @@ static void parse_font(WlpInstance* inst, const char* dir_path,
 		char path[PATH_MAX];
 		sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "assets", DIR_SEP,
 				filename);
-		printlog(LOG_INFO, "Loading font %s from %s", name, path);
+		printlog(LOG_INFO, &inst->logctx, NULL, "Loading font %s from %s", name,
+				 path);
 
 		font_load(inst, (char*)name, ptsize, path);
 	}
@@ -238,17 +240,15 @@ void instance_load(WlpInstance* inst, const char* dir_path) {
 	xmlSchemaPtr		   schema = xmlSchemaParse(schema_ctxt);
 
 	xmlSchemaValidCtxtPtr valid_ctxt = xmlSchemaNewValidCtxt(schema);
-	xmlSchemaSetValidErrors(valid_ctxt, config_error_handler,
-							config_warning_handler, NULL);
+	xmlSchemaSetValidStructuredErrors(valid_ctxt, config_error_handler,
+									  &inst->logctx);
 
 	int ret = xmlSchemaValidateDoc(valid_ctxt, doc);
 	if (ret == 0) {
-		printf("Valid XML\n");
+		printlog(LOG_INFO, &inst->logctx, NULL, "Config file is valid");
 
 		xmlNodePtr root = xmlDocGetRootElement(doc);
 		parse_wallpaper(inst, dir_path, root);
-	} else {
-		printf("Invalid XML\n");
 	}
 
 	xmlSchemaFreeValidCtxt(valid_ctxt);

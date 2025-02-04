@@ -8,20 +8,18 @@
 
 #define DIR_SEP "/"
 
-#define DICT_KEY_MAX 256
-#define DICT_VAL_MAX 256
+#define LOG_ERROR	0
+#define LOG_WARNING 1
+#define LOG_INFO	2
+#define LOG_DEBUG	3
 
-typedef struct _Dict {
-	char key[DICT_KEY_MAX];
-	char val[DICT_VAL_MAX];
+typedef struct {
+	char name[30];
+	int	 lvl;
+} LogContext;
 
-	struct _Dict* next;
-} Dict;
-
-char* dict_get(Dict* dict, const char* key);
-Dict* dict_add(Dict* dict, const char* key, const char* val);
-void  dict_free(Dict* dict);
-Dict* dict_read(const char* path);
+void printlog(int type, const LogContext* ctx, const char* internalerr,
+			  const char* str, ...);
 
 typedef struct {
 	int x;
@@ -140,6 +138,7 @@ typedef struct {
 } Behaviour;
 
 typedef struct _Layer {
+	const LogContext* logctx;
 
 	Behaviour* behs;
 	int		   behcnt;
@@ -158,6 +157,8 @@ typedef struct _Layer {
 } Layer;
 
 typedef struct {
+	LogContext logctx;
+
 	SDL_Window*	  sdl_wnd;
 	SDL_Renderer* sdl_ren;
 
@@ -168,10 +169,10 @@ typedef struct {
 	Layer* layers;
 } WlpInstance;
 
-WlpInstance* instance_create();
+WlpInstance* instance_create(const LogContext* logctx);
 void		 instance_run(WlpInstance* inst);
 void		 instance_free(WlpInstance* inst);
-void		 instance_load_wlp(WlpInstance* inst, const char* dir_path);
+void		 instance_load(WlpInstance* inst, const char* dir_path);
 
 void  tex_load(WlpInstance* inst, const char* name, const char* path);
 Tex*  tex_find(WlpInstance* inst, const char* name);
@@ -196,12 +197,6 @@ void layer_text_setbg(Layer* layer, const RGBA* bg);
 void layer_text_setfont(Layer* layer, const Font* font);
 
 void layer_img_settex(Layer* layer, const Tex* tex, int applybounds);
-
-#define LOG_INFO	0
-#define LOG_ERROR	1
-#define LOG_WARNING 2
-
-void printlog(int type, const char* str, ...);
 
 void wlpapi_init(WlpInstance* inst, const char* path);
 

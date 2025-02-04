@@ -13,22 +13,20 @@
 #define LOOP_CONTINUE 0
 #define LOOP_STOP	  1
 
-WlpInstance* instance_create() {
+WlpInstance* instance_create(const LogContext* logctx) {
 	SDL_Window* wnd = SDL_CreateWindow("SDL3 Window", 800, 600, 0);
 
 	if (wnd == NULL) {
-		printlog(LOG_ERROR,
-				 "Failed to initialize SDL3 wnd - Internal error: %s",
-				 SDL_GetError());
+		printlog(LOG_ERROR, logctx, SDL_GetError(),
+				 "Failed to initialize SDL3 window");
 		return NULL;
 	}
 
 	SDL_Renderer* ren = SDL_CreateRenderer(wnd, NULL);
 
 	if (ren == NULL) {
-		printlog(LOG_ERROR,
-				 "Failed to initialize SDL3 ren - Internal error: %s",
-				 SDL_GetError());
+		printlog(LOG_ERROR, logctx, SDL_GetError(),
+				 "Failed to initialize SDL3 renderer");
 		SDL_DestroyWindow(wnd);
 		return NULL;
 	}
@@ -40,6 +38,7 @@ WlpInstance* instance_create() {
 	inst->fonts = NULL;
 	inst->layers = NULL;
 	inst->lua = NULL;
+	memcpy(&inst->logctx, logctx, sizeof(LogContext));
 
 	return inst;
 }
@@ -81,8 +80,8 @@ static int instance_loop(WlpInstance* inst, float dt) {
 		lua_getglobal(inst->lua, "onUpdate");
 		lua_pushnumber(inst->lua, dt);
 		if (lua_pcall(inst->lua, 1, 0, 0) != LUA_OK) {
-			printlog(LOG_ERROR, "Error running onUpdate: %s\n",
-					 lua_tostring(inst->lua, -1));
+			printlog(LOG_ERROR, &inst->logctx, lua_tostring(inst->lua, -1),
+					 "Error running onUpdate: %s\n");
 		}
 	}
 
@@ -121,8 +120,8 @@ void instance_run(WlpInstance* inst) {
 	if (inst->lua) {
 		lua_getglobal(inst->lua, "onStart");
 		if (lua_pcall(inst->lua, 0, 0, 0) != LUA_OK) {
-			printlog(LOG_ERROR, "Error running onStart: %s\n",
-					 lua_tostring(inst->lua, -1));
+			printlog(LOG_ERROR, &inst->logctx, lua_tostring(inst->lua, -1),
+					 "Error running onStart: %s\n");
 		}
 	}
 
@@ -137,47 +136,4 @@ void instance_run(WlpInstance* inst) {
 		}
 		SDL_Delay(1000 / 60);
 	}
-}
-
-void instance_load(WlpInstance* inst, const char*);
-void instance_load_wlp(WlpInstance* inst, const char* dir_path) {
-	instance_load(inst, dir_path);
-	/*
-		char  path[PATH_MAX];
-		Dict* ptr;
-
-		sprintf(path, "%s%s%s", dir_path, DIR_SEP, "textures.cfg");
-		Dict* tex_set = dict_read(path);
-		ptr = tex_set;
-		while (ptr) {
-			printlog(LOG_INFO, "Loading texture '%s' from file: %s", ptr->key,
-					 ptr->val);
-
-			sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "assets", DIR_SEP,
-					ptr->val);
-
-			tex_load(inst, ptr->key, path);
-			ptr = ptr->next;
-		}
-
-		sprintf(path, "%s%s%s", dir_path, DIR_SEP, "fonts.cfg");
-		Dict* font_set = dict_read(path);
-		ptr = font_set;
-		while (ptr) {
-			printlog(LOG_INFO, "Loading font '%s' from file: %s", ptr->key,
-					 ptr->val);
-
-			sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "assets", DIR_SEP,
-					ptr->val);
-
-			font_load(inst, ptr->key, path);
-			ptr = ptr->next;
-		}
-
-		sprintf(path, "%s%s%s", dir_path, DIR_SEP, "main.lua");
-		wlpapi_init(inst, path);
-
-		dict_free(font_set);
-		dict_free(tex_set);
-		*/
 }

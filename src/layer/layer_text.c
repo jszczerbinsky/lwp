@@ -29,19 +29,17 @@ void layer_text_settext(Layer* layer, const char* str) {
 	SDL_Surface* sdl_surf =
 		TTF_RenderText_Shaded(content->font->sdl_font, str, 0, sdl_fg, sdl_bg);
 
+	const char* errstr = "Failed setting a text content";
+
 	if (!sdl_surf) {
-		printlog(LOG_ERROR, "Counldn't render text - internal error: %s",
-				 SDL_GetError());
+		printlog(LOG_ERROR, layer->logctx, SDL_GetError(), errstr);
 		return;
 	}
 
 	SDL_Texture* sdl_tex =
 		SDL_CreateTextureFromSurface(layer->sdl_ren, sdl_surf);
 	if (!sdl_tex) {
-		printlog(
-			LOG_ERROR,
-			"Failed creating a texture from rendered text - internal error: %s",
-			SDL_GetError());
+		printlog(LOG_ERROR, layer->logctx, SDL_GetError(), errstr);
 		SDL_DestroySurface(sdl_surf);
 		return;
 	}
