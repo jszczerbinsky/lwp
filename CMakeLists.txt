@@ -13,6 +13,7 @@ set(SOURCE_FILES
 	src/dict.c
 	src/assets.c
 	src/utils.c
+	src/layer/anchor.c
 	src/layer/behaviour.c
 	src/layer/layer.c
 	src/layer/layer_anim.c

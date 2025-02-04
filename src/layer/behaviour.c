@@ -2,7 +2,8 @@
 #include <SDL3/SDL_video.h>
 #include <stdlib.h>
 
-static void update_bgfill(WlpInstance* inst, Layer* layer) {
+static void update_bgfill(WlpInstance* inst, Layer* layer, Behaviour* beh,
+						  float dt) {
 	layer->anchor = ANCHOR_TOPL;
 	layer->bounds.y = 0;
 
@@ -18,7 +19,8 @@ static void update_bgfill(WlpInstance* inst, Layer* layer) {
 	layer->bounds.x = -diffw / 2;
 }
 
-static void update_bgfit(WlpInstance* inst, Layer* layer) {
+static void update_bgfit(WlpInstance* inst, Layer* layer, Behaviour* beh,
+						 float dt) {
 	layer->anchor = ANCHOR_TOPL;
 	layer->bounds.x = 0;
 
@@ -34,7 +36,8 @@ static void update_bgfit(WlpInstance* inst, Layer* layer) {
 	layer->bounds.y = -diffh / 2;
 }
 
-static void update_bgstretch(WlpInstance* inst, Layer* layer) {
+static void update_bgstretch(WlpInstance* inst, Layer* layer, Behaviour* beh,
+							 float dt) {
 	layer->anchor = ANCHOR_TOPL;
 	layer->bounds.x = 0;
 	layer->bounds.y = 0;
@@ -45,40 +48,71 @@ static void update_bgstretch(WlpInstance* inst, Layer* layer) {
 	layer->bounds.h = h;
 }
 
-static void update_shake(WlpInstance* inst, Layer* layer, float arg) {
-	int argi = (int)arg;
-
-	layer->bounds.x += (rand() % argi) - argi / 2;
-	layer->bounds.y += (rand() % argi) - argi / 2;
+static void update_shake(WlpInstance* inst, Layer* layer, Behaviour* beh,
+						 float dt) {
+	layer->bounds.x += (rand() % beh->iarg) - beh->iarg / 2;
+	layer->bounds.y += (rand() % beh->iarg) - beh->iarg / 2;
 }
 
-static void update_followmouse(WlpInstance* inst, Layer* layer, float arg,
+static void update_followmouse(WlpInstance* inst, Layer* layer, Behaviour* beh,
 							   float dt) {
 	float mx, my;
 	SDL_GetGlobalMouseState(&mx, &my);
 
-	layer->bounds.x = lerp(layer->bounds.x, mx, arg * dt);
-	layer->bounds.y = lerp(layer->bounds.y, my, arg * dt);
+	layer->bounds.x = lerp(layer->bounds.x, mx, beh->farg * dt);
+	layer->bounds.y = lerp(layer->bounds.y, my, beh->farg * dt);
+}
+
+typedef struct {
+	const char* name;
+	int			behid;
+	void (*update)(WlpInstance* inst, Layer* layer, Behaviour* beh, float dt);
+} BehaviourDef;
+
+static const BehaviourDef behdefs[] = {
+	{
+		.name = "BgFill",
+		.behid = BEHAVIOUR_BGFILL,
+		.update = update_bgfill,
+	},
+	{
+		.name = "BgFit",
+		.behid = BEHAVIOUR_BGFIT,
+		.update = update_bgfit,
+	},
+	{
+		.name = "BgStretch",
+		.behid = BEHAVIOUR_BGSTRETCH,
+		.update = update_bgstretch,
+	},
+	{
+		.name = "Shake",
+		.behid = BEHAVIOUR_SHAKE,
+		.update = update_shake,
+	},
+
+	{
+		.name = "FollowMouse",
+		.behid = BEHAVIOUR_FOLLOWMOUSE,
+		.update = update_followmouse,
+	},
+};
+
+static const int behdefscnt = sizeof(behdefs) / sizeof(BehaviourDef);
+
+int parsebehaviour(const char* str) {
+	for (int i = 0; i < behdefscnt; i++) {
+		if (strcmp(behdefs[i].name, str) == 0) {
+			return behdefs[i].behid;
+		}
+	}
+	return ANCHOR_INVALID;
 }
 
 void layer_updatebehaviour(WlpInstance* inst, Layer* layer, float dt) {
 	for (int i = 0; i < layer->behcnt; i++) {
-		switch (layer->behs[i].behid) {
-		case BEHAVIOUR_BGFIT:
-			update_bgfit(inst, layer);
-			break;
-		case BEHAVIOUR_BGFILL:
-			update_bgfill(inst, layer);
-			break;
-		case BEHAVIOUR_BGSTRETCH:
-			update_bgstretch(inst, layer);
-			break;
-		case BEHAVIOUR_SHAKE:
-			update_shake(inst, layer, layer->behs[i].farg);
-			break;
-		case BEHAVIOUR_FOLLOWMOUSE:
-			update_followmouse(inst, layer, layer->behs[i].farg, dt);
-			break;
-		}
+		Behaviour* currbeh = layer->behs + i;
+
+		(*behdefs[currbeh->behid].update)(inst, layer, currbeh, dt);
 	}
 }

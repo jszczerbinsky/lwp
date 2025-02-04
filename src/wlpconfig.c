@@ -38,9 +38,9 @@ static void parse_font(WlpInstance* inst, const char* dir_path,
 	xmlChar* filename = xmlGetProp(font_node, BAD_CAST "filename");
 	xmlChar* sizestr = xmlGetProp(font_node, BAD_CAST "size");
 
-	int size = 18;
+	float ptsize = 18;
 	if (sizestr) {
-		size = atoi((char*)sizestr);
+		ptsize = atoi((char*)sizestr);
 	}
 
 	if (name && filename) {
@@ -48,8 +48,8 @@ static void parse_font(WlpInstance* inst, const char* dir_path,
 		sprintf(path, "%s%s%s%s%s", dir_path, DIR_SEP, "assets", DIR_SEP,
 				filename);
 		printlog(LOG_INFO, "Loading font %s from %s", name, path);
-		// TODO font size
-		font_load(inst, (char*)name, path);
+
+		font_load(inst, (char*)name, ptsize, path);
 	}
 
 	if (sizestr) {
@@ -79,26 +79,29 @@ static void parse_assets(WlpInstance* inst, const char* dir_path,
 
 static void parse_behaviours(WlpInstance* inst, Layer* layer,
 							 xmlNodePtr behaviours_node) {
+	xmlChar* prop;
+
 	xmlNodePtr child = behaviours_node->children;
 
 	while (child) {
-		float	 farg = 0;
-		xmlChar* fargstr = xmlGetProp(child, BAD_CAST "farg");
-		if (fargstr) {
-			farg = atof((char*)fargstr);
-			xmlFree(fargstr);
+		float farg = 0;
+		int	  iarg = 0;
+
+		int behid = parsebehaviour((char*)child->name);
+
+		prop = xmlGetProp(child, BAD_CAST "farg");
+		if (prop) {
+			farg = atof((char*)prop);
+			xmlFree(prop);
+		}
+		prop = xmlGetProp(child, BAD_CAST "iarg");
+		if (prop) {
+			iarg = atoi((char*)prop);
+			xmlFree(prop);
 		}
 
-		if (xmlStrcmp(child->name, BAD_CAST "bgFit") == 0) {
-			layer_addbehaviour(layer, BEHAVIOUR_BGFIT, farg);
-		} else if (xmlStrcmp(child->name, BAD_CAST "bgFill") == 0) {
-			layer_addbehaviour(layer, BEHAVIOUR_BGFILL, farg);
-		} else if (xmlStrcmp(child->name, BAD_CAST "bgStretch") == 0) {
-			layer_addbehaviour(layer, BEHAVIOUR_BGSTRETCH, farg);
-		} else if (xmlStrcmp(child->name, BAD_CAST "shake") == 0) {
-			layer_addbehaviour(layer, BEHAVIOUR_SHAKE, farg);
-		} else if (xmlStrcmp(child->name, BAD_CAST "followMouse") == 0) {
-			layer_addbehaviour(layer, BEHAVIOUR_FOLLOWMOUSE, farg);
+		if (behid != BEHAVIOUR_INVALID) {
+			layer_addbehaviour(layer, behid, farg, iarg);
 		}
 
 		child = child->next;
@@ -170,6 +173,14 @@ static void parse_layer(WlpInstance* inst, xmlNodePtr layer_node) {
 	prop = xmlGetProp(layer_node, BAD_CAST "posy");
 	if (prop) {
 		layer->bounds.y = atof((char*)prop);
+		xmlFree(prop);
+	}
+	prop = xmlGetProp(layer_node, BAD_CAST "anchor");
+	if (prop) {
+		int anchor = parseanchor((char*)prop);
+		if (anchor != ANCHOR_INVALID) {
+			layer->anchor = anchor;
+		}
 		xmlFree(prop);
 	}
 

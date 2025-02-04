@@ -59,11 +59,12 @@ void layer_getrenbounds(Layer* layer, BoundsF* destbounds) {
 	}
 }
 
-void layer_addbehaviour(Layer* layer, int behaviour, float farg) {
+void layer_addbehaviour(Layer* layer, int behaviour, float farg, int iarg) {
 	layer->behcnt++;
 	layer->behs = realloc(layer->behs, layer->behcnt * sizeof(Behaviour));
 	layer->behs[layer->behcnt - 1].behid = behaviour;
 	layer->behs[layer->behcnt - 1].farg = farg;
+	layer->behs[layer->behcnt - 1].iarg = iarg;
 }
 
 void layer_setcontent(Layer* layer, int contenttype) {

@@ -60,23 +60,8 @@ void font_free(Font* font) {
 	free(font);
 }
 
-void font_load(WlpInstance* inst, const char* name, const char* path) {
-	float ptsize = 18;
-
-	const char* ptr = name;
-	while (*ptr != ':' && *ptr != '\0') {
-		ptr++;
-	}
-	if (*ptr == '\0') {
-		printlog(LOG_ERROR,
-				 "Failed loading TTF file %s - font name should be in the "
-				 "following format: 'fontname:fontsize'",
-				 path);
-		return;
-	}
-	ptr++;
-	ptsize = atof(ptr);
-
+void font_load(WlpInstance* inst, const char* name, float ptsize,
+			   const char* path) {
 	TTF_Font* sdl_font = TTF_OpenFont(path, ptsize);
 	if (!sdl_font) {
 		printlog(LOG_ERROR, "Failed loading TTF file %s - internal error: %s",

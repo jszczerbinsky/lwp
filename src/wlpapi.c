@@ -75,26 +75,17 @@ static int api_layer_addbehaviour(lua_State* lua) {
 	Layer*		layer = (Layer*)luaL_checkudata(lua, 1, "LayerMetaTab");
 	const char* beh_name = luaL_checkstring(lua, 2);
 
-	int behaviour;
+	int behaviour = parsebehaviour(beh_name);
 
-	if (strcmp(beh_name, "BgFill") == 0) {
-		behaviour = BEHAVIOUR_BGFILL;
-	} else if (strcmp(beh_name, "BgFit") == 0) {
-		behaviour = BEHAVIOUR_BGFIT;
-	} else if (strcmp(beh_name, "BgStretch") == 0) {
-		behaviour = BEHAVIOUR_BGSTRETCH;
-	} else if (strcmp(beh_name, "Shake") == 0) {
-		behaviour = BEHAVIOUR_SHAKE;
-	} else if (strcmp(beh_name, "FollowMouse") == 0) {
-		behaviour = BEHAVIOUR_FOLLOWMOUSE;
-	} else {
+	if (behaviour == BEHAVIOUR_INVALID) {
 		luaL_error(lua, "Behaviour '%s' not found", beh_name);
 		return 0;
 	}
 
-	int arg = luaL_optnumber(lua, 3, 0);
+	float farg = luaL_optnumber(lua, 3, 0);
+	float iarg = luaL_optnumber(lua, 4, 0);
 
-	layer_addbehaviour(layer, behaviour, arg);
+	layer_addbehaviour(layer, behaviour, farg, iarg);
 
 	return 0;
 }
