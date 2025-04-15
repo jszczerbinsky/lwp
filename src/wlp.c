@@ -1,9 +1,11 @@
 #include "main.h"
+#include "platform.h"
 #include <SDL2/SDL_timer.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <lua.h>
 #include <stdio.h>
@@ -14,7 +16,7 @@
 #define LOOP_STOP	  1
 
 WlpInstance* instance_create(const LogContext* logctx) {
-	SDL_Window* wnd = SDL_CreateWindow("SDL3 Window", 800, 600, 0);
+	/*SDL_Window* wnd = SDL_CreateWindow("SDL3 Window", 800, 600, 0);
 
 	if (wnd == NULL) {
 		printlog(LOG_ERROR, logctx, SDL_GetError(),
@@ -29,15 +31,15 @@ WlpInstance* instance_create(const LogContext* logctx) {
 				 "Failed to initialize SDL3 renderer");
 		SDL_DestroyWindow(wnd);
 		return NULL;
-	}
+	}*/
 
 	WlpInstance* inst = malloc(sizeof(WlpInstance));
-	inst->sdl_wnd = wnd;
-	inst->sdl_ren = ren;
 	inst->texs = NULL;
 	inst->fonts = NULL;
 	inst->layers = NULL;
-	inst->lua = NULL;
+
+	platform_init_wnd(&inst->sdl_wnd, &inst->sdl_ren);
+
 	memcpy(&inst->logctx, logctx, sizeof(LogContext));
 
 	return inst;
@@ -61,10 +63,6 @@ void instance_free(WlpInstance* inst) {
 		tex_free(inst->texs);
 		inst->texs = next;
 	}
-
-	if (inst->lua) {
-		lua_close(inst->lua);
-	}
 }
 
 static int instance_loop(WlpInstance* inst, float dt) {
@@ -73,15 +71,6 @@ static int instance_loop(WlpInstance* inst, float dt) {
 	while (SDL_PollEvent(&e) != 0) {
 		if (e.type == SDL_EVENT_QUIT) {
 			return LOOP_STOP;
-		}
-	}
-
-	if (inst->lua) {
-		lua_getglobal(inst->lua, "onUpdate");
-		lua_pushnumber(inst->lua, dt);
-		if (lua_pcall(inst->lua, 1, 0, 0) != LUA_OK) {
-			printlog(LOG_ERROR, &inst->logctx, lua_tostring(inst->lua, -1),
-					 "Error running onUpdate: %s\n");
 		}
 	}
 
@@ -117,14 +106,6 @@ static int instance_loop(WlpInstance* inst, float dt) {
 }
 
 void instance_run(WlpInstance* inst) {
-	if (inst->lua) {
-		lua_getglobal(inst->lua, "onStart");
-		if (lua_pcall(inst->lua, 0, 0, 0) != LUA_OK) {
-			printlog(LOG_ERROR, &inst->logctx, lua_tostring(inst->lua, -1),
-					 "Error running onStart: %s\n");
-		}
-	}
-
 	long long last_ticks = SDL_GetTicks();
 	int		  quit = 0;
 	while (!quit) {

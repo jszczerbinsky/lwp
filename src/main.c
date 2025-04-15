@@ -4,6 +4,7 @@
 #include <libxml/xmlreader.h>
 
 int main(int argc, char** argv) {
+	printlog(LOG_INFO, NULL, NULL, "JPaper " PROGRAM_VERSION " for " OS_NAME);
 
 	LIBXML_TEST_VERSION
 

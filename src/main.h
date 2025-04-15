@@ -4,7 +4,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <linux/limits.h>
-#include <lua.h>
 
 #define DIR_SEP "/"
 
@@ -161,8 +160,6 @@ typedef struct {
 
 	SDL_Window*	  sdl_wnd;
 	SDL_Renderer* sdl_ren;
-
-	lua_State* lua;
 
 	Tex*   texs;
 	Font*  fonts;
