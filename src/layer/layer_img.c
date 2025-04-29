@@ -1,4 +1,4 @@
-#include "../main.h"
+#include "../types/layer.h"
 
 void layer_img_settex(Layer* layer, const Tex* tex, int applybounds) {
 	layer->content.img.tex = tex;

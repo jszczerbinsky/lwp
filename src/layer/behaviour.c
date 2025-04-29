@@ -1,6 +1,9 @@
-#include "../main.h"
 #include <SDL3/SDL_video.h>
 #include <stdlib.h>
+
+#include "../types/instance.h"
+#include "../types/layer.h"
+#include "../utils.h"
 
 static void update_bgfill(WlpInstance* inst, Layer* layer, Behaviour* beh,
 						  float dt) {

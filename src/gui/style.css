@@ -1,0 +1,30 @@
+.title-label {
+	font-size: 18px;
+	margin: 20px 0px;
+}
+
+.mon-listbox {
+}
+
+.mon-item {
+	margin: 8px 6px;
+}
+
+.mon-item-icon {
+	margin-right: 20px;
+}
+
+.mon-item-label-box {
+
+}
+
+.mon-item-label {
+	font-size: 16px;
+	min-width: 130px;
+}
+
+.mon-item-sub-label {
+	font-size: 12px;
+	min-width: 130px;
+}
+

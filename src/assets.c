@@ -1,5 +1,8 @@
-#include "main.h"
 #include <stdlib.h>
+
+#include "types/assets.h"
+#include "types/instance.h"
+#include "types/log.h"
 
 void tex_free(Tex* tex) {
 	SDL_DestroyTexture(tex->sdl_tex);

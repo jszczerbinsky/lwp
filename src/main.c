@@ -1,14 +1,18 @@
-#include "main.h"
-#include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <libxml/xmlreader.h>
+
+#include "types/gui.h"
+#include "types/log.h"
 
 int main(int argc, char** argv) {
 	printlog(LOG_INFO, NULL, NULL, "JPaper " PROGRAM_VERSION " for " OS_NAME);
 
 	LIBXML_TEST_VERSION
 
-	printlog(LOG_INFO, NULL, NULL, "Starting...");
+	printlog(LOG_INFO, NULL, NULL, "Initializing GUI...");
+
+	App app = {0};
+	gui_init(&app.gui, argc, argv);
 
 	xmlInitParser();
 
@@ -27,13 +31,13 @@ int main(int argc, char** argv) {
 		.name = "test instance",
 		.lvl = LOG_DEBUG,
 	};
-	WlpInstance* inst = instance_create(&logctx);
+	/*WlpInstance* inst = instance_create(&logctx);
 
 	instance_load(inst, "/home/cziken/.config/lwp/testwlp");
 
 	instance_run(inst);
 
-	instance_free(inst);
+	instance_free(inst);*/
 
 	TTF_Quit();
 	SDL_Quit();

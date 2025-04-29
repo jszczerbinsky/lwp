@@ -1,5 +1,7 @@
-#include "../main.h"
 #include <stdlib.h>
+
+#include "../types/assets.h"
+#include "../types/instance.h"
 
 void layer_text_setfont(Layer* layer, const Font* font) {
 	layer->content.text.font = font;

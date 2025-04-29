@@ -3,12 +3,17 @@
 
 #include <SDL3/SDL.h>
 
+#include "types/monitor.h"
+
 #ifdef OS_LINUX
-void linux_init_wnd(SDL_Window** sdl_wnd, SDL_Renderer** sdl_ren);
-#define platform_init_wnd linux_init_wnd
+void	 platform_init_wnd(SDL_Window** sdl_wnd, SDL_Renderer** sdl_ren);
+Monitor* platform_scan_monitors(int* count);
+
+#define DIR_SEP "/"
 #endif
 #ifdef OS_WINDOWS
 
+#define DIR_SEP "\\"
 #endif
 
 #endif

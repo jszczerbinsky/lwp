@@ -1,7 +1,8 @@
-#include "main.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
+
+#include "types/log.h"
 
 void printlog(int type, const LogContext* ctx, const char* internalerr,
 			  const char* str, ...) {

@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.96.0 -->
+<interface>
+  <!-- interface-name jpaper.ui -->
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkWindow" id="MainWindow">
+    <property name="default-height">600</property>
+    <property name="default-width">800</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">JPaper</property>
+            <style>
+              <class name="title-label"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <child>
+              <object class="GtkListBox" id="MonitorListBox">
+                <property name="show-separators">True</property>
+                <child>
+                  <object class="GtkBox" id="MonitorItem">
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">computer</property>
+                        <property name="pixel-size">32</property>
+                        <style>
+                          <class name="mon-item-icon"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkLabel" id="MonitorItemLabel">
+                            <property name="label">Monitor 1</property>
+                            <style>
+                              <class name="mon-item-label"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="MonitorItemResLabel">
+                            <property name="label">800x600</property>
+                            <style>
+                              <class name="mon-item-sub-label"/>
+                            </style>
+                          </object>
+                        </child>
+                        <style>
+                          <class name="mon-item-label-box"/>
+                        </style>
+                      </object>
+                    </child>
+                    <style>
+                      <class name="mon-item"/>
+                    </style>
+                  </object>
+                </child>
+                <style>
+                  <class name="mon-listbox"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkGrid">
+                <property name="column-spacing">30</property>
+                <property name="hexpand">True</property>
+                <property name="margin-bottom">20</property>
+                <property name="margin-end">20</property>
+                <property name="margin-start">20</property>
+                <property name="margin-top">20</property>
+                <property name="vexpand">True</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Resolution:</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="column-span">1</property>
+                      <property name="row">0</property>
+                      <property name="row-span">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="MonitorResolutionLabel">
+                    <property name="label">1920x1080</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="column-span">1</property>
+                      <property name="row">0</property>
+                      <property name="row-span">1</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

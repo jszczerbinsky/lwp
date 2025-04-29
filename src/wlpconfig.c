@@ -1,10 +1,10 @@
-#include "libxml/xmlerror.h"
-#include "libxml/xmlschemas.h"
-#include "libxml/xmlstring.h"
-#include "main.h"
 #include <libxml/xmlreader.h>
 #include <stdarg.h>
 #include <stdlib.h>
+
+#include "platform.h"
+#include "types/instance.h"
+#include "types/log.h"
 
 static void config_error_handler(void* data, const xmlError* err) {
 	printlog(LOG_ERROR, (const LogContext*)data, err->message,

@@ -1,16 +1,11 @@
-#include "main.h"
-#include "platform.h"
-#include <SDL2/SDL_timer.h>
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_oldnames.h>
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include <lua.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
+#include "platform.h"
+#include "types/instance.h"
 
 #define LOOP_CONTINUE 0
 #define LOOP_STOP	  1

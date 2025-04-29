@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -38,6 +38,7 @@ endif()
 
 
 set(SOURCE_FILES
+	src/gui/gui.c
 	src/main.c
 	src/wlp.c
 	src/wlpconfig.c
@@ -53,6 +54,9 @@ set(SOURCE_FILES
 	src/layer/layer_text.c
 )
 
+configure_file(src/gui/jpaper.ui build/jpaper.ui COPYONLY)
+configure_file(src/gui/style.css build/style.css COPYONLY)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
 if(TARGET_OS STREQUAL "LINUX")
@@ -61,7 +65,9 @@ elseif(TARGET_OS STREQUAL "WINDOWS")
 	list(APPEND SOURCE_FILES "src/platform/windows.c")
 endif()
 
-#libxml2 dependency
+find_package (PkgConfig REQUIRED)
+
+# libxml2 dependency
 find_package(libxml2 REQUIRED)
 list(APPEND _INCLUDE_DIRS ${LIBXML2_INCLUDE_DIRS})
 list(APPEND _LIBS ${LIBXML2_LIBRARIES})
@@ -71,6 +77,12 @@ find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 list(APPEND _LIBS SDL3::SDL3-shared)
 find_package(SDL3_ttf REQUIRED CONFIG)
 list(APPEND _LIBS SDL3_ttf::SDL3_ttf)
+
+# GTK4 dependency
+pkg_check_modules (GTK4 REQUIRED gtk4)
+list(APPEND _INCLUDE_DIRS ${GTK4_INCLUDE_DIRS})
+list(APPEND _LIBS ${GTK4_LINK_LIBRARIES})
+
 
 if (TARGET_OS STREQUAL "LINUX")
   # X11 and Xrandr dependency

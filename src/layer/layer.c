@@ -1,5 +1,7 @@
-#include "../main.h"
 #include <stdlib.h>
+
+#include "../types/instance.h"
+#include "../types/layer.h"
 
 void layer_freecontent(Layer* layer) {
 	switch (layer->contenttype) {
