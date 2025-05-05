@@ -6,24 +6,145 @@
   <object class="GtkWindow" id="MainWindow">
     <property name="default-height">600</property>
     <property name="default-width">800</property>
+    <property name="title">JPaper control panel</property>
+    <signal name="close-request" handler="Window_HideOnClose"/>
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkLabel">
-            <property name="label">JPaper</property>
-            <style>
-              <class name="title-label"/>
-            </style>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">center</property>
+                <property name="hexpand">True</property>
+                <property name="label">JPaper</property>
+                <style>
+                  <class name="title-label"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkGrid">
+                <property name="column-homogeneous">True</property>
+                <property name="halign">center</property>
+                <child>
+                  <object class="GtkButton">
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="icon-name">preferences-desktop</property>
+                            <property name="pixel-size">32</property>
+                            <style>
+                              <class name="topbar-button-img"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label">settings</property>
+                            <property name="lines">2</property>
+                            <style>
+                              <class name="topbar-button-label"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <style>
+                      <class name="topbar-button"/>
+                    </style>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton">
+                    <signal name="clicked" handler="MainWindow_OnWallpapersBtnClicked"/>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="icon-name">preferences-desktop-wallpaper</property>
+                            <property name="pixel-size">32</property>
+                            <style>
+                              <class name="topbar-button-img"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="justify">center</property>
+                            <property name="label">wallpapers</property>
+                            <property name="lines">2</property>
+                            <style>
+                              <class name="topbar-button-label"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <style>
+                      <class name="topbar-button"/>
+                    </style>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton">
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="icon-name">utilities-terminal</property>
+                            <property name="pixel-size">32</property>
+                            <style>
+                              <class name="topbar-button-img"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label">log window</property>
+                            <style>
+                              <class name="topbar-button-label"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <style>
+                      <class name="topbar-button"/>
+                    </style>
+                    <layout>
+                      <property name="column">2</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <style>
+                  <class name="topbar"/>
+                </style>
+              </object>
+            </child>
           </object>
         </child>
         <child>
           <object class="GtkBox">
             <child>
-              <object class="GtkListBox" id="MonitorListBox">
+              <object class="GtkListBox" id="MainWindow.MonitorListBox">
                 <property name="show-separators">True</property>
                 <child>
-                  <object class="GtkBox" id="MonitorItem">
+                  <object class="GtkBox" id="MainWindow.MonitorItem">
                     <child>
                       <object class="GtkImage">
                         <property name="icon-name">computer</property>
@@ -37,7 +158,7 @@
                       <object class="GtkBox">
                         <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkLabel" id="MonitorItemLabel">
+                          <object class="GtkLabel" id="MainWindow.MonitorItemLabel">
                             <property name="label">Monitor 1</property>
                             <style>
                               <class name="mon-item-label"/>
@@ -45,7 +166,7 @@
                           </object>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="MonitorItemResLabel">
+                          <object class="GtkLabel" id="MainWindow.MonitorItemResLabel">
                             <property name="label">800x600</property>
                             <style>
                               <class name="mon-item-sub-label"/>
@@ -88,7 +209,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="MonitorResolutionLabel">
+                  <object class="GtkLabel" id="MainWindow.MonitorResolutionLabel">
                     <property name="label">1920x1080</property>
                     <layout>
                       <property name="column">1</property>
@@ -102,7 +223,147 @@
             </child>
           </object>
         </child>
+        <child>
+          <object class="GtkBox">
+            <child>
+              <object class="GtkLinkButton">
+                <property name="focus-on-click">False</property>
+                <property name="hexpand">True</property>
+                <property name="uri">https://github.com/jszczerbinsky/lwp</property>
+                <child>
+                  <object class="GtkLabel" id="MainWindow.VersionLabel">
+                    <property name="halign">start</property>
+                    <property name="justify">center</property>
+                    <property name="label">JPaper v1.x</property>
+                    <style>
+                      <class name="version-label"/>
+                    </style>
+                  </object>
+                </child>
+                <style>
+                  <class name="github-link"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
+    <style>
+      <class name="main-window"/>
+    </style>
+  </object>
+  <object class="GtkWindow" id="WallpaperWindow">
+    <property name="default-height">600</property>
+    <property name="default-width">800</property>
+    <property name="title">Wallpapers</property>
+    <signal name="close-request" handler="Window_HideOnClose"/>
+    <child>
+      <object class="GtkBox">
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="vexpand">True</property>
+                <child>
+                  <object class="GtkFlowBox" id="WallpaperWindow.WallpaperFlowBox">
+                    <property name="hexpand">True</property>
+                    <property name="max-children-per-line">6</property>
+                    <property name="min-children-per-line">3</property>
+                    <property name="valign">start</property>
+                    <signal name="selected-children-changed" handler="WallpaperWindow_OnWlpSelected"/>
+                    <child>
+                      <object class="GtkBox" id="WallpaperWindow.WallpaperItem">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkImage" id="WallpaperWindow.WallpaperItemImg">
+                            <property name="icon-name">image-x-generic</property>
+                            <property name="pixel-size">128</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="WallpaperWindow.WallpaperItemLabel">
+                            <property name="label">Wallpaper 1</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <style>
+                      <class name="wallpaper-flow-box"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="WallpaperWindow.SideBar">
+            <property name="halign">center</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="WallpaperWindow.SelectedWallpaperNameLabel">
+                <property name="label">Wallpaper name</property>
+                <style>
+                  <class name="wallpaper-name-label"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkGrid">
+                <property name="vexpand">True</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">author: </property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="column-span">1</property>
+                      <property name="row">0</property>
+                      <property name="row-span">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="WallpaperWindow.SelectedWallpaperAuthorLabel">
+                    <property name="label">some user</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkImage" id="WallpaperWindow.SelectedWallpaperImg">
+                    <property name="icon-name">image-x-generic</property>
+                    <property name="pixel-size">256</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="column-span">2</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="WallpaperWindow.SelectBtn">
+                <property name="label">select</property>
+                <style>
+                  <class name="end-button"/>
+                  <class name="button-green"/>
+                </style>
+              </object>
+            </child>
+            <style>
+              <class name="side-panel"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+    <style>
+      <class name="wallpaper-window"/>
+    </style>
   </object>
 </interface>

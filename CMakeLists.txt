@@ -39,8 +39,10 @@ endif()
 
 set(SOURCE_FILES
 	src/gui/gui.c
+	src/gui/wnd_main.c
+	src/gui/wnd_wlp.c
 	src/main.c
-	src/wlp.c
+	src/instance.c
 	src/wlpconfig.c
 	src/log.c
 	src/assets.c
@@ -83,6 +85,7 @@ pkg_check_modules (GTK4 REQUIRED gtk4)
 list(APPEND _INCLUDE_DIRS ${GTK4_INCLUDE_DIRS})
 list(APPEND _LIBS ${GTK4_LINK_LIBRARIES})
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
 
 if (TARGET_OS STREQUAL "LINUX")
   # X11 and Xrandr dependency

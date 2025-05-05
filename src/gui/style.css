@@ -1,30 +1,95 @@
-.title-label {
+/* Common */
+
+.end-button {
+	font-weight: bold;
+}
+
+.button-green {
+}
+
+.button-green:hover {
+}
+
+.button-green:active {
+}
+
+.button-red {
+}
+
+.button-red:hover {
+}
+
+.button-red:active {
+}
+
+
+/* MainWindow */
+
+.main-window .title-label {
 	font-size: 18px;
 	margin: 20px 0px;
 }
 
-.mon-listbox {
+.main-window .topbar {
+	margin-bottom: 10px;
 }
 
-.mon-item {
+.main-window .topbar-button {
+	border-radius: 0px;
+	margin: 0px 10px;
+}
+
+.main-window .topbar-button-img {
+}
+
+.main-window .topbar-button-label {
+	
+}
+
+.main-window .github-link {
+	all: unset;
+	color: inherit;
+	margin: 3px;
+}
+
+.main-window .version-label {
+	margin-left: 2px;
+}
+
+.main-window .mon-listbox {
+}
+
+.main-window .mon-item {
 	margin: 8px 6px;
 }
 
-.mon-item-icon {
+.main-window .mon-item-icon {
 	margin-right: 20px;
 }
 
-.mon-item-label-box {
+.main-window .mon-item-label-box {
 
 }
 
-.mon-item-label {
+.main-window .mon-item-label {
 	font-size: 16px;
 	min-width: 130px;
 }
 
-.mon-item-sub-label {
+.main-window .mon-item-sub-label {
 	font-size: 12px;
 	min-width: 130px;
 }
 
+/* WallpaperWindow */
+
+.wallpaper-window .side-panel {
+	border-left: 2px solid black;
+	margin: 10px;
+	padding: 20px;
+}
+
+.wallpaper-window .side-panel .wallpaper-name-label {
+	font-size: 17px;
+	font-weight: bold;
+}

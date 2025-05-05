@@ -7,7 +7,15 @@
 #include "layer.h"
 
 typedef struct {
+	char* dir_path;
+	char* name;
+	char* author;
+} WlpInfo;
+
+typedef struct {
 	LogContext logctx;
+
+	WlpInfo wlp_info;
 
 	SDL_Window*	  sdl_wnd;
 	SDL_Renderer* sdl_ren;
@@ -20,7 +28,10 @@ typedef struct {
 WlpInstance* instance_create(const LogContext* logctx);
 void		 instance_run(WlpInstance* inst);
 void		 instance_free(WlpInstance* inst);
-void		 instance_load(WlpInstance* inst, const char* dir_path);
+
+int	 instance_load(WlpInstance* inst, const char* dir_path);
+int	 wlpinfo_load(WlpInfo* info, const char* dir_path);
+void wlpinfo_free_data(WlpInfo* info);
 
 void  tex_load(WlpInstance* inst, const char* name, const char* path);
 Tex*  tex_find(WlpInstance* inst, const char* name);
