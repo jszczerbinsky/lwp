@@ -6,8 +6,6 @@
 #include "types/monitor.h"
 
 #ifdef OS_LINUX
-void	 platform_init_wnd(SDL_Window** sdl_wnd, SDL_Renderer** sdl_ren);
-Monitor* platform_scan_monitors(int* count);
 
 #define DIR_SEP "/"
 #endif
@@ -15,5 +13,8 @@ Monitor* platform_scan_monitors(int* count);
 
 #define DIR_SEP "\\"
 #endif
+
+void	 platform_init_wnd(SDL_Window** sdl_wnd, SDL_Renderer** sdl_ren);
+Monitor* platform_scan_monitors(int* count);
 
 #endif

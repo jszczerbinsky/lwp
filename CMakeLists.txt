@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-project(JPaper)
+project(jpaper)
 
 # ===========================================
 #               Detect platform
@@ -14,6 +14,8 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 else()
 	set(TARGET_OS "UNSUPPORTED")
 endif()
+
+message("Target platform: ${TARGET_OS}")
 
 # ===========================================
 #               Detect version
@@ -33,7 +35,7 @@ if(Git_FOUND)
 endif()
 if(NOT DEFINED PROGRAM_VERSION)
   set(PROGRAM_VERSION v0.0.0-unknown)
-  message(WARNING "Can't determine JPaper version")
+  message(WARNING "Can't determine jpaper version")
 endif()
 
 
@@ -56,8 +58,8 @@ set(SOURCE_FILES
 	src/layer/layer_text.c
 )
 
-configure_file(src/gui/jpaper.ui build/jpaper.ui COPYONLY)
-configure_file(src/gui/style.css build/style.css COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/src/gui/jpaper.ui ${CMAKE_SOURCE_DIR}/build/share/jpaper/build/jpaper.ui COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/src/gui/style.css ${CMAKE_SOURCE_DIR}/build/share/jpaper/style.css COPYONLY)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
@@ -85,7 +87,11 @@ pkg_check_modules (GTK4 REQUIRED gtk4)
 list(APPEND _INCLUDE_DIRS ${GTK4_INCLUDE_DIRS})
 list(APPEND _LIBS ${GTK4_LINK_LIBRARIES})
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
+endif()
+
+add_executable(jpaper ${SOURCE_FILES})
 
 if (TARGET_OS STREQUAL "LINUX")
   # X11 and Xrandr dependency
@@ -96,10 +102,12 @@ if (TARGET_OS STREQUAL "LINUX")
 
   list(APPEND _INCLUDE_DIRS ${X11_Xrandr_INCLUDE_PATH})
   list(APPEND _LIBS ${X11_Xrandr_LIB})
+elseif(TARGET_OS STREQUAL "WINDOWS")
+	# DLLs
+	add_custom_command(POST_BUILD TARGET jpaper WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND sh deploy_dlls.sh mingw64 ${CMAKE_SOURCE_DIR}/build)
 endif()
 
-add_executable(JPaper ${SOURCE_FILES})
+target_compile_definitions(jpaper PUBLIC OS_${TARGET_OS} OS_NAME="${TARGET_OS}" PROGRAM_VERSION="${PROGRAM_VERSION}")
+target_include_directories(jpaper PUBLIC ${_INCLUDE_DIRS})
+target_link_libraries(jpaper PRIVATE ${_LIBS})
 
-target_compile_definitions(JPaper PUBLIC OS_${TARGET_OS} OS_NAME="${TARGET_OS}" PROGRAM_VERSION="${PROGRAM_VERSION}")
-target_include_directories(JPaper PUBLIC ${_INCLUDE_DIRS})
-target_link_libraries(JPaper PRIVATE ${_LIBS})

@@ -10,3 +10,7 @@ src/tags
 CMakeCache.txt
 vgcore*
 *.glade~
+.ninja_deps
+.ninja_log
+build.ninja
+*.a
