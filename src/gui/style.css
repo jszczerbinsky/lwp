@@ -81,10 +81,29 @@
 	min-width: 130px;
 }
 
+.main-window .mon-settings {
+	padding-left: 30px;
+	padding-right: 30px;
+}
+
+.main-window .mon-settings .set-label {
+	margin-left: 20px;
+}
+
+.main-window .mon-settings > * {
+	margin-bottom: 5px;
+}
+
+.main-window .mon-settings > .end-button {
+	margin-top: 50px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
 /* WallpaperWindow */
 
 .wallpaper-window .side-panel {
-	border-left: 2px solid black;
+	border-left: 1px solid grey;
 	margin: 10px;
 	padding: 20px;
 }

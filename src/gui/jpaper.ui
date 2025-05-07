@@ -4,8 +4,8 @@
   <!-- interface-name jpaper.ui -->
   <requires lib="gtk" version="4.0"/>
   <object class="GtkWindow" id="MainWindow">
-    <property name="default-height">600</property>
-    <property name="default-width">800</property>
+    <property name="default-height">700</property>
+    <property name="default-width">1000</property>
     <property name="title">JPaper control panel</property>
     <signal name="close-request" handler="Window_HideOnClose"/>
     <child>
@@ -189,34 +189,145 @@
               </object>
             </child>
             <child>
-              <object class="GtkGrid">
-                <property name="column-spacing">30</property>
+              <object class="GtkBox">
                 <property name="hexpand">True</property>
-                <property name="margin-bottom">20</property>
-                <property name="margin-end">20</property>
-                <property name="margin-start">20</property>
-                <property name="margin-top">20</property>
+                <property name="orientation">vertical</property>
                 <property name="vexpand">True</property>
                 <child>
-                  <object class="GtkLabel">
-                    <property name="label">Resolution:</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="column-span">1</property>
-                      <property name="row">0</property>
-                      <property name="row-span">1</property>
-                    </layout>
+                  <object class="GtkLabel" id="MainWindow.MonitorNameLabel">
+                    <property name="label">Monitor 1</property>
+                    <style>
+                      <class name="mon-name-label"/>
+                    </style>
                   </object>
                 </child>
                 <child>
                   <object class="GtkLabel" id="MainWindow.MonitorResolutionLabel">
-                    <property name="label">1920x1080</property>
-                    <layout>
-                      <property name="column">1</property>
-                      <property name="column-span">1</property>
-                      <property name="row">0</property>
-                      <property name="row-span">1</property>
-                    </layout>
+                    <property name="css-classes">mon-res-label</property>
+                    <property name="label">800x600</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="MainWindow.SelectWallpaperBtn">
+                    <property name="halign">center</property>
+                    <property name="label">Select wallpaper</property>
+                    <property name="visible">False</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkGrid" id="MainWindow.SelectedWallpaperGrid">
+                    <property name="column-homogeneous">True</property>
+                    <property name="css-classes">mon-settings</property>
+                    <property name="vexpand">True</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">image-x-generic</property>
+                        <property name="pixel-size">256</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">4</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="css-classes">set-label</property>
+                        <property name="label">Window offset X</property>
+                        <property name="xalign">0.0</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="css-classes">set-label</property>
+                        <property name="label">Window offset Y</property>
+                        <property name="xalign">0.0</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton">
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton">
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="css-classes">set-label</property>
+                        <property name="label">Wallpaper offset X</property>
+                        <property name="xalign">0.0</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="css-classes">set-label</property>
+                        <property name="label">Wallpaper offset Y</property>
+                        <property name="xalign">0.0</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton">
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton">
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="css-classes">end-button</property>
+                        <property name="label">Disable for this monitor</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">2</property>
+                          <property name="row">3</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="css-classes">end-button</property>
+                        <property name="label">Apply</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="column-span">2</property>
+                          <property name="row">3</property>
+                        </layout>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

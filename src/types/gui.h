@@ -5,10 +5,11 @@
 
 #define GUI_MAINWND					   "MainWindow"
 #define GUI_MAINWND_MON_LSTBOX		   "MainWindow.MonitorListBox"
-#define GUI_MAINWND_MON_RES_LABEL	   "MainWindow.MonitorResolutionLabel"
 #define GUI_MAINWND_MON_ITEM		   "MainWindow.MonitorItem"
 #define GUI_MAINWND_MON_ITEM_LABEL	   "MainWindow.MonitorItemLabel"
 #define GUI_MAINWND_MON_ITEM_RES_LABEL "MainWindow.MonitorItemResLabel"
+#define GUI_MAINWND_MON_NAME_LABEL	   "MainWindow.MonitorNameLabel"
+#define GUI_MAINWND_MON_RES_LABEL	   "MainWindow.MonitorResolutionLabel"
 #define GUI_MAINWND_VERSION_LABEL	   "MainWindow.VersionLabel"
 
 #define GUI_WLPWND				  "WallpaperWindow"
@@ -27,6 +28,7 @@
 typedef struct {
 	GtkWidget* wnd;
 	GtkWidget* mon_lstbox;
+	GtkWidget* mon_name_label;
 	GtkWidget* mon_res_label;
 } MainWnd;
 

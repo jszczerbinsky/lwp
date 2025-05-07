@@ -61,6 +61,8 @@ void main_wnd_build(AppGUI* gui, GtkBuilder* builder) {
 		(GtkWidget*)gtk_builder_get_object(builder, GUI_MAINWND_MON_LSTBOX);
 	gui->main_wnd.mon_res_label =
 		(GtkWidget*)gtk_builder_get_object(builder, GUI_MAINWND_MON_RES_LABEL);
+	gui->main_wnd.mon_name_label =
+		(GtkWidget*)gtk_builder_get_object(builder, GUI_MAINWND_MON_NAME_LABEL);
 
 	GtkWidget* version_label =
 		(GtkWidget*)gtk_builder_get_object(builder, GUI_MAINWND_VERSION_LABEL);
