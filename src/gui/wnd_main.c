@@ -41,9 +41,9 @@ static void reload_monitor_listbox(AppGUI* gui) {
 	Monitor* monitors = platform_scan_monitors(&monitor_count);
 
 	for (int i = 0; i < monitor_count; i++) {
-		printlog(LOG_INFO, NULL, NULL, "Found monitor %s [%dx%d]",
-				 monitors[i].display_name, monitors[i].bounds.w,
-				 monitors[i].bounds.h);
+		printlog(LOG_INFO, NULL, NULL, "Found monitor %s (%s) [%dx%d]",
+				 monitors[i].display_name, monitors[i].name, monitors[i].raw_bounds.w,
+				 monitors[i].raw_bounds.h);
 
 		GtkWidget* item = build_monitor_listboxitem(
 			gui, monitors[i].display_name, 1920, 1080);

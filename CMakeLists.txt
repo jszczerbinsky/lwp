@@ -58,7 +58,7 @@ set(SOURCE_FILES
 	src/layer/layer_text.c
 )
 
-configure_file(${CMAKE_SOURCE_DIR}/src/gui/jpaper.ui ${CMAKE_SOURCE_DIR}/build/share/jpaper/build/jpaper.ui COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/src/gui/jpaper.ui ${CMAKE_SOURCE_DIR}/build/share/jpaper/jpaper.ui COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/src/gui/style.css ${CMAKE_SOURCE_DIR}/build/share/jpaper/style.css COPYONLY)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
@@ -105,6 +105,9 @@ if (TARGET_OS STREQUAL "LINUX")
 elseif(TARGET_OS STREQUAL "WINDOWS")
 	# DLLs
 	add_custom_command(POST_BUILD TARGET jpaper WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND sh deploy_dlls.sh mingw64 ${CMAKE_SOURCE_DIR}/build)
+	# Shcore dependency
+	list(APPEND _LIBS "-lShcore")
+	add_definitions(-D_WIN32_WINNT=0x0A00)
 endif()
 
 target_compile_definitions(jpaper PUBLIC OS_${TARGET_OS} OS_NAME="${TARGET_OS}" PROGRAM_VERSION="${PROGRAM_VERSION}")
