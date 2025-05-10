@@ -12,6 +12,10 @@ int main(int argc, char** argv) {
 
 	LIBXML_TEST_VERSION
 
+#ifdef OS_WINDOWS
+	g_setenv("GSK_RENDERER", "cairo", TRUE);
+#endif
+
 	printlog(LOG_INFO, NULL, NULL, "Initializing GUI...");
 
 	App app = {0};

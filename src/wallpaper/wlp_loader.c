@@ -60,7 +60,7 @@ int wlp_load_to_instance(WlpInstance* inst, const char* dir_path) {
 	return 1;
 }
 
-static void wlp_subscan(int* count, WlpInfo** infos, const char* dir_path) {
+void wlp_subscan(int* count, WlpInfo** infos, const char* dir_path) {
 	printlog(LOG_DEBUG, NULL, NULL, "Searching for wallpapers in %s", dir_path);
 
 	GError* error = NULL;
@@ -100,29 +100,4 @@ static void wlp_subscan(int* count, WlpInfo** infos, const char* dir_path) {
 	}
 
 	g_dir_close(dir);
-}
-
-WlpInfo* wlp_scan(int* count) {
-	*count = 0;
-	WlpInfo* infos = NULL;
-
-	char path[PATH_MAX];
-
-	const gchar* user_dir = g_get_user_config_dir();
-	sprintf(path, "%s" DIR_SEP "jpaper" DIR_SEP "wallpapers" DIR_SEP, user_dir);
-	wlp_subscan(count, &infos, path);
-
-#ifdef OS_LINUX
-	const gchar* const* sys_dirs = g_get_system_data_dirs();
-	for (int i = 0; sys_dirs[i] != NULL; i++) {
-		sprintf(path, "%s" DIR_SEP "jpaper" DIR_SEP "wallpapers" DIR_SEP,
-				sys_dirs[i]);
-		wlp_subscan(count, &infos, path);
-	}
-
-#endif
-#ifdef OS_WINDOWS
-#endif
-
-	return infos;
 }

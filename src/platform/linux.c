@@ -1,11 +1,11 @@
+#include "../platform.h"
+
 #include <SDL3/SDL.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/Xrandr.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "../types/monitor.h"
 
 void platform_init_wnd(SDL_Window** sdl_wnd, SDL_Renderer** sdl_ren) {
 	*sdl_wnd = SDL_CreateWindow("JPaper", 1920, 1080, SDL_WINDOW_OPENGL);
@@ -62,4 +62,38 @@ Monitor* platform_scan_monitors(int* count) {
 	*count = monitor_count;
 
 	return m;
+}
+
+WlpInfo* platform_scan_wlps(int* count) {
+	*count = 0;
+	WlpInfo* infos = NULL;
+
+	char path[PATH_MAX];
+
+	const gchar* user_dir = g_get_user_data_dir();
+	sprintf(path, "%s" DIR_SEP "jpaper" DIR_SEP "wallpapers" DIR_SEP, user_dir);
+	wlp_subscan(count, &infos, path);
+	
+	const gchar* const* sys_dirs = g_get_system_data_dirs();
+	for (int i = 0; sys_dirs[i] != NULL; i++) {
+		sprintf(path, "%s" DIR_SEP "jpaper" DIR_SEP "wallpapers" DIR_SEP,
+				sys_dirs[i]);
+		wlp_subscan(count, &infos, path);
+	}
+
+	return infos;
+}
+
+void platform_get_schema_path(char path[PATH_MAX], const char* file_name) {
+	const gchar* user_dir = g_get_user_data_dir();
+	sprintf(path, "%s" DIR_SEP "jpaper" DIR_SEP "schemas" DIR_SEP"%s", user_dir, file_name);
+	
+	const gchar* const* sys_dirs = g_get_system_data_dirs();
+	for (int i = 0; sys_dirs[i] != NULL; i++) {
+		sprintf(path, "%s"DIR_SEP"jpaper"DIR_SEP"schemas"DIR_SEP"%s", sys_dirs[i], file_name);
+		
+		if (g_file_test(path, G_FILE_TEST_EXISTS)) {
+			return;
+		}
+	}
 }

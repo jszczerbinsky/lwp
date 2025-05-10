@@ -244,8 +244,8 @@ static void validation_error_handler(void* data, const xmlError* err) {
 }
 
 int wlpcfg_validate(const char* config_path) {
-	char schema_path[PATH_MAX] =
-		"/home/cziken/.config/jpaper/wallpapers/testwlp/wallpaper.xsd";
+	char schema_path[PATH_MAX];
+	platform_get_schema_path(schema_path, "wallpaper.xsd");
 
 	xmlDocPtr doc = xmlReadFile(config_path, NULL, 0);
 	if (doc == NULL) {

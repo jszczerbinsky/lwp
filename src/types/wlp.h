@@ -39,7 +39,7 @@ void		 instance_free(WlpInstance* inst);
 int		 wlp_load_to_instance(WlpInstance* inst, const char* dir_path);
 int		 wlp_load_info(WlpInfo* info, const char* dir_path);
 void	 wlp_free_info_data(WlpInfo* info);
-WlpInfo* wlp_scan(int* count);
+void	 wlp_subscan(int* count, WlpInfo** infos, const char* dir_path);
 
 void  tex_load(WlpInstance* inst, const char* name, const char* path);
 Tex*  tex_find(WlpInstance* inst, const char* name);

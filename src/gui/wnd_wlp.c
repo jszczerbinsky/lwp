@@ -44,7 +44,7 @@ static void reload_wallpaper_flowbox(AppGUI* gui) {
 	}
 
 	int wlp_count;
-	wlps = wlp_scan(&wlp_count);
+	wlps = platform_scan_wlps(&wlp_count);
 
 	printlog(LOG_DEBUG, NULL, NULL, "Scanner found %d wallpapers", wlp_count);
 

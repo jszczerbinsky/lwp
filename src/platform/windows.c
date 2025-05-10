@@ -1,8 +1,9 @@
+#include "../platform.h"
+
 #include <Windows.h>
 #include <SDL3/SDL.h>
 #include <shellscalingapi.h>
-
-#include "../types/monitor.h"
+#include <glib.h>
 
 static HWND	icon_workerw;
 
@@ -162,4 +163,37 @@ Monitor* platform_scan_monitors(int* count) {
 	EnumDisplayMonitors(NULL, NULL, &monitorenumproc_get_info, (LPARAM)m);
 	
 	return m;
+}
+
+WlpInfo* platform_scan_wlps(int* count) {
+	*count = 0;
+	WlpInfo* infos = NULL;
+
+	char path[PATH_MAX];
+
+	const gchar* user_dir = g_get_user_config_dir();
+	sprintf(path, "%s" DIR_SEP "JPaper" DIR_SEP "wallpapers" DIR_SEP, user_dir);
+	wlp_subscan(count, &infos, path);
+	
+	char sys_dir[MAX_PATH];
+	win_get_program_files_path(sys_dir);
+	sprintf(path, "%s" DIR_SEP "wallpapers" DIR_SEP, sys_dir);
+	wlp_subscan(count, &infos, path);
+
+	return infos;
+}
+
+void win_get_program_files_path(char path[MAX_PATH]) {
+	GetModuleFileNameA(NULL, path, MAX_PATH);
+	for(int i = strlen(path); i >= 0; i--){
+		if(path[i] == '\\'){
+			path[i] = '\0';
+			break;
+		}
+	}
+}
+
+void platform_get_schema_path(char path[PATH_MAX], const char* file_name) {
+	win_get_program_files_path(path);
+	sprintf(path, "%s"DIR_SEP"schemas"DIR_SEP"%s", path, file_name);
 }

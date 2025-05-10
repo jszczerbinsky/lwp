@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="wallpaper">
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="info">
+					<xs:complexType>
+						<xs:all>
+							<xs:element name="name" type="xs:string" />	
+							<xs:element name="author" type="xs:string" />	
+						</xs:all>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="assets">
+					<xs:complexType>
+						<xs:choice maxOccurs="unbounded" minOccurs="0">
+							<xs:element name="texture">
+								<xs:complexType>
+									<xs:attribute name="name" type="xs:string" />
+									<xs:attribute name="filename" type="xs:string" />
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="font">
+								<xs:complexType>
+									<xs:attribute name="name" type="xs:string" />
+									<xs:attribute name="filename" type="xs:string" />
+									<xs:attribute name="size" type="xs:int" />
+								</xs:complexType>
+							</xs:element>
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="layers">
+					<xs:complexType>
+						<xs:sequence maxOccurs="unbounded" minOccurs="0">
+							<xs:element name="layer">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="content">
+											<xs:complexType>
+												<xs:choice>
+													<xs:element name="textContent">
+														<xs:complexType>
+															<xs:attribute name="font" type="xs:string" />
+															<xs:attribute name="text" type="xs:string" />
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="imageContent">
+														<xs:complexType>
+															<xs:attribute name="texture" type="xs:string" />
+														</xs:complexType>
+													</xs:element>
+												</xs:choice>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="behaviours">
+											<xs:complexType>
+												<xs:choice minOccurs="0" maxOccurs="unbounded">
+													<xs:element name="BgFill">
+														<xs:complexType>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="BgFit">
+														<xs:complexType>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="BgStretch">
+														<xs:complexType>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="Shake">
+														<xs:complexType>
+															<xs:attribute name="iarg" type="xs:int" />
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="FollowMouse">
+														<xs:complexType>
+															<xs:attribute name="farg" type="xs:float" />
+														</xs:complexType>
+													</xs:element>
+												</xs:choice>
+											</xs:complexType>
+										</xs:element>
+									</xs:all>
+									<xs:attribute name="name" type="xs:string" />
+									<xs:attribute name="posx" type="xs:float" />
+									<xs:attribute name="posy" type="xs:float" />
+									<xs:attribute name="scalex" type="xs:float" />
+									<xs:attribute name="scaley" type="xs:float" />
+									<xs:attribute name="anchor" type="xs:string" />
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

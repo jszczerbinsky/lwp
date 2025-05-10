@@ -60,8 +60,15 @@ set(SOURCE_FILES
 	src/wallpaper/layer/layer_text.c
 )
 
-configure_file(${CMAKE_SOURCE_DIR}/src/gui/jpaper.ui ${CMAKE_SOURCE_DIR}/build/share/jpaper/jpaper.ui COPYONLY)
-configure_file(${CMAKE_SOURCE_DIR}/src/gui/style.css ${CMAKE_SOURCE_DIR}/build/share/jpaper/style.css COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/schemas/wallpaper.xsd ${CMAKE_SOURCE_DIR}/build/schemas/wallpaper.xsd COPYONLY)
+
+if(TARGET_OS STREQUAL "LINUX")
+	configure_file(${CMAKE_SOURCE_DIR}/src/gui/jpaper.ui ${CMAKE_SOURCE_DIR}/build/share/jpaper/jpaper.ui COPYONLY)
+	configure_file(${CMAKE_SOURCE_DIR}/src/gui/style.css ${CMAKE_SOURCE_DIR}/build/share/jpaper/style.css COPYONLY)
+elseif(TARGET_OS STREQUAL "WINDOWS")
+	configure_file(${CMAKE_SOURCE_DIR}/src/gui/jpaper.ui ${CMAKE_SOURCE_DIR}/build/jpaper.ui COPYONLY)
+	configure_file(${CMAKE_SOURCE_DIR}/src/gui/style.css ${CMAKE_SOURCE_DIR}/build/style.css COPYONLY)
+endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
