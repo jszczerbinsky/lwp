@@ -2,6 +2,7 @@
 #define INSTANCE_H
 
 #include <SDL3/SDL.h>
+#include <libxml/xmlreader.h>
 
 #include "assets.h"
 #include "layer.h"
@@ -25,13 +26,20 @@ typedef struct {
 	Layer* layers;
 } WlpInstance;
 
+void wlpcfg_parse_wallpaper(WlpInstance* inst, const char* dir_path,
+							xmlNodePtr wallpaper_node);
+void wlpcfg_parse_info(WlpInfo* info, xmlNodePtr info_node,
+					   const char* dir_path);
+int	 wlpcfg_validate(const char* config_path);
+
 WlpInstance* instance_create(const LogContext* logctx);
 void		 instance_run(WlpInstance* inst);
 void		 instance_free(WlpInstance* inst);
 
-int	 instance_load(WlpInstance* inst, const char* dir_path);
-int	 wlpinfo_load(WlpInfo* info, const char* dir_path);
-void wlpinfo_free_data(WlpInfo* info);
+int		 wlp_load_to_instance(WlpInstance* inst, const char* dir_path);
+int		 wlp_load_info(WlpInfo* info, const char* dir_path);
+void	 wlp_free_info_data(WlpInfo* info);
+WlpInfo* wlp_scan(int* count);
 
 void  tex_load(WlpInstance* inst, const char* name, const char* path);
 Tex*  tex_find(WlpInstance* inst, const char* name);

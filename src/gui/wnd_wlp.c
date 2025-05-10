@@ -39,26 +39,26 @@ static void reload_wallpaper_flowbox(AppGUI* gui) {
 
 	WlpInfo* wlps = g_object_get_data(G_OBJECT(gui->wlp_wnd.wnd), "wallpapers");
 	if (wlps) {
-		wlpinfo_free_data(wlps);
+		wlp_free_info_data(wlps);
 		free(wlps);
 	}
 
-	// TODO get all wallpapers' info
-	int wlp_count = 1;
-	wlps = malloc(1 * sizeof(WlpInfo));
+	int wlp_count;
+	wlps = wlp_scan(&wlp_count);
+
+	printlog(LOG_DEBUG, NULL, NULL, "Scanner found %d wallpapers", wlp_count);
 
 	g_object_set_data(G_OBJECT(gui->wlp_wnd.wnd), "wallpapers", wlps);
+
 	g_object_set_data(G_OBJECT(gui->wlp_wnd.wnd), "wallpapers_count",
 					  GINT_TO_POINTER(wlp_count));
-
-	wlpinfo_load(wlps, "/home/cziken/.config/lwp/testwlp/");
 
 	for (int i = 0; i < wlp_count; i++) {
 		printlog(LOG_INFO, NULL, NULL, "Found wallpaper %s by %s", wlps[i].name,
 				 wlps[i].author);
 
-		GtkWidget* item = build_wallpaper_item(gui, wlps);
-		gtk_flow_box_insert(GTK_FLOW_BOX(gui->wlp_wnd.wlp_flowbox), item, 0);
+		GtkWidget* item = build_wallpaper_item(gui, wlps + i);
+		gtk_flow_box_insert(GTK_FLOW_BOX(gui->wlp_wnd.wlp_flowbox), item, i);
 	}
 }
 
@@ -74,9 +74,9 @@ static void reload_side_panel(AppGUI* gui) {
 
 		int item_index = gtk_flow_box_child_get_index(item);
 
-		WlpInfo* selected_wlp =
-			g_object_get_data(G_OBJECT(gui->wlp_wnd.wnd), "wallpapers") +
-			item_index;
+		WlpInfo* wlps =
+			g_object_get_data(G_OBJECT(gui->wlp_wnd.wnd), "wallpapers");
+		WlpInfo* selected_wlp = wlps + item_index;
 
 		gtk_label_set_text(GTK_LABEL(gui->wlp_wnd.selwlp_name_label),
 						   selected_wlp->name);

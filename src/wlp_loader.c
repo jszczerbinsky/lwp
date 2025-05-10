@@ -2,7 +2,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#include "libxml/parser.h"
 #include "platform.h"
 #include "types/log.h"
 #include "types/wlp.h"
@@ -243,6 +242,8 @@ static void parse_wallpaper(WlpInstance* inst, const char* dir_path,
 		child = child->next;
 	}
 }
+
+int wlpinfo_load_all(WlpInfo* infos) {}
 
 int wlpinfo_load(WlpInfo* info, const char* dir_path) {
 	char config_path[PATH_MAX] =

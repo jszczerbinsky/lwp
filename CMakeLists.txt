@@ -40,22 +40,24 @@ endif()
 
 
 set(SOURCE_FILES
-	src/gui/gui.c
-	src/gui/wnd_main.c
-	src/gui/wnd_wlp.c
 	src/main.c
-	src/instance.c
-	src/wlpconfig.c
 	src/log.c
 	src/assets.c
 	src/utils.c
-	src/layer/anchor.c
-	src/layer/behaviour.c
-	src/layer/layer.c
-	src/layer/layer_anim.c
-	src/layer/layer_col.c
-	src/layer/layer_img.c
-	src/layer/layer_text.c
+	src/gui/gui.c
+	src/gui/wnd_main.c
+	src/gui/wnd_wlp.c
+	src/wallpaper/
+	src/wallpaper/wlp_loader.c
+	src/wallpaper/wlp_instance.c
+	src/wallpaper/wlp_config.c
+	src/wallpaper/layer/anchor.c
+	src/wallpaper/layer/behaviour.c
+	src/wallpaper/layer/layer.c
+	src/wallpaper/layer/layer_anim.c
+	src/wallpaper/layer/layer_col.c
+	src/wallpaper/layer/layer_img.c
+	src/wallpaper/layer/layer_text.c
 )
 
 configure_file(${CMAKE_SOURCE_DIR}/src/gui/jpaper.ui ${CMAKE_SOURCE_DIR}/build/share/jpaper/jpaper.ui COPYONLY)

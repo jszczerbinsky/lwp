@@ -46,10 +46,13 @@ Monitor* platform_scan_monitors(int* count) {
 				 XGetAtomName(display, info->name));
 		strcpy(m[i].display_name, m[i].name);
 
-		m[i].bounds.x = info->x;
-		m[i].bounds.y = info->y;
-		m[i].bounds.w = info->width;
-		m[i].bounds.h = info->height;
+		m[i].raw_bounds.x = info->x;
+		m[i].raw_bounds.y = info->y;
+		m[i].raw_bounds.w = info->width;
+		m[i].raw_bounds.h = info->height;
+
+		memcpy(&m[i].virt_bounds, &m[i].raw_bounds, sizeof(Bounds));
+		memcpy(&m[i].client_bounds, &m[i].raw_bounds, sizeof(Bounds));
 
 		info++;
 		i++;

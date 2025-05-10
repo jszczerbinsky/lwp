@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "platform.h"
-#include "types/wlp.h"
+#include "../platform.h"
+#include "../types/wlp.h"
 
 #define LOOP_CONTINUE 0
 #define LOOP_STOP	  1

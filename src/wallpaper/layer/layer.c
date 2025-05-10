@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
-#include "../types/layer.h"
-#include "../types/wlp.h"
+#include "../../types/layer.h"
+#include "../../types/wlp.h"
 
 void layer_freecontent(Layer* layer) {
 	switch (layer->contenttype) {

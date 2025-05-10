@@ -1,4 +1,4 @@
-#include "../types/layer.h"
+#include "../../types/layer.h"
 
 typedef struct {
 	const char* name;
