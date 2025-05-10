@@ -4,6 +4,7 @@
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/Xrandr.h>
+#include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -73,7 +74,7 @@ WlpInfo* platform_scan_wlps(int* count) {
 	const gchar* user_dir = g_get_user_data_dir();
 	sprintf(path, "%s" DIR_SEP "jpaper" DIR_SEP "wallpapers" DIR_SEP, user_dir);
 	wlp_subscan(count, &infos, path);
-	
+
 	const gchar* const* sys_dirs = g_get_system_data_dirs();
 	for (int i = 0; sys_dirs[i] != NULL; i++) {
 		sprintf(path, "%s" DIR_SEP "jpaper" DIR_SEP "wallpapers" DIR_SEP,
@@ -86,12 +87,17 @@ WlpInfo* platform_scan_wlps(int* count) {
 
 void platform_get_schema_path(char path[PATH_MAX], const char* file_name) {
 	const gchar* user_dir = g_get_user_data_dir();
-	sprintf(path, "%s" DIR_SEP "jpaper" DIR_SEP "schemas" DIR_SEP"%s", user_dir, file_name);
-	
+	sprintf(path, "%s" DIR_SEP "jpaper" DIR_SEP "schemas" DIR_SEP "%s",
+			user_dir, file_name);
+	if (g_file_test(path, G_FILE_TEST_EXISTS)) {
+		return;
+	}
+
 	const gchar* const* sys_dirs = g_get_system_data_dirs();
 	for (int i = 0; sys_dirs[i] != NULL; i++) {
-		sprintf(path, "%s"DIR_SEP"jpaper"DIR_SEP"schemas"DIR_SEP"%s", sys_dirs[i], file_name);
-		
+		sprintf(path, "%s" DIR_SEP "jpaper" DIR_SEP "schemas" DIR_SEP "%s",
+				sys_dirs[i], file_name);
+
 		if (g_file_test(path, G_FILE_TEST_EXISTS)) {
 			return;
 		}

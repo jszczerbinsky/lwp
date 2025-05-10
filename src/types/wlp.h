@@ -6,12 +6,7 @@
 
 #include "assets.h"
 #include "layer.h"
-
-typedef struct {
-	char* dir_path;
-	char* name;
-	char* author;
-} WlpInfo;
+#include "wlpinfo.h"
 
 typedef struct {
 	LogContext logctx;
@@ -36,10 +31,7 @@ WlpInstance* instance_create(const LogContext* logctx);
 void		 instance_run(WlpInstance* inst);
 void		 instance_free(WlpInstance* inst);
 
-int		 wlp_load_to_instance(WlpInstance* inst, const char* dir_path);
-int		 wlp_load_info(WlpInfo* info, const char* dir_path);
-void	 wlp_free_info_data(WlpInfo* info);
-void	 wlp_subscan(int* count, WlpInfo** infos, const char* dir_path);
+int wlp_load_to_instance(WlpInstance* inst, const char* dir_path);
 
 void  tex_load(WlpInstance* inst, const char* name, const char* path);
 Tex*  tex_find(WlpInstance* inst, const char* name);
